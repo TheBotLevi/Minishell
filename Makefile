@@ -10,7 +10,7 @@ PATH_LIBFT = libft
 
 LIBFT = ${PATH_LIBFT}/libft.a
 
-SRCS = src/main.c src/utils1.c
+SRCS = src/mini_main.c src/mini_utils.c src/mini_pipes.c src/mini_handle_built_in.c src/mini_execute.c src/mini_environment.c src/mini_built_in.c
 OBJS = ${SRCS:${SRC_DIR}/%.c=${OBJ_DIR}/%.o}
 
 MINISHELL = minishell

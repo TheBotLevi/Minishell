@@ -1,0 +1,37 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   mini_handle_built_in.c                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/06/02 10:44:14 by ljeribha          #+#    #+#             */
+/*   Updated: 2025/06/02 13:39:34 by ljeribha         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../inc/minishell.h"
+
+int	is_builtin(char *cmd)
+{
+	if (!cmd)
+		return (0);
+	if (ft_strcmp(cmd, "echo") == 0 || 
+	ft_strcmp(cmd, "cd") == 0 || 
+	ft_strcmp(cmd, "pwd") == 0 || 
+	ft_strcmp(cmd, "export") == 0 || 
+	ft_strcmp(cmd, "unset") == 0 || 
+	ft_strcmp(cmd, "env") == 0 || 
+	ft_strcmp(cmd, "exit") == 0)
+		return (1);
+	return (0);
+}
+
+int	handle_builtin(char **cmd, t_env *env)
+{
+	if (!cmd || !cmd[0])
+		return (1);
+	if (ft_strcmp(cmd[0], "echo") == 0)
+		return (mini_echo(cmd));
+	return (127);
+}

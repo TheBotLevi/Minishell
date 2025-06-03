@@ -1,48 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   mini_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/05/20 08:32:50 by ljeribha         ###   ########.fr       */
+/*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
+/*   Updated: 2025/06/02 10:49:55 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-void	ft_mini_loop()
+int	ft_strcmp(char *s1, char *s2)
 {
-	char	*line;
-	size_t	len;
-
-	len = 0;
-	line = NULL;
-	while (1)
+	while (*s1 && *s2 && *s1 == *s2)
 	{
-		if ((line = readline("Minishell > ")) == NULL)
-			break ;
-		if (line && *line)
-			add_history(line);
-		if (strcmp(line, "exit") == 0)
-		{
-			free(line);
-			break ;
-		}
-		else if (strcmp(line, "pwd") == 0)
-		{
-			cmd_pwd();
-		}
-		free(line);
+		s1++;
+		s2++;
 	}
+	return (*s1 - *s2);
 }
 
-int	main()
+void	surpress_rl_leaks(void)
 {
-	surpress_rl_leaks();
-	ft_mini_loop();
-	clear_history();
 	rl_clear_history();
-	return (0);
+	rl_readline_name = "Minishell";
+}
+
+void	cmd_pwd(void)
+{
+	char	buffer[BUFFER_SIZE];
+
+	if (getcwd(buffer, BUFFER_SIZE) == NULL)
+	{
+		printf("Error: cannot get current working directory path!\n");
+		return ;
+	}
+	printf("%s\n", buffer);
 }
