@@ -1,46 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mini_main.c                                        :+:      :+:    :+:   */
+/*   mini_built_in2.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/03 08:22:31 by ljeribha         ###   ########.fr       */
+/*   Created: 2025/06/03 10:08:25 by ljeribha          #+#    #+#             */
+/*   Updated: 2025/06/03 10:09:20 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-void	ft_mini_loop()
+int	mini_cd(char **cmds, t_env **env)
 {
-	char	*line;
-	size_t	len;
+	char	*path;
+	char	current_dir[BUFFER_SIZE];
+	char	*old_path;
 
-	len = 0;
-	line = NULL;
-	while (1)
-	{
-		if ((line = readline("Minishell > ")) == NULL)
-			break ;
-		if (line && *line)
-			add_history(line);
-		if (ft_strcmp(line, "exit") == 0)
-		{
-			free(line);
-			break ;
-		}
-		else if (ft_strcmp(line, "pwd") == 0)
-			cmd_pwd();
-		free(line);
-	}
-}
-
-int	main()
-{
-	surpress_rl_leaks();
-	ft_mini_loop();
-	clear_history();
-	rl_clear_history();
-	return (0);
+	if (getcwd(current_dir, BUFFER_SIZE) == NULL)
+		return (1);
 }

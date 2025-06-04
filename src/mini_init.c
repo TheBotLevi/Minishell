@@ -1,46 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mini_main.c                                        :+:      :+:    :+:   */
+/*   mini_init.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/03 08:22:31 by ljeribha         ###   ########.fr       */
+/*   Created: 2025/06/04 15:34:15 by ljeribha          #+#    #+#             */
+/*   Updated: 2025/06/04 16:53:21 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-void	ft_mini_loop()
+t_env	*init_environment(char **env)
 {
-	char	*line;
-	size_t	len;
+	t_env	*env_list;
+	char	cwd[BUFFER_SIZE];
+	char	*pwd;
 
-	len = 0;
-	line = NULL;
-	while (1)
+	env_list = create_env_list(env);
+	if (!env_list)
+		return (NULL);
+	update_env(&env_list, "SHELL=minishell");
+	if (getcwd(cwd, BUFFER_SIZE))
 	{
-		if ((line = readline("Minishell > ")) == NULL)
-			break ;
-		if (line && *line)
-			add_history(line);
-		if (ft_strcmp(line, "exit") == 0)
-		{
-			free(line);
-			break ;
-		}
-		else if (ft_strcmp(line, "pwd") == 0)
-			cmd_pwd();
-		free(line);
+		ft_split("PWD=", cwd);
+		update_env(&env_list, pwd);
+		free(pwd);
 	}
-}
-
-int	main()
-{
-	surpress_rl_leaks();
-	ft_mini_loop();
-	clear_history();
-	rl_clear_history();
-	return (0);
+	update_env(&env_list, "?=0");
+	return (env_list);
 }

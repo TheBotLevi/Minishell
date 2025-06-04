@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/02 13:40:54 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/04 15:42:13 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,9 @@ void	ft_mini_loop();
 //utils
 int	ft_strcmp(char *s1, char *s2);
 void	surpress_rl_leaks(void);
-void	cmd_pwd(void);
+char	*get_env_value(t_env *env, char *key);
+char	**parse_input(char *line);
+//void	cmd_pwd(void);
 
 //built_in's
 int	mini_echo(char **args);
@@ -46,5 +48,12 @@ int	mini_echo(char **args);
 //handling built_in's
 int	is_builtin(char *cmd);
 int	handle_builtin(char **cmd, t_env *env);
+
+//remove env
+int	remove_env_head(t_env **env, char *key);
+int	remove_env_var(t_env **env, char *key);
+
+//add or update env to list
+int	update_env(t_env **env, char *var_str);
 
 #endif

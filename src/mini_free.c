@@ -1,46 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mini_main.c                                        :+:      :+:    :+:   */
+/*   mini_free.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/03 08:22:31 by ljeribha         ###   ########.fr       */
+/*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
+/*   Updated: 2025/06/03 18:47:22 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-void	ft_mini_loop()
+void	free_args(char **args)
 {
-	char	*line;
-	size_t	len;
+	int	i;
 
-	len = 0;
-	line = NULL;
-	while (1)
+	i = 0;
+	if (!args)
+		return ;
+	while (args[i])
 	{
-		if ((line = readline("Minishell > ")) == NULL)
-			break ;
-		if (line && *line)
-			add_history(line);
-		if (ft_strcmp(line, "exit") == 0)
-		{
-			free(line);
-			break ;
-		}
-		else if (ft_strcmp(line, "pwd") == 0)
-			cmd_pwd();
-		free(line);
+		free(args[i]);
+		i++;
 	}
-}
-
-int	main()
-{
-	surpress_rl_leaks();
-	ft_mini_loop();
-	clear_history();
-	rl_clear_history();
-	return (0);
+	free(args);
 }
