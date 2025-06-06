@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/04 14:56:54 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/06 16:10:25 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,29 @@ char	*get_env_value(t_env *env, char *key)
 char	**parse_input(char *line)
 {
 	return (ft_split(line, ' '));
+}
+
+void	sort_env_vars(t_env **sorted_env, int count)
+{
+	int	i;
+	int	j;
+	t_env	*temp;
+
+	i = 0;
+	j = 0;
+	temp = NULL;
+	while (i < count - 1)
+	{
+		while (j < count - i - 1)
+		{
+			if (ft_strcmp(sorted_env[j]->key, sorted_env[j + 1]->key))
+			{
+				temp = sorted_env[j];
+				sorted_env[j] = sorted_env[j + 1];
+				sorted_env[i + 1] = temp;
+			}
+			j++;
+		}
+		i++;
+	}
 }
