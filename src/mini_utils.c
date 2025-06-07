@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/06 16:10:25 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 16:20:33 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,5 +84,35 @@ void	sort_env_vars(t_env **sorted_env, int count)
 			j++;
 		}
 		i++;
+	}
+}
+
+int	is_valid_export(char *str)
+{
+	int	i;
+
+	if (!str || !*str)
+		return (0);
+	if (str[0] != '_' && !ft_isalpha(str[0]))
+		return (0);
+	i = 1;
+	while (str[i] && str[i] != '=')
+	{
+		if (str[i] != '_' && !ft_isalnum(str[i]))
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+void	update_exit_status(t_env **env, int status)
+{
+	char	*exit_str;
+
+	exit_str = ft_itoa(status);
+	if (exit_str)
+	{
+		update_env_value(env, "?", exit_str);
+		free(exit_str);
 	}
 }

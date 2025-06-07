@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:05:09 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/04 15:33:55 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 15:40:43 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ static char	**get_paths_from_list(t_env *env_list)
 	return (NULL);
 }
 
-static char	**env_list_to_array(t_env *env_list)
+char	**env_list_to_array(t_env *env_list)
 {
 	int	count;
 	int	i;

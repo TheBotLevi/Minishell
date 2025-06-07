@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/06 11:23:02 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 15:09:29 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,12 @@ static void	handle_invalid_args(char **args)
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 }
 
-int	mini_exit(int ac, char **args)
+int	mini_exit(char **args)
 {
 	int	exit_code;
+	int	ac;
 
+	ac = 0;
 	ft_putendl_fd("exit", STDOUT_FILENO);
 	if (!args[1])
 		exit_code = 1;

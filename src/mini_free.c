@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/03 18:47:22 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 16:00:04 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,4 +25,18 @@ void	free_args(char **args)
 		i++;
 	}
 	free(args);
+}
+
+void	free_env_list(t_env *env)
+{
+	t_env	*temp;
+
+	while (env)
+	{
+		temp = env;
+		env = env->next;
+		free(temp->key);
+		free(temp->value);
+		free(temp);
+	}
 }

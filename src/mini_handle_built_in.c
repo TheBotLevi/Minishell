@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 10:44:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/02 13:39:34 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 15:15:30 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,23 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int	handle_builtin(char **cmd, t_env *env)
+int	handle_builtin(char **cmd, t_env **env)
 {
 	if (!cmd || !cmd[0])
 		return (1);
 	if (ft_strcmp(cmd[0], "echo") == 0)
 		return (mini_echo(cmd));
+	else if (ft_strcmp(cmd[0], "cd") == 0)
+		return (mini_cd(cmd, env));
+	else if (ft_strcmp(cmd[0], "pwd") == 0)
+		return (mini_pwd());
+	else if (ft_strcmp(cmd[0], "export") == 0)
+		return (mini_export(cmd, env));
+	else if (ft_strcmp(cmd[0], "unset")== 0)
+		return (mini_unset(cmd, env));
+	else if (ft_strcmp(cmd[0], "env") == 0)
+		return (mini_env(env));
+	else if (ft_strcmp(cmd[0], "exit") == 0)
+		return (mini_exit(cmd));
 	return (127);
 }

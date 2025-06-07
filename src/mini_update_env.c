@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:00:11 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/03 11:10:42 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 16:44:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,15 @@ int	update_env(t_env **env, char *var_str)
 	if (update_existing_var(*env, key, value))
 		return (0);
 	return (add_new_env_var(env, key, value));
+}
+
+int	update_env_value(t_env **env, char *key, char *value)
+{
+	t_env	*current;
+	char	*key_cpy;
+	char	*value_cpy;
+
+	if (!env || !key)
+		return (1);
+	
 }

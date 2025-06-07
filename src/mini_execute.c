@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/02 09:22:32 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/07 16:01:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,37 @@ void	execute_cmd(char *cmd_str, t_env *env_list)
 	free_array(env_array);
 	perror("Error: execve");
 	exit (1);
+}
+
+int	execute_external_cmd(char **args, t_env *env)
+{
+	pid_t	pid;
+	int	status;
+	t_env	**envp;
+
+	envp = env_list_to_array(env);
+	pid = fork();
+	if (pid == 0)
+	{
+		if (execvp(args[0], args) == -1)
+		{
+			ft_putstr_fd("minishell: ", STDERR_FILENO);
+			ft_putstr_fd(args[0], STDERR_FILENO);
+			ft_putendl_fd(": command not found", STDERR_FILENO);
+			exit(127);
+		}
+	}
+	else if (pid < 0)
+	{
+		ft_putendl_fd("minishell: Fork failed", STDERR_FILENO);
+		status = 1;
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
+	}
+	free_args(envp);
+	return (status);
 }
