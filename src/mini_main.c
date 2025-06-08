@@ -6,40 +6,52 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/03 08:22:31 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/08 20:35:21 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
 
-void	ft_mini_loop()
+void	ft_mini_loop(t_env *env_list)
 {
 	char	*line;
-	size_t	len;
+	int	status;
 
-	len = 0;
 	line = NULL;
+	status = 0;
+	setup_signals();
 	while (1)
 	{
 		if ((line = readline("Minishell > ")) == NULL)
 			break ;
 		if (line && *line)
 			add_history(line);
+		status = process_command(line, &env_list);
+		update_exit_status(&env_list, status);
 		if (ft_strcmp(line, "exit") == 0)
 		{
 			free(line);
 			break ;
 		}
-		else if (ft_strcmp(line, "pwd") == 0)
-			cmd_pwd();
 		free(line);
 	}
 }
 
-int	main()
+int	main(int ac, char **av, char **envp)
 {
+	t_env	*env_list;
+
+	(void)ac;
+	(void)av;
+	env_list = init_environment(envp);
+	if (!env_list)
+	{
+		ft_putendl_fd("Error initializing environment", STDERR_FILENO);
+		return (1);
+	}
 	surpress_rl_leaks();
-	ft_mini_loop();
+	ft_mini_loop(env_list);
+	free_env_list(env_list);
 	clear_history();
 	rl_clear_history();
 	return (0);

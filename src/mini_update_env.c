@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:00:11 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/07 16:44:03 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/08 19:42:44 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,5 +86,26 @@ int	update_env_value(t_env **env, char *key, char *value)
 
 	if (!env || !key)
 		return (1);
-	
+	key_cpy = ft_strdup(key);
+	if (!key_cpy)
+		return (1);
+	value_cpy = ft_strdup(value);
+	if (!value_cpy)
+	{
+		free(key_cpy);
+		return (1);
+	}
+	current = *env;
+	while (current)
+	{
+		if (ft_strcmp(current->key, key) == 0)
+		{
+			free(current->value);
+			current->value = value_cpy;
+			free(key_cpy);
+			return (0);
+		}
+		current = current->next;
+	}
+	return (add_new_env_var(env, key_cpy, value_cpy));
 }

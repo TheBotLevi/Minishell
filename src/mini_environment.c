@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:05:09 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/07 15:40:43 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/08 20:48:50 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ t_env	*create_env_list(char **env)
 	return (env_list);
 }
 
-static char	*find_exec(char *cmd_name, char **paths)
+/*static char	*find_exec(char *cmd_name, char **paths)
 {
 	int	i;
 	char	*tmp;
@@ -65,9 +65,9 @@ static char	*find_exec(char *cmd_name, char **paths)
 		i++;
 	}
 	return (NULL);
-}
+}*/
 
-static char	**get_paths_from_list(t_env *env_list)
+char	**get_paths_from_list(t_env *env_list)
 {
 	t_env	*current;
 
