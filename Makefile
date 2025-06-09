@@ -22,7 +22,6 @@ SRCS = src/mini_main.c \
        src/mini_free.c \
        src/mini_handling_signals.c \
        src/mini_init.c \
-       src/mini_path.c \
        src/built_ins/mini_cd.c \
        src/built_ins/mini_echo.c \
        src/built_ins/mini_env.c \
@@ -33,15 +32,17 @@ SRCS = src/mini_main.c \
 
 MINISHELL = minishell
 
-all: ${OBJ_DIR} ${LIBFT} ${MINISHELL}
+OBJ_DIRS = ${OBJ_DIR} ${OBJ_DIR}/built_ins
 
-${OBJ_DIR}:
-	mkdir -p ${OBJ_DIR}
+all: ${OBJ_DIRS} ${LIBFT} ${MINISHELL}
+
+${OBJ_DIRS}:
+	mkdir -p ${OBJ_DIRS}
 
 ${MINISHELL}: ${OBJS} ${LIBFT}
 	${CC} -g ${CFLAGS} -o $@ $^ -lreadline -lhistory
 
-${OBJ_DIR}/%.o: ${SRC_DIR}/%.c ${INCLUDES}
+${OBJ_DIR}/%.o: ${SRC_DIR}/%.c ${INCLUDES} | ${OBJ_DIRS}
 	${CC} -g ${CFLAGS} -c $< -o $@
 
 ${LIBFT}:

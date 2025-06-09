@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:27:49 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/07 15:15:57 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/09 16:39:12 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static void	print_exported_var(t_env *env)
 {
-	ft_putstr_fd("export", STDOUT_FILENO);
+	ft_putstr_fd("export ", STDOUT_FILENO);
 	ft_putstr_fd(env->key, STDOUT_FILENO);
 	if (env->value)
 	{
@@ -54,16 +54,16 @@ static void	display_exported_vars(t_env *env)
 
 	count = 0;
 	temp = env;
-	while (env)
+	while (temp)
 	{
 		count++;
-		env = env->next;
+		temp = temp->next;
 	}
 	if (count == 0)
 		return ;
 	sorted_env = malloc(sizeof(t_env *) * count);
 	if (!sorted_env)
-		return (NULL);
+		return ;
 	fill_sorted_env(env, sorted_env, count);
 	free (sorted_env);
 }
@@ -94,7 +94,7 @@ int	mini_export(char **args, t_env **env)
 	i = 1;
 	while (args[i])
 	{
-		if (handle_export_arg(args[i], *env))
+		if (handle_export_arg(args[i], env))
 			status = 1;
 		i++;
 	}
