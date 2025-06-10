@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/07 16:20:33 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/10 14:27:46 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,17 +69,17 @@ void	sort_env_vars(t_env **sorted_env, int count)
 	t_env	*temp;
 
 	i = 0;
-	j = 0;
 	temp = NULL;
 	while (i < count - 1)
 	{
+		j = 0;
 		while (j < count - i - 1)
 		{
-			if (ft_strcmp(sorted_env[j]->key, sorted_env[j + 1]->key))
+			if (ft_strcmp(sorted_env[j]->key, sorted_env[j + 1]->key) > 0)
 			{
 				temp = sorted_env[j];
 				sorted_env[j] = sorted_env[j + 1];
-				sorted_env[i + 1] = temp;
+				sorted_env[j + 1] = temp;
 			}
 			j++;
 		}

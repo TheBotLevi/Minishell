@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/08 20:35:21 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/10 08:04:42 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	ft_mini_loop(t_env *env_list)
 	setup_signals();
 	while (1)
 	{
-		if ((line = readline("Minishell > ")) == NULL)
+		if ((line = readline("MINISHELL > ")) == NULL)
 			break ;
 		if (line && *line)
 			add_history(line);

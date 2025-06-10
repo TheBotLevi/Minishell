@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/08 20:46:22 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/10 08:00:25 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,7 @@ char	*find_exec(char *cmd, char **paths)
 	char	*full_path;
 	int	i;
 
+	path = NULL;
 	if (ft_strchr(cmd, '/'))
 	{
 		if (can_execute(cmd))
