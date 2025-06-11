@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/08 20:52:26 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/11 11:33:52 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ char				**parse_input(char *line);
 void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
 void	update_exit_status(t_env **env, int status);
+int	add_new_env_var(t_env **env, char *key, char *value);
 // void	cmd_pwd(void);
 
 // built_in's

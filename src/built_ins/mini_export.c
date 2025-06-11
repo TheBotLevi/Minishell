@@ -6,11 +6,29 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:27:49 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/10 14:56:23 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/11 11:34:54 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
+
+static int	handle_no_value_var(char *arg, t_env **env)
+{
+	char	*key;
+	t_env	*current;
+
+	current = *env;
+	while (current)
+	{
+		if (ft_strcmp(current->key, arg) == 0)
+			return (0);
+		current = current->next;
+	}
+	key = ft_strdup(arg);
+	if (!key)
+		return (1);
+	return (add_new_env_var(env, key, NULL));
+}
 
 static void	print_exported_var(t_env *env)
 {
@@ -70,6 +88,8 @@ static void	display_exported_vars(t_env *env)
 
 static int	handle_export_arg(char *arg, t_env **env)
 {
+	char	*equals_pos;
+
 	if (!is_valid_export(arg))
 	{
 		ft_putstr_fd("minishell: export: `", STDERR_FILENO);
@@ -77,8 +97,12 @@ static int	handle_export_arg(char *arg, t_env **env)
 		ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 		return (1);
 	}
+	equals_pos = ft_strchr(arg, '=');
+	if (!equals_pos)
+		return (handle_no_value_var(arg, env));
 	return (update_env(env, arg));
 }
+
 
 int	mini_export(char **args, t_env **env)
 {
@@ -94,7 +118,12 @@ int	mini_export(char **args, t_env **env)
 	i = 1;
 	while (args[i])
 	{
-		if (handle_export_arg(args[i], env))
+		if (ft_strchr(args[i], '=') == NULL)
+		{
+			if (handle_no_value_var(args[i], env))
+				status = 1;
+		}
+		else if (handle_export_arg(args[i], env))
 			status = 1;
 		i++;
 	}
