@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/18 16:40:20 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/19 11:18:26 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,5 +118,6 @@ void	free_pipeline(t_pipeline *pipeline);
 
 //redirections
 int	execute_redirections(char **args);
+int	handle_heredoc_redirection(char *delimiter);
 
 #endif

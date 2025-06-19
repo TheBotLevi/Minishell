@@ -30,7 +30,8 @@ SRCS = src/mini_main.c \
        src/built_ins/mini_export.c \
        src/built_ins/mini_pwd.c \
        src/built_ins/mini_unset.c \
-       src/redirections/mini_redirections.c
+       src/redirections/mini_redirections.c \
+       src/redirections/mini_handle_heredoc.c
 
 MINISHELL = minishell
 

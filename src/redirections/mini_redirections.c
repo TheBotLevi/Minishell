@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/18 16:43:04 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/19 11:22:01 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,28 @@ static int	handle_output_redirection(char *filename)
 	return (0);
 }
 
+static int	handle_append_redirection(char *filename)
+{
+	int	fd;
+
+	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (fd < 0)
+	{
+		ft_putstr_fd("minishell :", STDERR_FILENO);
+		ft_putstr_fd(filename, STDERR_FILENO);
+		ft_putendl_fd(": Permission denied", STDERR_FILENO);
+		return (-1);
+	}
+	if (dup2(fd, STDOUT_FILENO) < 0)
+	{
+		close(fd);
+		perror("minishell: dup2");
+		return (-1);
+	}
+	close(fd);
+	return (0);
+}
+
 int	execute_redirections(char **args)
 {
 	int	i;
@@ -73,6 +95,18 @@ int	execute_redirections(char **args)
 		{
 			if (handle_output_redirection(args[i + 1]) < 0)
 				return (2);
+			i += 2;
+		}
+		else if (ft_strcmp(args[i], ">>") == 0 && args[i + 1])
+		{
+			if (handle_append_redirection(args[i + 1]) < 0)
+				return (3);
+			i += 2;
+		}
+		else if (ft_strcmp(args[i], "<<") == 0 && args[i + 1])
+		{
+			if (handle_heredoc_redirection(args[i + 1]) < 0)
+				return (4);
 			i += 2;
 		}
 		else
