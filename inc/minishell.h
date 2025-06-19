@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/11 11:33:52 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/18 16:40:20 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <unistd.h>
 # include <signal.h>
 # include <sys/stat.h>
+# include <fcntl.h>
 
 # define BUFFER_SIZE 4096
 
@@ -33,6 +34,23 @@ typedef struct s_env
 	char			*value;
 	struct s_env	*next;
 }					t_env;
+
+// Pipe structures
+typedef struct s_cmd
+{
+	char			**args;
+	int				input_fd;
+	int				output_fd;
+	struct s_cmd	*next;
+}					t_cmd;
+
+typedef struct s_pipeline
+{
+	t_cmd			*commands;
+	int				cmd_count;
+	int				**pipes;
+	pid_t			*pids;
+}					t_pipeline;
 
 // main
 void				ft_mini_loop(t_env *env_list);
@@ -84,11 +102,21 @@ char	*find_exec(char *cmd, char **paths);
 
 //signals
 void	setup_signals(void);
+void	setup_child_signals(void);
 
 //init
 t_env	*init_environment(char **env);
 
 //update
 int	update_env_value(t_env **env, char *key, char *value);
+
+// pipes
+int		has_pipes(char *line);
+int		parse_pipeline(char *line, t_pipeline **pipeline);
+int		execute_pipeline(t_pipeline *pipeline, t_env **env);
+void	free_pipeline(t_pipeline *pipeline);
+
+//redirections
+int	execute_redirections(char **args);
 
 #endif

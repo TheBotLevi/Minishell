@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/10 08:04:42 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/18 17:00:59 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@ void	ft_mini_loop(t_env *env_list)
 
 	line = NULL;
 	status = 0;
-	setup_signals();
 	while (1)
 	{
+		setup_signals();
 		if ((line = readline("MINISHELL > ")) == NULL)
 			break ;
 		if (line && *line)
@@ -49,6 +49,7 @@ int	main(int ac, char **av, char **envp)
 		ft_putendl_fd("Error initializing environment", STDERR_FILENO);
 		return (1);
 	}
+	setup_signals();
 	surpress_rl_leaks();
 	ft_mini_loop(env_list);
 	free_env_list(env_list);

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:24:36 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/09 15:11:06 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/18 10:30:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int	mini_echo(char **cmds)
 
 	i = 1;
 	new_line = 1;
-	if (cmds[i] && cmds[i][0] == '-' && cmds[i][1] == 'n' && only_n(&cmds[i][1]))
+	while (cmds[i] && cmds[i][0] == '-' && cmds[i][1] == 'n' && only_n(&cmds[i][1]))
 	{
 		new_line = 0;
 		i++;
