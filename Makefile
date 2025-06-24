@@ -21,7 +21,8 @@ SRCS = src/mini_main.c \
        src/mini_remove_env.c \
        src/mini_update_env.c \
        src/mini_free.c \
-       src/mini_handling_signals.c \
+       src/signals/mini_handling_signals.c \
+       src/signals/mini_handling_heredoc_signals.c \
        src/mini_init.c \
        src/built_ins/mini_cd.c \
        src/built_ins/mini_echo.c \
@@ -35,7 +36,7 @@ SRCS = src/mini_main.c \
 
 MINISHELL = minishell
 
-OBJ_DIRS = ${OBJ_DIR} ${OBJ_DIR}/built_ins ${OBJ_DIR}/executions ${OBJ_DIR}/redirections
+OBJ_DIRS = ${OBJ_DIR} ${OBJ_DIR}/built_ins ${OBJ_DIR}/executions ${OBJ_DIR}/redirections ${OBJ_DIR}/signals
 
 all: ${OBJ_DIRS} ${LIBFT} ${MINISHELL}
 

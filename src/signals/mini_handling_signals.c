@@ -6,11 +6,11 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/08 17:45:45 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/18 17:03:17 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/20 10:42:38 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../../inc/minishell.h"
 
 void	handle_sigint(int sig)
 {

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/19 11:18:26 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/20 11:05:41 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,9 @@ typedef struct s_pipeline
 	pid_t			*pids;
 }					t_pipeline;
 
+//global variable
+extern volatile sig_atomic_t	g_heredoc_interrupted;
+
 // main
 void				ft_mini_loop(t_env *env_list);
 
@@ -64,7 +67,6 @@ void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
 void	update_exit_status(t_env **env, int status);
 int	add_new_env_var(t_env **env, char *key, char *value);
-// void	cmd_pwd(void);
 
 // built_in's
 int					mini_echo(char **args);
@@ -103,6 +105,10 @@ char	*find_exec(char *cmd, char **paths);
 //signals
 void	setup_signals(void);
 void	setup_child_signals(void);
+void	handle_sigint(int sig);
+void	handle_heredoc_sigint(int sig);
+void	handle_heredoc_signals(void);
+void	restore_main_signals(void);
 
 //init
 t_env	*init_environment(char **env);

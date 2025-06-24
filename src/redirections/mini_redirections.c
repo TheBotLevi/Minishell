@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/19 11:22:01 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/20 10:54:35 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,10 @@ int	execute_redirections(char **args)
 		else if (ft_strcmp(args[i], "<<") == 0 && args[i + 1])
 		{
 			if (handle_heredoc_redirection(args[i + 1]) < 0)
+			{
+				restore_main_signals();
 				return (4);
+			}
 			i += 2;
 		}
 		else
