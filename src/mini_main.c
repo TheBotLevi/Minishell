@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/20 11:09:47 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/25 18:05:41 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,20 @@ void	ft_mini_loop(t_env *env_list)
 	status = 0;
 	while (1)
 	{
-		setup_signals();
-		if ((line = readline("minishell > ")) == NULL)
+		//setup_signals();
+		g_exit = 0;
+		line = readline("minishell > ");
+		printf("hello\n");
+		if (line == NULL)
+		{
+			if (g_exit == 130)
+			{
+				status = 130;
+				continue ;
+			}
+			ft_putendl_fd("exit\n", STDOUT_FILENO);
 			break ;
+		}
 		if (line && *line)
 			add_history(line);
 		status = process_command(line, &env_list);
@@ -33,6 +44,7 @@ void	ft_mini_loop(t_env *env_list)
 			free(line);
 			break ;
 		}
+		printf("%d\n", status);
 		free(line);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/20 11:06:19 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/25 17:18:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,12 @@ int	execute_external_cmd(char **args, t_env *env)
 	char	*exec_path;
 
 	envp = env_list_to_array(env);
+	if (execute_redirections(args) != 0)
+			exit(1);
 	pid = fork();
 	if (pid == 0)
 	{
 		setup_child_signals();
-		if (execute_redirections(args) != 0)
-			exit(1);
 		paths = get_paths_from_list(env);
 		exec_path = find_exec(args[0], paths);
 		if (paths)
