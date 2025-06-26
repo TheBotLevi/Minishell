@@ -21,12 +21,13 @@ void	ft_mini_loop(t_env *env_list)
 	status = 0;
 	while (1)
 	{
+		line = readline("minishell > ");
 		setup_signals();
-		if ((line = readline("minishell > ")) == NULL)
+		if (line == NULL)
 			break ;
-		if (line && *line)
+		if (*line)
 			add_history(line);
-		status = process_command(line, &env_list);
+		status = process_command(line, &env_list); //todo parse here
 		update_exit_status(&env_list, status);
 		if (ft_strcmp(line, "exit") == 0)
 		{

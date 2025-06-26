@@ -1,0 +1,169 @@
+Based on the header file and project structure, here's a comprehensive set of test cases to verify the shell's functionality and parsing capabilities:
+
+### 1. Basic Command Execution
+```shell script
+ls
+pwd
+echo hello
+/bin/ls
+./nonexistent_command    # Should handle errors
+```
+//todo: gives>
+bash-5.2$ ./nonexistent_command
+bash: ./nonexistent_command: No such file or directory
+vs
+minishell > ./nonexistent_command
+minishell: ./nonexistent_command: command not found
+minishell >
+
+
+### 2. Arguments and Options
+```shell script
+ls -la
+echo -n hello
+echo "hello   world"     # Multiple spaces
+echo 'hello   world'     # Multiple spaces in single quotes
+```
+
+//TODO Vars not handled
+### 3. Environment Variables
+```shell script
+echo $PATH
+echo "$PATH"
+echo '$PATH'            # Should print literal $PATH
+echo $NONEXISTENT      # Should print nothing
+echo $PWD$HOME         # Concatenated variables
+echo $?                # Last exit status
+```
+
+
+### 4. Quotes Handling
+```shell script
+echo "hello 'world'"
+echo 'hello "world"'
+echo "hello \"world\""  # Escaped quotes
+echo 'it'\''s'         # Escaped single quote
+echo "hello $USER"     # Variable expansion in double quotes
+echo 'hello $USER'     # No variable expansion in single quotes
+```
+
+
+### 5. Redirections
+```shell script
+echo hello > output.txt
+cat < input.txt
+echo hello >> output.txt
+cat << EOF             # Heredoc
+ls > file1 2> file2   # Stdout and stderr redirection
+```
+
+
+### 6. Pipes
+```shell script
+ls | grep "a"
+cat file.txt | grep "pattern" | wc -l
+ls | sort | uniq
+echo hello | cat -e
+```
+
+
+### 7. Built-in Commands
+```shell script
+cd ..
+cd ~
+cd /path/to/dir
+pwd
+echo hello
+export TEST=value
+env | grep TEST
+unset TEST
+exit 42
+```
+
+
+### 8. Complex Cases
+```shell script
+echo hello > f1 | cat < f2    # Pipe with redirections
+cat << EOF | grep "pattern"   # Heredoc with pipe
+ls > file1 2>&1              # Redirect stderr to stdout
+echo $HOME"test"'$USER'      # Mixed quotes and variables
+```
+
+
+### 9. Error Cases
+```shell script
+|                    # Syntax error: single pipe
+ls |                # Syntax error: nothing after pipe
+> output.txt        # Syntax error: no command
+<                   # Syntax error: no file
+"unclosed quote     # Syntax error: unclosed quote
+'unclosed quote     # Syntax error: unclosed quote
+ls >>> file         # Syntax error: invalid operator
+```
+
+
+### 10. Signal Handling
+```shell script
+cat                 # Then press Ctrl+C
+./infinite_loop     # Then press Ctrl+C
+cat << EOF          # Then press Ctrl+C during heredoc
+cat                 # Then press Ctrl+D
+```
+
+
+### 11. Special Characters
+```shell script
+echo ~              # Home directory expansion
+echo \$PATH         # Escaped special character //todo echo The \# here does not begin a comment.
+echo \\            # Backslash
+echo \|            # Escaped pipe
+```
+
+
+### 12. Multiple Commands
+```shell script
+echo hello; ls      # Not required but good to test
+cd .. && ls        # Not required but good to test
+```
+
+
+### Environment Variable Edge Cases
+```shell script
+export ""          # Empty string
+export a=
+export a="b"=c     # Multiple equal signs
+export 123=456     # Invalid variable name
+```
+
+
+To properly test these cases:
+1. Create a test script that runs each command and verifies the output
+2. Compare outputs with bash
+3. Check exit status ($?) after each command
+4. Verify memory leaks using Valgrind
+5. Test signal handling in various scenarios
+6. Verify proper cleanup of file descriptors
+7. Check environment variable modifications persist correctly
+
+Would you like me to elaborate on any of these test cases or
+provide specific expected outputs for any of them?
+
+Comments. Lines beginning with a # (with the exception of #!) are comments and will not be executed.
+
+# This line is a comment.
+
+Comments may also occur following the end of a command.
+
+echo "A comment will follow." # Comment here.
+#                            ^ Note whitespace before #
+
+Comments may also follow whitespace at the beginning of a line.
+
+     # A tab precedes this comment.
+
+Comments may even be embedded within a pipe.
+
+initial=( `cat "$startfile" | sed -e '/#/d' | tr -d '\n' |\
+# Delete lines containing '#' comment character.
+           sed -e 's/\./\. /g' -e 's/_/_ /g'` )
+# Excerpted from life.sh script
