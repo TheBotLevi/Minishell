@@ -21,6 +21,9 @@ TEST:
 echo \
 gives new line input
 
+- cat | cat | ls
+
+
 ### 2. Arguments and Options
 ```shell script
 ls -la
