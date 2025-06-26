@@ -51,7 +51,7 @@ int	main(int ac, char **av, char **envp)
 		return (1);
 	}
 	setup_signals();
-	surpress_rl_leaks();
+	surpress_rl_leaks(); // todo rename suppress
 	ft_mini_loop(env_list);
 	free_env_list(env_list);
 	clear_history();

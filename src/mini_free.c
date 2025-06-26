@@ -19,7 +19,7 @@ void	free_args(char **args)
 	i = 0;
 	if (!args)
 		return ;
-	while (args[i])
+	while (args[i]) // todo invalid access risk if not null-terminated
 	{
 		free(args[i]);
 		i++;

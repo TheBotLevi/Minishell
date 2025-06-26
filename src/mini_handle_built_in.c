@@ -45,5 +45,5 @@ int	handle_builtin(char **cmd, t_env **env)
 		return (mini_env(env));
 	else if (ft_strcmp(cmd[0], "exit") == 0)
 		return (mini_exit(cmd));
-	return (127);
+	return (127); //todo why
 }

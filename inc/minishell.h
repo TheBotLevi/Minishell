@@ -26,7 +26,7 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 
-# define BUFFER_SIZE 4096
+# define BUFFER_SIZE 4096 //todo why? gnl size?
 
 typedef struct s_env
 {
@@ -36,7 +36,7 @@ typedef struct s_env
 }					t_env;
 
 // Pipe structures
-typedef struct s_cmd
+typedef struct s_cmd //todo diff between args and fds?
 {
 	char			**args;
 	int				input_fd;
@@ -48,8 +48,8 @@ typedef struct s_pipeline
 {
 	t_cmd			*commands;
 	int				cmd_count;
-	int				**pipes;
-	pid_t			*pids;
+	int				**pipes; // todo what does number of pipes indicate, why array?
+	pid_t			*pids; // todo   multiple pids?
 }					t_pipeline;
 
 //global variable
