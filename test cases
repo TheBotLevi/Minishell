@@ -17,6 +17,10 @@ minishell: ./nonexistent_command: command not found
 minishell >
 
 
+TEST:
+echo \
+gives new line input
+
 ### 2. Arguments and Options
 ```shell script
 ls -la
