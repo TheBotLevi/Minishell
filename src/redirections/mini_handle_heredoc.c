@@ -6,12 +6,12 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 11:12:41 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 18:23:18 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/27 17:57:16 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
-
+/*
 static	int	check_exit(t_cmd *cmd, char *line)
 {
 	if (g_exit == 130)
@@ -22,9 +22,9 @@ static	int	check_exit(t_cmd *cmd, char *line)
 	if (line == NULL)
 		return (1);
 	return (0);
-}
+}*/
 
-static int	if_child_interrupted(int pipefd_read, int status)
+static int	if_child_interrupted(int pipefd_read)
 {
 	if (WIFEXITED(status) && WEXITSTATUS(status) == 130)
 	{
@@ -67,7 +67,6 @@ int	handle_heredoc_redirection(char *delimiter)
 {
 	int	pipefd[2];
 	pid_t	pid;
-	int	status;
 
 	status = 0;
 	if (pipe(pipefd) < 0)

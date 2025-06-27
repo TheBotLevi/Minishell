@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 10:44:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 17:06:32 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/27 16:53:30 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int	handle_builtin(char **cmd, t_env **env)
+int	handle_builtin(char **cmd, t_env **env)	//is going to change
 {
 	t_cmd	command;
 

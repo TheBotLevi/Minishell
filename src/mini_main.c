@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 18:05:41 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/26 15:25:59 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	ft_mini_loop(t_env *env_list)
 		//setup_signals();
 		g_exit = 0;
 		line = readline("minishell > ");
-		printf("hello\n");
+//		printf("hello\n");
 		if (line == NULL)
 		{
 			if (g_exit == 130)

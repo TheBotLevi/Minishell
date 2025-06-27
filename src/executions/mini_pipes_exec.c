@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 17:43:16 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/27 15:44:59 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ static void	close_all_pipes(t_pipeline *pipeline)
 	}
 }
 
-static void	execute_single_cmd(t_cmd *cmd, t_pipeline *pipeline, 
-							int cmd_index, t_env **env)
+static void	execute_single_cmd(t_mini *mini, t_pipeline *pipeline, 
+							int cmd_index)
 {
 	char	**envp;
 	char	**paths;
@@ -70,20 +70,20 @@ static void	execute_single_cmd(t_cmd *cmd, t_pipeline *pipeline,
 	setup_child_signals();
 	setup_pipe_fds(pipeline, cmd_index);
 	close_all_pipes(pipeline);
-	if (is_builtin(cmd->args[0]))
-		exit(handle_builtin(cmd->args, env));
-	envp = env_list_to_array(*env);
-	paths = get_paths_from_list(*env);
-	exec_path = find_exec(cmd->args[0], paths);
+	if (is_builtin(mini->args[0]))
+		exit(handle_builtin(mini->args, mini->env_struct));
+	envp = env_list_to_array(*(mini->env_struct));
+	paths = get_paths_from_list(*(mini->env_struct));
+	exec_path = find_exec(mini->args[0], paths);
 	if (paths)
 		free_args(paths);
 	if (exec_path)
 	{
-		execve(exec_path, cmd->args, envp);
+		execve(exec_path, mini->args, envp);
 		free(exec_path);
 	}
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+	ft_putstr_fd(mini->args[0], STDERR_FILENO);
 	ft_putendl_fd(": command not found", STDERR_FILENO);
 	if (envp)
 		free_args(envp);
@@ -108,9 +108,9 @@ static int	wait_for_processes(t_pipeline *pipeline)
 	return (last_status);
 }
 
-int	create_and_fork_process(t_pipeline *pipeline, t_env **env)
+int	create_and_fork_process(t_pipeline *pipeline)
 {
-	t_cmd	*current;
+	t_mini	*current;
 	int	cmd_index;
 
 	pipeline->pids = malloc(sizeof(pid_t) * pipeline->cmd_count);
@@ -122,7 +122,7 @@ int	create_and_fork_process(t_pipeline *pipeline, t_env **env)
 	{
 		pipeline->pids[cmd_index] = fork();
 		if (pipeline->pids[cmd_index] == 0)
-			execute_single_cmd(current, pipeline, cmd_index, env);
+			execute_single_cmd(current, pipeline, cmd_index);
 		else if (pipeline->pids[cmd_index] < 0)
 		{
 			perror("minishell: fork");
@@ -134,7 +134,7 @@ int	create_and_fork_process(t_pipeline *pipeline, t_env **env)
 	return (0);
 }
 
-int	execute_pipeline(t_pipeline *pipeline, t_env **env)
+int	execute_pipeline(t_pipeline *pipeline)
 {
 	int		status;
 
@@ -142,7 +142,7 @@ int	execute_pipeline(t_pipeline *pipeline, t_env **env)
 		return (1);
 	if (create_pipes(pipeline) != 0)
 		return (2);
-	if (create_and_fork_process(pipeline, env) != 0)
+	if (create_and_fork_process(pipeline) != 0)
 		return (3);
 	close_all_pipes(pipeline);
 	status = wait_for_processes(pipeline);

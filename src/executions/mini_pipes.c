@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:12:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/18 15:22:46 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/27 16:24:17 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,25 +19,25 @@ int	has_pipes(char *line)
 	return (ft_strchr(line, '|') != NULL);
 }
 
-static t_cmd	*create_cmd_node(char **args)
+static t_mini	*create_cmd_node(char **args)
 {
-	t_cmd	*cmd;
+	t_mini	*mini;
 
-	cmd = malloc(sizeof(t_cmd));
-	if (!cmd)
+	mini = malloc(sizeof(t_mini));
+	if (!mini)
 		return (NULL);
-	cmd->args = args;
-	cmd->input_fd = -1;
-	cmd->output_fd = -1;
-	cmd->next = NULL;
-	return (cmd);
+	mini->args = args;
+	mini->input_fd = -1;
+	mini->output_fd = -1;
+	mini->next = NULL;
+	return (mini);
 }
 
 int	parse_pipeline(char *line, t_pipeline **pipeline)
 {
 	char	**pipe_parts;
-	t_cmd	*cmd_list;
-	t_cmd	*current;
+	t_mini	*mini_list;
+	t_mini	*current;
 	int		i;
 
 	*pipeline = malloc(sizeof(t_pipeline));
@@ -47,18 +47,18 @@ int	parse_pipeline(char *line, t_pipeline **pipeline)
 	if (!pipe_parts)
 		return (1);
 	
-	cmd_list = NULL;
+	mini_list = NULL;
 	i = 0;
 	while (pipe_parts[i])
 	{
 		current = create_cmd_node(parse_input(pipe_parts[i]));
 		if (!current)
 			return (1);
-		current->next = cmd_list;
-		cmd_list = current;
+		current->next = mini_list;
+		mini_list = current;
 		i++;
 	}
-	(*pipeline)->commands = cmd_list;
+	(*pipeline)->commands = mini_list;
 	(*pipeline)->cmd_count = i;
 	(*pipeline)->pipes = NULL;
 	(*pipeline)->pids = NULL;
@@ -81,8 +81,8 @@ static void	help_free_pipelines(t_pipeline *pipeline)
 
 void	free_pipeline(t_pipeline *pipeline)
 {
-	t_cmd	*current;
-	t_cmd	*next;
+	t_mini	*current;
+	t_mini	*next;
 
 	if (!pipeline)
 		return;

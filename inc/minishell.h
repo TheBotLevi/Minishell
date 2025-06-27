@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 18:02:59 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/27 15:12:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,23 +35,27 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
-// Pipe structures
-typedef struct s_cmd
-{
-	char			**args;
-	int				input_fd;
-	int				output_fd;
-	int				exit_status;
-	struct s_cmd	*next;
-}					t_cmd;
-
 typedef struct s_pipeline
 {
-	t_cmd			*commands;
+	t_mini			*commands;
 	int				cmd_count;
 	int				**pipes;
 	pid_t			*pids;
 }					t_pipeline;
+
+typedef struct s_mini
+{
+	char			**args;	//is going to change for parsing (tokenization)
+	char			*old_path;
+	int				input_fd;
+	int				output_fd;
+	int				fd;
+	int				exit_status;
+	t_env		**env_struct;
+	t_pipeline	*pipes;
+	t_list		*list;
+	struct s_cmd	*next;
+}					t_mini;
 
 //global variable
 extern volatile sig_atomic_t	g_exit;
