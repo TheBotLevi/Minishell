@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:08:25 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/07 12:56:04 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/25 16:46:36 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static char	*get_cd_path(char **args, t_env **env)
 {
 	char	*path;
 
-	if (!args[1] && ft_strcmp(args[1], "~") == 0)
+	if (!args[1] || ft_strcmp(args[1], "~") == 0)
 		path = get_env_value(*env, "HOME");
 	else if (ft_strcmp(args[1], "-") == 0)
 	{

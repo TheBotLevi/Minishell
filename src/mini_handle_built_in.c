@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 10:44:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/08 18:18:01 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/25 17:06:32 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,16 @@ int	is_builtin(char *cmd)
 	ft_strcmp(cmd, "export") == 0 || 
 	ft_strcmp(cmd, "unset") == 0 || 
 	ft_strcmp(cmd, "env") == 0 || 
-	ft_strcmp(cmd, "exit") == 0)
+	ft_strcmp(cmd, "exit") == 0 ||
+	ft_strcmp(cmd, "$?") == 0)
 		return (1);
 	return (0);
 }
 
 int	handle_builtin(char **cmd, t_env **env)
 {
+	t_cmd	command;
+
 	if (!cmd || !cmd[0])
 		return (1);
 	if (ft_strcmp(cmd[0], "echo") == 0)
@@ -45,5 +48,7 @@ int	handle_builtin(char **cmd, t_env **env)
 		return (mini_env(env));
 	else if (ft_strcmp(cmd[0], "exit") == 0)
 		return (mini_exit(cmd));
-	return (127); //todo why
+	else if (ft_strcmp(cmd[0], "$?") == 0)
+		return (command.exit_status);
+	return (127);
 }

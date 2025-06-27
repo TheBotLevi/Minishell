@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/20 11:05:41 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/25 18:02:59 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct s_cmd //todo diff between args and fds?
 	char			**args;
 	int				input_fd;
 	int				output_fd;
+	int				exit_status;
 	struct s_cmd	*next;
 }					t_cmd;
 
@@ -53,7 +54,7 @@ typedef struct s_pipeline
 }					t_pipeline;
 
 //global variable
-extern volatile sig_atomic_t	g_heredoc_interrupted;
+extern volatile sig_atomic_t	g_exit;
 
 // main
 void				ft_mini_loop(t_env *env_list);

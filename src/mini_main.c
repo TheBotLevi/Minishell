@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/20 11:09:47 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/25 18:05:41 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,30 @@ void	ft_mini_loop(t_env *env_list)
 	status = 0;
 	while (1)
 	{
+		//setup_signals();
+		g_exit = 0;
 		line = readline("minishell > ");
-		setup_signals();
+		printf("hello\n");
 		if (line == NULL)
+		{
+			if (g_exit == 130)
+			{
+				status = 130;
+				continue ;
+			}
+			ft_putendl_fd("exit\n", STDOUT_FILENO);
 			break ;
-		if (*line)
+		}
+		if (line && *line)
 			add_history(line);
-		status = process_command(line, &env_list); //todo parse here
+		status = process_command(line, &env_list);
 		update_exit_status(&env_list, status);
 		if (ft_strcmp(line, "exit") == 0)
 		{
 			free(line);
 			break ;
 		}
+		printf("%d\n", status);
 		free(line);
 	}
 }
@@ -51,7 +62,7 @@ int	main(int ac, char **av, char **envp)
 		return (1);
 	}
 	setup_signals();
-	surpress_rl_leaks(); // todo rename suppress
+	surpress_rl_leaks();
 	ft_mini_loop(env_list);
 	free_env_list(env_list);
 	clear_history();
