@@ -1,5 +1,6 @@
 Based on the header file and project structure, here's a comprehensive set of test cases to verify the shell's functionality and parsing capabilities:
 
+
 ### 1. Basic Command Execution
 ```shell script
 ls
@@ -174,3 +175,65 @@ initial=( `cat "$startfile" | sed -e '/#/d' | tr -d '\n' |\
 # Delete lines containing '#' comment character.
            sed -e 's/\./\. /g' -e 's/_/_ /g'` )
 # Excerpted from life.sh script
+
+The final special character you will need to handle is the pipe ("|"). The idea of a pipe is that one can specify a series of commands, such that the output of the first command is sent as input to the second command, the output of the second to the third, and so on. For example, one might list a directory, search for all file names that include the letter "d" using grep, and then count them using the word count (wc) utility:
+
+ls | grep "d" | wc -l
+
+The shell actually creates three child processes and connects their input and output handles appropriately. For now, your job is simply to parse this pattern correctly; you will implement pipes in Lab 2.
+
+Specifically, the output of parse_line is a two-dimensional array of commands and tokens. A line of input should render one top-level, or command, entry for each step in a "pipeline" as above. For instance, in the example above, if the returned structure is named commands, it should look like:
+
+commands[0] = ["ls", '\0']
+commands[1] = ["grep", "\"d\"", '\0']
+commands[2] = ["wc", "-l", '\0']
+commands[3] = ['\0']
+
+Note: When file redirection and pipelines are combined, you can assume that only the first stage will have input redirection, and only the last stage will have output redirection. For example:
+
+grep "d" < in.txt | grep -v "html" | wc -l > out.txt
+
+The semantics of input file redirection after the first stage, or output before the final stage are not defined and will not be tested. For example, you need not handle cases like:
+
+ls | grep -v "html" > foo.txt | wc -l
+grep "d" < in.txt | grep -v "html" < a.txt | wc -l
+
+
+Possible combinations
+
+You can combine these with file descriptors or use them multiple times, for example:
+
+    Redirect standard error
+
+command 2>> errors.log
+
+appends stderr to errors.log.
+
+Combine multiple redirects
+
+command >> out.log 2>> errors.log
+
+appends stdout and stderr to different files.
+
+Here-document with a specific file descriptor
+
+cat <<EOF 1>>out.log
+text
+EOF
+
+uses a here-document to cat, but appends cat’s output to out.log.
+
+Here-strings with <<<
+(a variant of <<, note the triple less-than)
+
+    cat <<< "single line of input"
+
+    passes a single string directly to stdin.
+
+Summary table:
+Operator	Meaning
+<<	here-document (multi-line stdin)
+<<<	here-string (single-line stdin)
+>>	append stdout to file
+n>>file	append file descriptor n to file
+n<<word	here-document for file descriptor n
