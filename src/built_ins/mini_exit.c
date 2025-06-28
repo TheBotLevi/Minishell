@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/27 11:26:06 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:20:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int	mini_exit(t_mini *mini)
 		mini->exit_status = 1;
 	else if (!is_numeric(mini->args[1]))
 	{
-		handle_invalid_args(mini->args);
+		handle_invalid_args(mini);
 		mini->exit_status = 2;
 	}
 	else if (ac > 2)

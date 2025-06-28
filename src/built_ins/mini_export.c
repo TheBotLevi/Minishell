@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:27:49 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/27 11:33:27 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:22:35 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,7 +112,7 @@ int	mini_export(t_mini *mini)
 	status = 0;
 	if (!mini->args[1])
 	{
-		display_exported_vars(*(mini->env_struct));
+		display_exported_vars(mini->env_struct);
 		return (0);
 	}
 	i = 1;
@@ -120,10 +120,10 @@ int	mini_export(t_mini *mini)
 	{
 		if (ft_strchr(mini->args[i], '=') == NULL)
 		{
-			if (handle_no_value_var(mini->args[i], mini->env_struct))
+			if (handle_no_value_var(mini->args[i], &mini->env_struct))
 				status = 1;
 		}
-		else if (handle_export_arg(mini->args[i], mini->env_struct))
+		else if (handle_export_arg(mini->args[i], &mini->env_struct))
 			status = 1;
 		i++;
 	}

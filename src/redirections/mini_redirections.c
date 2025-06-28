@@ -6,106 +6,100 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/27 16:53:08 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:30:48 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
 
-static int	handle_input_redirection(char *filename)
+static int	handle_input_redirection(t_mini *mini)
 {
-	int	fd;
-
-	fd = open(filename, O_RDONLY);
-	if (fd < 0)
+	mini->fd = open(mini->filename, O_RDONLY);
+	if (mini->fd < 0)
 	{
 		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd(filename, STDERR_FILENO);
+		ft_putstr_fd(mini->filename, STDERR_FILENO);
 		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
 		return (-1);
 	}
-	if (dup2(fd, STDIN_FILENO) < 0)
+	if (dup2(mini->fd, STDIN_FILENO) < 0)
 	{
-		close(fd);
+		close(mini->fd);
 		perror("minishell: dup2");
 		return (-1);
 	}
-	close(fd);
+	close(mini->fd);
 	return (0);
 }
 
-static int	handle_output_redirection(char *filename)
+static int	handle_output_redirection(t_mini *mini)
 {
-	int	fd;
-
-	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd < 0)
+	mini->fd = open(mini->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (mini->fd < 0)
 	{
 		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd(filename, STDERR_FILENO);
+		ft_putstr_fd(mini->filename, STDERR_FILENO);
 		ft_putendl_fd(": Permission denied", STDERR_FILENO);
 		return (-1);
 	}
-	if (dup2(fd, STDOUT_FILENO) < 0)
+	if (dup2(mini->fd, STDOUT_FILENO) < 0)
 	{
-		close(fd);
+		close(mini->fd);
 		perror("minishell: dup2");
 		return (-1);
 	}
-	close(fd);
+	close(mini->fd);
 	return (0);
 }
 
-static int	handle_append_redirection(char *filename)
+static int	handle_append_redirection(t_mini *mini)
 {
-	int	fd;
-
-	fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd < 0)
+	mini->fd = open(mini->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (mini->fd < 0)
 	{
 		ft_putstr_fd("minishell :", STDERR_FILENO);
-		ft_putstr_fd(filename, STDERR_FILENO);
+		ft_putstr_fd(mini->filename, STDERR_FILENO);
 		ft_putendl_fd(": Permission denied", STDERR_FILENO);
 		return (-1);
 	}
-	if (dup2(fd, STDOUT_FILENO) < 0)
+	if (dup2(mini->fd, STDOUT_FILENO) < 0)
 	{
-		close(fd);
+		close(mini->fd);
 		perror("minishell: dup2");
 		return (-1);
 	}
-	close(fd);
+	close(mini->fd);
 	return (0);
 }
 
-int	execute_redirections(char **args)
+int	execute_redirections(t_mini *mini)
 {
 	int	i;
 
 	i = 0;
-	while (args[i])
+	while (mini->args[i])
 	{
-		if (ft_strcmp(args[i], "<") == 0 && args[i + 1])
+		if (ft_strcmp(mini->args[i], "<") == 0 && mini->args[i + 1])
 		{
-			if (handle_input_redirection(args[i + 1]) < 0)
+			if (handle_input_redirection(mini) < 0)
 				return (1);
 			i += 2;
 		}
-		else if (ft_strcmp(args[i], ">") == 0 && args[i + 1])
+		else if (ft_strcmp(mini->args[i], ">") == 0 && mini->args[i + 1])
 		{
-			if (handle_output_redirection(args[i + 1]) < 0)
+			if (handle_output_redirection(mini) < 0)
 				return (2);
 			i += 2;
 		}
-		else if (ft_strcmp(args[i], ">>") == 0 && args[i + 1])
+		else if (ft_strcmp(mini->args[i], ">>") == 0 && mini->args[i + 1])
 		{
-			if (handle_append_redirection(args[i + 1]) < 0)
+			if (handle_append_redirection(mini) < 0)
 				return (3);
 			i += 2;
 		}
-		else if (ft_strcmp(args[i], "<<") == 0 && args[i + 1])
+		else if (ft_strcmp(mini->args[i], "<<") == 0 && mini->args[i + 1])
 		{
-			if (handle_heredoc_redirection(args[i + 1]) < 0)
+			if (handle_heredoc_redirection(mini, mini->args[i + 1]) < 0)
 			{
 				restore_main_signals();
 				return (4);

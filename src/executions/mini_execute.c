@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/27 16:30:36 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 13:44:37 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	execute_external_cmd(t_mini *mini)
 	char	*exec_path;
 
 	envp = env_list_to_array(mini->env_struct);
-	if (execute_redirections(mini->args) != 0)
+	if (execute_redirections(mini) != 0)
 			exit(1);
 	pid = fork();
 	if (pid == 0)
@@ -58,7 +58,6 @@ int	execute_external_cmd(t_mini *mini)
 
 int	process_command(char *line, t_mini *mini)
 {
-	char		**args;
 	t_pipeline	*pipeline;
 
 	if (!line || !*line)
@@ -68,28 +67,28 @@ int	process_command(char *line, t_mini *mini)
 	{
 		if (parse_pipeline(line, &pipeline) == 0)
 		{
-			mini->exit_status = execute_pipeline(pipeline, mini->env_struct);
+			mini->exit_status = execute_pipeline(pipeline);
 			free_pipeline(pipeline);
 		}
 		else
 			mini->exit_status = 1;
-		update_exit_status(mini->env_struct, mini->exit_status);
+		update_exit_status(mini);
 		return (mini->exit_status);
 	}
 	// Handle single command (no pipes)
-	args = parse_input(line);
-	if (!args || !args[0])
+	mini->args = parse_input(line);
+	if (!mini->args || !mini->args[0])
 	{
-		if (args)
-			free_args(args);
+		if (mini->args)
+			free_args(mini->args);
 		return (0);
 	}
-	if (is_builtin(args[0]))
-		mini->exit_status = handle_builtin(args, mini->env_struct);
+	if (is_builtin(mini->args[0]))
+		mini->exit_status = handle_builtin(mini);
 	else
 		mini->exit_status = execute_external_cmd(mini);
-	update_exit_status(mini->env_struct, mini->exit_status);
-	free_args(args);
+	update_exit_status(mini);
+	free_args(mini->args);
 	return (mini->exit_status);
 }
 

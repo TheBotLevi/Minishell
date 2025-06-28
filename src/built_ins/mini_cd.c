@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:08:25 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/27 11:22:50 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:58:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,15 @@ static void	update_pwd_vars(t_mini *mini)
 	oldpwd_str = ft_strjoin("OLDPWD=", mini->old_path);
 	if (oldpwd_str)
 	{
-		update_env(mini->env_struct, oldpwd_str);
+		update_env(&mini->env_struct, oldpwd_str);
 		free(oldpwd_str);
 	}
+	free(mini->old_path);
+	mini->old_path = ft_strdup(current_dir);
 	pwd_str = ft_strjoin("PWD=", current_dir);
 	if (pwd_str)
 	{
-		update_env(mini->env_struct, pwd_str);
+		update_env(&mini->env_struct, pwd_str);
 		free(pwd_str);
 	}
 }
@@ -39,10 +41,10 @@ static char	*get_cd_path(t_mini *mini)
 	char	*path;
 
 	if (!mini->args[1] || ft_strcmp(mini->args[1], "~") == 0)
-		path = get_env_value(*(mini->env_struct), "HOME");
+		path = get_env_value(mini->env_struct, "HOME");
 	else if (ft_strcmp(mini->args[1], "-") == 0)
 	{
-		path = get_env_value(*(mini->env_struct), "OLDPWD");
+		path = get_env_value(mini->env_struct, "OLDPWD");
 		if (path)
 			ft_putendl_fd(path, STDOUT_FILENO);
 	}

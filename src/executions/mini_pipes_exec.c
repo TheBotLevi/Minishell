@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/27 15:44:59 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:14:02 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,9 @@ static void	execute_single_cmd(t_mini *mini, t_pipeline *pipeline,
 	setup_pipe_fds(pipeline, cmd_index);
 	close_all_pipes(pipeline);
 	if (is_builtin(mini->args[0]))
-		exit(handle_builtin(mini->args, mini->env_struct));
-	envp = env_list_to_array(*(mini->env_struct));
-	paths = get_paths_from_list(*(mini->env_struct));
+		exit(handle_builtin(mini));
+	envp = env_list_to_array(mini->env_struct);
+	paths = get_paths_from_list(mini->env_struct);
 	exec_path = find_exec(mini->args[0], paths);
 	if (paths)
 		free_args(paths);
