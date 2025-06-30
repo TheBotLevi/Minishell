@@ -12,6 +12,13 @@
 
 #include "../inc/minishell.h"
 
+void	free_n_array(char **ar, int i)
+{
+	while (i > 0)
+		free(ar[--i]);
+	free(ar);
+}
+
 void	free_args(char **args)
 {
 	int	i;

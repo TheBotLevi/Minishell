@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/minishell.h"
+#include "../../inc/minishell.h"
 
 int is_special_char(const char c) {
     return(is_in_set(c, '$#"~\\|\'')); //todo is - option necesary?
@@ -18,6 +18,37 @@ int is_special_char(const char c) {
 // todo differentiate between in-string special chars, operators etc..?
 
 // split on IFS
+char* get_ifs_from_env(t_mini *mini) {
+    static char default_ifs[4];
+    t_env *current;
+    default_ifs[0] = ' ';
+    default_ifs[1] = '\t';
+    default_ifs[2] = '\n';
+    default_ifs[3] = '\0';
+    if (!mini || !mini->env_struct)
+        return (default_ifs);
+    current = mini->env_struct;
+    while (current) {
+        if (ft_strcmp(current->key, "IFS") == 0) {
+            if (!current->value)
+                return (default_ifs);
+            return (current->value);
+        }
+        current = current->next;
+    }
+    return (default_ifs);
+}
+
+char** split_on_str
+
+
+char** split_line(char *line, char *ifs) {
+    char **tokens;
+    char *token;
+    int i;
+    int j;
+}
+
 
 
 int	process_command(char *line, t_mini *mini)
