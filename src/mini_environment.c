@@ -25,7 +25,7 @@ t_env	*create_env_list(char **env)
 	{
 		new_node = (t_env *)malloc(sizeof(t_env));
 		if (!new_node)
-			return (NULL);
+			return (NULL); //todo free other nodes?
 		equals_pos = ft_strchr(env[i], '=');
 		if (equals_pos)
 		{
@@ -89,7 +89,7 @@ char	**env_list_to_array(t_env *env_list)
 	char	**env_array;
 	t_env	*current;
 
-	count = 0;
+	count = 0; // todo use ft_lstsize
 	current = env_list;
 	while (current)
 	{
