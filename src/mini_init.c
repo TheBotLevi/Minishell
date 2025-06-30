@@ -45,6 +45,7 @@ void	mini_init(t_mini *mini)
 		ft_putendl_fd("Error allocating memory for mini", STDERR_FILENO);
 		exit (1);
 	}
+	env = NULL;
 	mini->env_struct = init_environment(env);
 	if (!mini->env_struct)
 	{
