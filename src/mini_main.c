@@ -6,25 +6,11 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 13:40:49 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 11:26:05 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/minishell.h"
-
-int has_line_continuation(char *line) {
-	if (line && *line)
-		if (line[ft_strlen(line) - 1] == '\\')
-			return (1);
-	return (0);
-}
-void fill_line_with_multiline_input(char **line) {
-	char *multiline_input;
-
-	multiline_input = ft_strjoin(*line, readline("> "));
-	free(*line);
-	*line = multiline_input;
-}
 
 void	ft_mini_loop(t_mini *mini)
 {
@@ -49,13 +35,9 @@ void	ft_mini_loop(t_mini *mini)
 			ft_putendl_fd("exit\n", STDOUT_FILENO);
 			break ;
 		}
-		while (has_line_continuation(line))
-			fill_line_with_multiline_input(&line);
-		printf("%s\n", line);
 		if (line && *line)
 			add_history(line);
-		//status = process_command(line, mini); //TODO
-		status = process_command(line, mini); //TODO
+		status = process_command(line, mini);
 		update_exit_status(mini);
 		if (ft_strcmp(line, "exit") == 0)
 		{
@@ -67,17 +49,15 @@ void	ft_mini_loop(t_mini *mini)
 	}
 }
 
-int	main(int ac, char **av)
+int	main(int ac, char **av, char **envp)
 {
 	t_mini	*mini;
-	(void)	av;
 
-	mini = NULL;
-	if (ac != 1) {
-		ft_putendl_fd("minishell: too many arguments\n", STDERR_FILENO);
+	(void)ac;
+	(void)av;
+	mini = mini_init(envp);
+	if (!mini)
 		return (1);
-	};
-	//mini_init here
 	setup_signals();
 	surpress_rl_leaks();
 	ft_mini_loop(mini);

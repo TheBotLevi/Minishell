@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 15:34:15 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 13:27:18 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 11:22:52 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,24 +35,25 @@ t_env	*init_environment(char **env)
 	return (env_list);
 }
 
-void	mini_init(t_mini *mini)
+t_mini	*mini_init(char ** envp)
 {
-	char	**env;
+	t_mini	*mini;
 
 	mini = malloc(sizeof(t_mini));
 	if (!mini)
 	{
 		ft_putendl_fd("Error allocating memory for mini", STDERR_FILENO);
-		exit (1);
+		return (NULL);
 	}
-	env = NULL;
-	mini->env_struct = init_environment(env);
+	mini->env_struct = init_environment(envp);
 	if (!mini->env_struct)
 	{
 		ft_putendl_fd("Error initializing environment", STDERR_FILENO);
-		exit (2);
+		free(mini);
+		return (NULL);
 	}
 	mini->old_path = NULL;
 	mini->args = NULL;
 	mini->exit_status = 0;
+	return (mini);
 }

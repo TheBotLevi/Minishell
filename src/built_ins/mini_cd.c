@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:08:25 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:58:00 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 10:57:12 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,6 @@ int	mini_cd(t_mini *mini)
 	if ((!path && !mini->args[1]) || (path && chdir(path) == -1))
 		return (handle_cd_errors(mini, path));
 	update_pwd_vars(mini);
-	free(mini->old_path);
+//	free(mini->old_path);
 	return (0);
 }
