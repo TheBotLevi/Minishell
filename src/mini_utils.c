@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/10 14:27:46 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:13:07 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,14 +105,14 @@ int	is_valid_export(char *str)
 	return (1);
 }
 
-void	update_exit_status(t_env **env, int status)
+void	update_exit_status(t_mini *mini)
 {
 	char	*exit_str;
 
-	exit_str = ft_itoa(status);
+	exit_str = ft_itoa(mini->exit_status);
 	if (exit_str)
 	{
-		update_env_value(env, "?", exit_str);
+		update_env_value(&mini->env_struct, "?", exit_str);
 		free(exit_str);
 	}
 }

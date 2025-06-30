@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 17:42:09 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:20:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,26 +28,25 @@ int	is_numeric(char *str)
 	return (1);
 }
 
-static void	handle_invalid_args(char **args)
+static void	handle_invalid_args(t_mini *mini)
 {
 	ft_putstr_fd("minishell: exit ", STDERR_FILENO);
-	ft_putstr_fd(args[1], STDERR_FILENO);
+	ft_putstr_fd(mini->args[1], STDERR_FILENO);
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 }
 
-int	mini_exit(char **args)
+int	mini_exit(t_mini *mini)
 {
-	int	exit_code;
 	int	ac;
 
 	ac = 0;
 	ft_putendl_fd("exit", STDOUT_FILENO);
-	if (!args[1])
-		exit_code = 1;
-	else if (!is_numeric(args[1]))
+	if (!mini->args[1])
+		mini->exit_status = 1;
+	else if (!is_numeric(mini->args[1]))
 	{
-		handle_invalid_args(args);
-		exit_code = 2;
+		handle_invalid_args(mini);
+		mini->exit_status = 2;
 	}
 	else if (ac > 2)
 	{
@@ -55,7 +54,7 @@ int	mini_exit(char **args)
 		return (1);
 	}
 	else
-		exit_code = ft_atoi(args[1]) & 255;
-	exit(exit_code);
-	return (exit_code);
+		mini->exit_status = ft_atoi(mini->args[1]) & 255;
+	exit(mini->exit_status);
+	return (mini->exit_status);
 }

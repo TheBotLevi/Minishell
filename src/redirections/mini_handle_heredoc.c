@@ -6,12 +6,12 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 11:12:41 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 18:23:18 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 08:57:14 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
-
+/*
 static	int	check_exit(t_cmd *cmd, char *line)
 {
 	if (g_exit == 130)
@@ -22,11 +22,11 @@ static	int	check_exit(t_cmd *cmd, char *line)
 	if (line == NULL)
 		return (1);
 	return (0);
-}
+}*/
 
-static int	if_child_interrupted(int pipefd_read, int status)
+static int	if_child_interrupted(t_mini *mini, int pipefd_read)
 {
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 130)
+	if (WIFEXITED(mini->exit_status) && WEXITSTATUS(mini->exit_status) == 130)
 	{
 		close(pipefd_read);
 		return (1);
@@ -63,13 +63,12 @@ static int	handle_heredoc_delimiter(int pipefd[2], char *delimiter)
 	return(0);
 }
 
-int	handle_heredoc_redirection(char *delimiter)
+int	handle_heredoc_redirection(t_mini *mini, char *delimiter)
 {
 	int	pipefd[2];
 	pid_t	pid;
-	int	status;
 
-	status = 0;
+	mini->exit_status = 0;
 	if (pipe(pipefd) < 0)
 	{
 		perror("minishell: pipe");
@@ -80,8 +79,8 @@ int	handle_heredoc_redirection(char *delimiter)
 		handle_heredoc_delimiter(pipefd, delimiter);
 	signal(SIGINT, SIG_IGN);
 	close(pipefd[1]);
-	waitpid(pid, &status, 0);
-	if (if_child_interrupted(pipefd[0], status))
+	waitpid(pid, &mini->exit_status, 0);
+	if (if_child_interrupted(mini, pipefd[0]))
 		return (-1);
 	if (dup2(pipefd[0], STDIN_FILENO) < 0)
 	{

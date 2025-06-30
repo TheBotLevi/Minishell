@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:27:49 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/11 11:34:54 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:22:35 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,26 +104,26 @@ static int	handle_export_arg(char *arg, t_env **env)
 }
 
 
-int	mini_export(char **args, t_env **env)
+int	mini_export(t_mini *mini)
 {
 	int	i;
 	int	status;
 
 	status = 0;
-	if (!args[1])
+	if (!mini->args[1])
 	{
-		display_exported_vars(*env);
+		display_exported_vars(mini->env_struct);
 		return (0);
 	}
 	i = 1;
-	while (args[i])
+	while (mini->args[i])
 	{
-		if (ft_strchr(args[i], '=') == NULL)
+		if (ft_strchr(mini->args[i], '=') == NULL)
 		{
-			if (handle_no_value_var(args[i], env))
+			if (handle_no_value_var(mini->args[i], &mini->env_struct))
 				status = 1;
 		}
-		else if (handle_export_arg(args[i], env))
+		else if (handle_export_arg(mini->args[i], &mini->env_struct))
 			status = 1;
 		i++;
 	}

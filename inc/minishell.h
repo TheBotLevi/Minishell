@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 18:02:59 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:30:20 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 
-# define BUFFER_SIZE 4096 //todo why? gnl size?
+# define BUFFER_SIZE 4096
+
+typedef struct s_mini t_mini;
 
 typedef struct s_env
 {
@@ -35,29 +37,34 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
-// Pipe structures
-typedef struct s_cmd //todo diff between args and fds?
-{
-	char			**args;
-	int				input_fd;
-	int				output_fd;
-	int				exit_status;
-	struct s_cmd	*next;
-}					t_cmd;
-
 typedef struct s_pipeline
 {
-	t_cmd			*commands;
+	t_mini			*commands;
 	int				cmd_count;
-	int				**pipes; // todo what does number of pipes indicate, why array?
-	pid_t			*pids; // todo   multiple pids?
+	int				**pipes;
+	pid_t			*pids;
 }					t_pipeline;
+
+typedef struct s_mini
+{
+	char			**args;	//is going to change for parsing (tokenization)
+	char			*old_path;
+	int				input_fd;
+	int				output_fd;
+	int				fd;
+	char			*filename;
+	int				exit_status;
+	t_env		*env_struct;
+	t_pipeline	*pipes;
+	t_list		*list;
+	struct s_mini	*next;
+}					t_mini;
 
 //global variable
 extern volatile sig_atomic_t	g_exit;
 
 // main
-void				ft_mini_loop(t_env *env_list);
+void				ft_mini_loop(t_mini *mini);
 
 // utils
 int					ft_strcmp(char *s1, char *s2);
@@ -66,21 +73,21 @@ char				*get_env_value(t_env *env, char *key);
 char				**parse_input(char *line);
 void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
-void	update_exit_status(t_env **env, int status);
+void	update_exit_status(t_mini *mini);
 int	add_new_env_var(t_env **env, char *key, char *value);
 
 // built_in's
 int					mini_echo(char **args);
-int					mini_exit(char **args);
+int					mini_exit(t_mini *mini);
 int					mini_pwd(void);
-int					mini_unset(char **cmds, t_env **env);
+int					mini_unset(t_mini *mini);
 int					mini_env(t_env **env);
-int					mini_cd(char **args, t_env **env);
-int					mini_export(char **args, t_env **env);
+int					mini_cd(t_mini *mini);
+int					mini_export(t_mini *mini);
 
 // handling built_in's
 int					is_builtin(char *cmd);
-int					handle_builtin(char **cmd, t_env **env);
+int					handle_builtin(t_mini *mini);
 
 // remove env
 int					remove_env_head(t_env **env, char *key);
@@ -99,8 +106,8 @@ void				free_args(char **args);
 void				free_env_list(t_env *env);
 
 // execute
-int					execute_external_cmd(char **args, t_env *env);
-int	process_command(char *line, t_env **env);
+int					execute_external_cmd(t_mini *mini);
+int	process_command(char *line, t_mini *mini);
 char	*find_exec(char *cmd, char **paths);
 
 //signals
@@ -120,11 +127,11 @@ int	update_env_value(t_env **env, char *key, char *value);
 // pipes
 int		has_pipes(char *line);
 int		parse_pipeline(char *line, t_pipeline **pipeline);
-int		execute_pipeline(t_pipeline *pipeline, t_env **env);
+int		execute_pipeline(t_pipeline *pipeline);
 void	free_pipeline(t_pipeline *pipeline);
 
 //redirections
-int	execute_redirections(char **args);
-int	handle_heredoc_redirection(char *delimiter);
+int	execute_redirections(t_mini *mini);
+int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 
 #endif

@@ -1,31 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mini_built_in.c                                    :+:      :+:    :+:   */
+/*   mini_unset.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 10:52:36 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/06 11:27:11 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:25:43 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
 
-int	mini_unset(char **cmds, t_env **env)
+int	mini_unset(t_mini *mini)
 {
 	int	i;
-	int	status;
 
-	if (!cmds[1])
+	if (!mini->args[1])
 		return (0);
 	i = 1;
-	status = 0;
-	while (cmds[i])
+	mini->exit_status = 0;
+	while (mini->args[i])
 	{
-		if (remove_env_var(env, cmds[i]) == 0)
-			status = 1;
+		if (remove_env_var(&mini->env_struct, mini->args[i]) == 0)
+			mini->exit_status = 1;
 		i++;
 	}
-	return (status);
+	return (mini->exit_status);
 }

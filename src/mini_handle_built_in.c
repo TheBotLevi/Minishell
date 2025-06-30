@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 10:44:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 17:06:32 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:26:10 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,27 +28,25 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int	handle_builtin(char **cmd, t_env **env)
+int	handle_builtin(t_mini *mini)	//is going to change
 {
-	t_cmd	command;
-
-	if (!cmd || !cmd[0])
+	if (!mini->args || !mini->args[0])
 		return (1);
-	if (ft_strcmp(cmd[0], "echo") == 0)
-		return (mini_echo(cmd));
-	else if (ft_strcmp(cmd[0], "cd") == 0)
-		return (mini_cd(cmd, env));
-	else if (ft_strcmp(cmd[0], "pwd") == 0)
+	if (ft_strcmp(mini->args[0], "echo") == 0)
+		return (mini_echo(mini->args));
+	else if (ft_strcmp(mini->args[0], "cd") == 0)
+		return (mini_cd(mini));
+	else if (ft_strcmp(mini->args[0], "pwd") == 0)
 		return (mini_pwd());
-	else if (ft_strcmp(cmd[0], "export") == 0)
-		return (mini_export(cmd, env));
-	else if (ft_strcmp(cmd[0], "unset")== 0)
-		return (mini_unset(cmd, env));
-	else if (ft_strcmp(cmd[0], "env") == 0)
-		return (mini_env(env));
-	else if (ft_strcmp(cmd[0], "exit") == 0)
-		return (mini_exit(cmd));
-	else if (ft_strcmp(cmd[0], "$?") == 0)
-		return (command.exit_status);
+	else if (ft_strcmp(mini->args[0], "export") == 0)
+		return (mini_export(mini));
+	else if (ft_strcmp(mini->args[0], "unset")== 0)
+		return (mini_unset(mini));
+	else if (ft_strcmp(mini->args[0], "env") == 0)
+		return (mini_env(&mini->env_struct));
+	else if (ft_strcmp(mini->args[0], "exit") == 0)
+		return (mini_exit(mini));
+	else if (ft_strcmp(mini->args[0], "$?") == 0)
+		return (mini->exit_status);
 	return (127);
 }

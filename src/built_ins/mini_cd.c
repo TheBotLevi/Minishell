@@ -6,13 +6,13 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:08:25 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 16:46:36 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 12:58:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
 
-static void	update_pwd_vars(t_env **env, char *old_path)
+static void	update_pwd_vars(t_mini *mini)
 {
 	char	current_dir[BUFFER_SIZE];
 	char	*oldpwd_str;
@@ -20,63 +20,64 @@ static void	update_pwd_vars(t_env **env, char *old_path)
 
 	if (getcwd(current_dir, BUFFER_SIZE) == NULL)
 		return ;
-	oldpwd_str = ft_strjoin("OLDPWD=", old_path);
+	oldpwd_str = ft_strjoin("OLDPWD=", mini->old_path);
 	if (oldpwd_str)
 	{
-		update_env(env, oldpwd_str);
+		update_env(&mini->env_struct, oldpwd_str);
 		free(oldpwd_str);
 	}
+	free(mini->old_path);
+	mini->old_path = ft_strdup(current_dir);
 	pwd_str = ft_strjoin("PWD=", current_dir);
 	if (pwd_str)
 	{
-		update_env(env, pwd_str);
+		update_env(&mini->env_struct, pwd_str);
 		free(pwd_str);
 	}
 }
 
-static char	*get_cd_path(char **args, t_env **env)
+static char	*get_cd_path(t_mini *mini)
 {
 	char	*path;
 
-	if (!args[1] || ft_strcmp(args[1], "~") == 0)
-		path = get_env_value(*env, "HOME");
-	else if (ft_strcmp(args[1], "-") == 0)
+	if (!mini->args[1] || ft_strcmp(mini->args[1], "~") == 0)
+		path = get_env_value(mini->env_struct, "HOME");
+	else if (ft_strcmp(mini->args[1], "-") == 0)
 	{
-		path = get_env_value(*env, "OLDPWD");
+		path = get_env_value(mini->env_struct, "OLDPWD");
 		if (path)
 			ft_putendl_fd(path, STDOUT_FILENO);
 	}
 	else
-		path = args[1];
+		path = mini->args[1];
 	return (path);
 }
 
-static int	handle_cd_errors(char **args, char *path, char *old_path)
+static int	handle_cd_errors(t_mini *mini, char *path)
 {
 	ft_putstr_fd("minishell: cd ", STDERR_FILENO);
-	if (!path && !args[1])
+	if (!path && !mini->args[1])
 		ft_putendl_fd("HOME not set", STDERR_FILENO);
 	else
 		ft_putendl_fd("No such file or directory", STDERR_FILENO);
-	free(old_path);
+	free(mini->old_path);
 	return (1);
 }
 
-int	mini_cd(char **args, t_env **env)
+int	mini_cd(t_mini *mini)
 {
 	char	*path;
 	char	current_dir[BUFFER_SIZE];
-	char	*old_path;
 
 	if (getcwd(current_dir, BUFFER_SIZE) == NULL)
 		return (1);
-	old_path = ft_strdup(current_dir);
-	if (!old_path)
+	mini->old_path = ft_strdup(current_dir);
+	if (!mini->old_path)
 		return (1);
-	path = get_cd_path(args, env);
-	if ((!path && !args[1]) || (path && chdir(path) == -1))
-		return (handle_cd_errors(args, path, old_path));
-	update_pwd_vars(env, old_path);
-	free(old_path);
+	path = get_cd_path(mini);
+	if ((!path && !mini->args[1]) || (path && chdir(path) == -1))
+		return (handle_cd_errors(mini, path));
+	update_pwd_vars(mini);
+	free(mini->old_path);
 	return (0);
 }

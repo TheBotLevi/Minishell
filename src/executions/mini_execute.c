@@ -6,13 +6,13 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 17:18:00 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/28 13:44:37 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
 
-int	execute_external_cmd(char **args, t_env *env)
+int	execute_external_cmd(t_mini *mini)
 {
 	pid_t	pid;
 	int	status;
@@ -20,24 +20,24 @@ int	execute_external_cmd(char **args, t_env *env)
 	char	**paths;
 	char	*exec_path;
 
-	envp = env_list_to_array(env);
-	if (execute_redirections(args) != 0)
+	envp = env_list_to_array(mini->env_struct);
+	if (execute_redirections(mini) != 0)
 			exit(1);
 	pid = fork();
 	if (pid == 0)
 	{
 		setup_child_signals();
-		paths = get_paths_from_list(env);
-		exec_path = find_exec(args[0], paths);
+		paths = get_paths_from_list(mini->env_struct);
+		exec_path = find_exec(mini->args[0], paths);
 		if (paths)
 			free_args(paths);
 		if (exec_path)
 		{
-			execve(exec_path, args, envp);
+			execve(exec_path, mini->args, envp);
 			free(exec_path);
 		}
 		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd(args[0], STDERR_FILENO);
+		ft_putstr_fd(mini->args[0], STDERR_FILENO);
 		ft_putendl_fd(": command not found", STDERR_FILENO);
 		exit(127);
 	}
@@ -56,10 +56,8 @@ int	execute_external_cmd(char **args, t_env *env)
 	return (status);
 }
 
-int	process_command(char *line, t_env **env)
+int	process_command(char *line, t_mini *mini)
 {
-	char		**args;
-	int			status;
 	t_pipeline	*pipeline;
 
 	if (!line || !*line)
@@ -69,29 +67,29 @@ int	process_command(char *line, t_env **env)
 	{
 		if (parse_pipeline(line, &pipeline) == 0)
 		{
-			status = execute_pipeline(pipeline, env);
+			mini->exit_status = execute_pipeline(pipeline);
 			free_pipeline(pipeline);
 		}
 		else
-			status = 1;
-		update_exit_status(env, status);
-		return (status);
+			mini->exit_status = 1;
+		update_exit_status(mini);
+		return (mini->exit_status);
 	}
 	// Handle single command (no pipes)
-	args = parse_input(line);
-	if (!args || !args[0])
+	mini->args = parse_input(line);
+	if (!mini->args || !mini->args[0])
 	{
-		if (args)
-			free_args(args);
+		if (mini->args)
+			free_args(mini->args);
 		return (0);
 	}
-	if (is_builtin(args[0]))
-		status = handle_builtin(args, env);
+	if (is_builtin(mini->args[0]))
+		mini->exit_status = handle_builtin(mini);
 	else
-		status = execute_external_cmd(args, *env);
-	update_exit_status(env, status);
-	free_args(args);
-	return (status);
+		mini->exit_status = execute_external_cmd(mini);
+	update_exit_status(mini);
+	free_args(mini->args);
+	return (mini->exit_status);
 }
 
 static int	can_execute(char *cmd)

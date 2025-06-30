@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:24:36 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/18 10:30:00 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/27 11:17:11 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static int	only_n(char *str)
 	return (1);
 }
 
-int	mini_echo(char **cmds)
+int	mini_echo(char **cmds)	//Change: parsing
 {
 	int	i;
 	int	new_line;
