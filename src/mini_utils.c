@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:13:07 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 12:30:44 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,9 @@ int	ft_strcmp(char *s1, char *s2)
 	return (*s1 - *s2);
 }
 
-void	surpress_rl_leaks(void)
+void	clear_readline_history(void)
 {
 	rl_clear_history();
-	rl_readline_name = "Minishell";
 }
 
 /*void	cmd_pwd(void)
