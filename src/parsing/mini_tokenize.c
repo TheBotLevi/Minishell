@@ -17,6 +17,12 @@ int is_special_char(const char c) {
 }
 // todo differentiate between in-string special chars, operators etc..?
 
+//int is_special_char_in_str(const char c) {}
+
+int is_whitespace(const char c) {
+    return(is_in_set(c, " \t\n\r"));
+}
+
 // split on IFS
 char* get_ifs_from_env(t_mini *mini) {
     static char default_ifs[4];
@@ -41,24 +47,83 @@ char* get_ifs_from_env(t_mini *mini) {
 
 //char** split_on_str
 
-/*
-char** split_line(char *line, char *ifs) {
-    char **tokens;
-    char *token;
-    int i;
-    int j;
+typedef struct s_token_flags {
     int in_comment;
-    int in_quote;
+    int in_single_quote;
+    int in_double_quote;
     int in_string;
     int in_special;
-    int in_escape;
-    int in_dollar;
-    int in_hash;
-    int in_tilde;
-    int in_backslash;
-    int in_pipe;
+    int in_var_expansion;
+    int is_pipe;
+    int is_lt_redir;
+    int is_gt_redir;
+    int in_append_redir;
+    int in_heredoc_redir;
+
+}  t_token_flags;
+
+void set_flags(t_token_flags flags, char *str) {
+
+    // special chars
+
+    // " for double quotes
+    if (*str == '"' && !flags.in_single_quote && !flags.in_double_quote)
+        flags.in_double_quote = 1;
+    // ' for single quotes
+    if (*str == '\'' && !flags.in_double_quote && !flags.in_single_quote)
+        flags.in_single_quote = 1;
+    // # for comment
+    if (is_whitespace(*str) && *str+1 == '#' && !flags.in_double_quote && !flags.in_single_quote)
+        flags.in_comment = 1;
+    //$ for variables in plain args or in double quotes
+    if (*str == '$' && !flags.in_single_quote)
+        flags.in_var_expansion = 1;
+    // | for pipe
+    if (*str == '|' && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
+        flags.is_pipe = 1;
+    // < for redirection
+    if (*str == '<' && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
+        flags.is_lt_redir = 1;
+    // > for redirection
+    if (*str == '>' && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
+        flags.is_gt_redir = 1;
+    // >> for append
+    if (*str == '>' && *str+1 == '>' && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
+        flags.in_append_redir = 1;
+    // << for heredoc
+    if (*str == '<' && *str+1 == '<' && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
+        flags.in_heredoc_redir = 1;
+
+    // unset flags
+    /*
+    // # for comment
+    if (is_whitespace(*str) && *str+1 == '#' && !flags.in_double_quote && !flags.in_single_quote)
+        flags.in_comment = 1;
+    //$ for variables in plain args or in double quotes
+    if (*str == '$' && !flags.in_single_quote)
+        flags.in_var_expansion = 1;*/
+    // " for double quotes
+    if (*str == '"' && flags.in_double_quote)
+        flags.in_double_quote = 0;
+    // for single quotes
+    if (*str == '\'' && flags.in_single_quote)
+        flags.in_single_quote = 0;
 }
-*/
+char** split_line(char *line) {
+    char **tokens;
+    //char *token;
+    t_token_flags *flags;
+
+    flags = NULL;
+    ft_memset(flags, 0, sizeof(t_token_flags));
+    tokens = NULL;
+    ft_memset(tokens, 0, sizeof(char*));
+    while (*line) {
+        set_flags(*flags, line);
+    }
+    return (tokens);
+}
+
 
 
 int	process_command2(char *line, t_mini *mini)
