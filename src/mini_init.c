@@ -43,13 +43,13 @@ void	mini_init(t_mini *mini)
 	if (!mini)
 	{
 		ft_putendl_fd("Error allocating memory for mini", STDERR_FILENO);
-		return (1);
+		exit (1);
 	}
 	mini->env_struct = init_environment(env);
 	if (!mini->env_struct)
 	{
 		ft_putendl_fd("Error initializing environment", STDERR_FILENO);
-		return (2);
+		exit (2);
 	}
 	mini->old_path = NULL;
 	mini->args = NULL;

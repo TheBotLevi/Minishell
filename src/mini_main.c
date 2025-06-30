@@ -37,7 +37,8 @@ void	ft_mini_loop(t_mini *mini)
 		}
 		if (line && *line)
 			add_history(line);
-		status = process_command(line, mini);
+		//status = process_command(line, mini); //TODO
+		status = process_command(line, mini); //TODO
 		update_exit_status(mini);
 		if (ft_strcmp(line, "exit") == 0)
 		{
