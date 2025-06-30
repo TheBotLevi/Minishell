@@ -13,7 +13,7 @@
 #include "../../inc/minishell.h"
 
 int is_special_char(const char c) {
-    return(is_in_set(c, '$#"~\\|\'')); //todo is - option necesary?
+    return(is_in_set(c, "$#'~\\|\"")); //todo is - option necesary?
 }
 // todo differentiate between in-string special chars, operators etc..?
 
@@ -39,19 +39,29 @@ char* get_ifs_from_env(t_mini *mini) {
     return (default_ifs);
 }
 
-char** split_on_str
+//char** split_on_str
 
-
+/*
 char** split_line(char *line, char *ifs) {
     char **tokens;
     char *token;
     int i;
     int j;
+    int in_comment;
+    int in_quote;
+    int in_string;
+    int in_special;
+    int in_escape;
+    int in_dollar;
+    int in_hash;
+    int in_tilde;
+    int in_backslash;
+    int in_pipe;
 }
+*/
 
 
-
-int	process_command(char *line, t_mini *mini)
+int	process_command2(char *line, t_mini *mini)
 {
     t_pipeline	*pipeline;
 

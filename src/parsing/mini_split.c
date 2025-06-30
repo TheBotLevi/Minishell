@@ -25,7 +25,7 @@ static char	**ft_is_valid_input(char const *str, char const *c)
     }
     while (*str)
     {
-        if (!is_in_set(str, c))
+        if (!is_in_set(*str, c))
             return (NULL);
         str++;
     }

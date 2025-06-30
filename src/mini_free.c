@@ -12,7 +12,7 @@
 
 #include "../inc/minishell.h"
 
-void	free_n_array(char **ar, int i)
+void	free_n_array(char **ar, size_t i)
 {
 	while (i > 0)
 		free(ar[--i]);
@@ -26,7 +26,7 @@ void	free_args(char **args)
 	i = 0;
 	if (!args)
 		return ;
-	while (args[i]) // todo invalid access risk if not null-terminated
+	while (args[i])
 	{
 		free(args[i]);
 		i++;

@@ -12,6 +12,20 @@
 
 #include "../inc/minishell.h"
 
+int has_line_continuation(char *line) {
+	if (line && *line)
+		if (line[ft_strlen(line) - 1] == '\\')
+			return (1);
+	return (0);
+}
+void fill_line_with_multiline_input(char **line) {
+	char *multiline_input;
+
+	multiline_input = ft_strjoin(*line, readline("> "));
+	free(*line);
+	*line = multiline_input;
+}
+
 void	ft_mini_loop(t_mini *mini)
 {
 	char	*line;
@@ -35,6 +49,9 @@ void	ft_mini_loop(t_mini *mini)
 			ft_putendl_fd("exit\n", STDOUT_FILENO);
 			break ;
 		}
+		while (has_line_continuation(line))
+			fill_line_with_multiline_input(&line);
+		printf("%s\n", line);
 		if (line && *line)
 			add_history(line);
 		//status = process_command(line, mini); //TODO

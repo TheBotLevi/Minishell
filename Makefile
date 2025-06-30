@@ -38,7 +38,7 @@ SRCS = src/mini_main.c \
 
 MINISHELL = minishell
 
-OBJ_DIRS = ${OBJ_DIR} ${OBJ_DIR}/built_ins ${OBJ_DIR}/executions ${OBJ_DIR}/redirections ${OBJ_DIR}/signals
+OBJ_DIRS = ${OBJ_DIR} ${OBJ_DIR}/built_ins ${OBJ_DIR}/executions ${OBJ_DIR}/redirections ${OBJ_DIR}/signals ${OBJ_DIR}/parsing
 
 all: ${OBJ_DIRS} ${LIBFT} ${MINISHELL}
 

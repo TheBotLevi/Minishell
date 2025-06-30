@@ -137,5 +137,6 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 
 //parsing
 char* get_ifs_from_env(t_mini *mini);
+char	**ft_split_on_str(char const *s, char const *c);
 
 #endif
