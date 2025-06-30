@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 11:26:05 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 12:31:41 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@ int	main(int ac, char **av, char **envp)
 	if (!mini)
 		return (1);
 	setup_signals();
-	surpress_rl_leaks();
 	ft_mini_loop(mini);
 	free_env_list(mini->env_struct);
-	clear_history();
-	rl_clear_history();
+	clear_readline_history();
+//	clear_history();
+//	rl_clear_history();
 	return (0);
 }

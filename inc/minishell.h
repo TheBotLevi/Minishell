@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 11:22:13 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 12:31:23 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void				ft_mini_loop(t_mini *mini);
 
 // utils
 int					ft_strcmp(char *s1, char *s2);
-void				surpress_rl_leaks(void);
+void				clear_readline_history(void);
 char				*get_env_value(t_env *env, char *key);
 char				**parse_input(char *line);
 void				sort_env_vars(t_env **sorted_env, int count);
