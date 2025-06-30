@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 12:31:41 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 15:36:27 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,10 @@ int	main(int ac, char **av, char **envp)
 		return (1);
 	setup_signals();
 	ft_mini_loop(mini);
-	free_env_list(mini->env_struct);
 	clear_readline_history();
+//	free_env_list(mini->env_struct);
 //	clear_history();
 //	rl_clear_history();
+	free_everything(mini);
 	return (0);
 }
