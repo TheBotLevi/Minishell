@@ -102,6 +102,7 @@ char	**get_paths_from_list(t_env *env_list);
 t_env	*create_env_list(char **env);
 
 // free
+void				free_n_array(char **ar, size_t i);
 void				free_args(char **args);
 void				free_env_list(t_env *env);
 void	free_everything(t_mini *mini);
@@ -135,5 +136,9 @@ void	free_pipeline(t_pipeline *pipeline);
 //redirections
 int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
+
+//parsing
+char* get_ifs_from_env(t_mini *mini);
+char	**ft_split_on_str(char const *s, char const *c);
 
 #endif

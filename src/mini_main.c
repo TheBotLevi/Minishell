@@ -52,9 +52,12 @@ void	ft_mini_loop(t_mini *mini)
 int	main(int ac, char **av, char **envp)
 {
 	t_mini	*mini;
+	(void)	av;
 
-	(void)ac;
-	(void)av;
+	if (ac != 1) {
+		ft_putendl_fd("minishell: too many arguments\n", STDERR_FILENO);
+		return (1);
+	};
 	mini = mini_init(envp);
 	if (!mini)
 		return (1);
