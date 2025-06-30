@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:20:03 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 11:02:33 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,18 +37,20 @@ static void	handle_invalid_args(t_mini *mini)
 
 int	mini_exit(t_mini *mini)
 {
-	int	ac;
+	int	arg_count;
 
-	ac = 0;
+	arg_count = 0;
+	while (mini->args[arg_count])
+		arg_count++;
 	ft_putendl_fd("exit", STDOUT_FILENO);
-	if (!mini->args[1])
+	if (arg_count == 1)
 		mini->exit_status = 1;
 	else if (!is_numeric(mini->args[1]))
 	{
 		handle_invalid_args(mini);
 		mini->exit_status = 2;
 	}
-	else if (ac > 2)
+	else if (arg_count > 2)
 	{
 		ft_putendl_fd("minishell: exit: too many arguments", STDERR_FILENO);
 		return (1);

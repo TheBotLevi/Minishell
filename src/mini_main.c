@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 13:40:49 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 11:26:05 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,14 +49,15 @@ void	ft_mini_loop(t_mini *mini)
 	}
 }
 
-int	main(int ac, char **av)
+int	main(int ac, char **av, char **envp)
 {
 	t_mini	*mini;
 
-	mini = NULL;
 	(void)ac;
 	(void)av;
-	//mini_init here
+	mini = mini_init(envp);
+	if (!mini)
+		return (1);
 	setup_signals();
 	surpress_rl_leaks();
 	ft_mini_loop(mini);

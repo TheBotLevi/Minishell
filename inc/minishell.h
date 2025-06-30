@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:30:20 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/06/30 11:22:13 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,7 @@ void	restore_main_signals(void);
 
 //init
 t_env	*init_environment(char **env);
+t_mini	*mini_init(char **envp);
 
 //update
 int	update_env_value(t_env **env, char *key, char *value);
