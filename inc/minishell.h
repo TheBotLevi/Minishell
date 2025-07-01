@@ -75,6 +75,7 @@ void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
 void	update_exit_status(t_mini *mini);
 int	add_new_env_var(t_env **env, char *key, char *value);
+void print_array(char** ar);
 
 // built_in's
 int					mini_echo(char **args);
@@ -140,6 +141,6 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 //parsing
 char* get_ifs_from_env(t_mini *mini);
 char	**ft_split_on_str(char const *s, char const *c);
-char** split_line(char *line);
+char** split_line(char *line, t_mini *mini);
 
 #endif

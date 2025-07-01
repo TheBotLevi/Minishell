@@ -115,3 +115,11 @@ void	update_exit_status(t_mini *mini)
 		free(exit_str);
 	}
 }
+
+void print_array(char** ar) {
+
+	while (ar && *ar) {
+		printf("%s\n", *ar);
+		ar++;
+	}
+}

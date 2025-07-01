@@ -12,6 +12,13 @@
 
 #include "../inc/minishell.h"
 
+void test_tokenization(char* line, t_mini* mini) {
+	printf("\nInput tokens\n----\n");
+	print_array(split_line(line, mini));
+	printf("----\n");
+	fflush(stdout);
+}
+
 void	ft_mini_loop(t_mini *mini)
 {
 	char	*line;
@@ -37,6 +44,7 @@ void	ft_mini_loop(t_mini *mini)
 		}
 		if (line && *line)
 			add_history(line);
+		//test_tokenization(line, mini);
 		status = process_command(line, mini);
 		update_exit_status(mini);
 		if (ft_strcmp(line, "exit") == 0)
@@ -44,7 +52,7 @@ void	ft_mini_loop(t_mini *mini)
 			free(line);
 			break ;
 		}
-		printf("%d\n", status);
+		printf("exit status: %d\n", status);
 		free(line);
 	}
 }

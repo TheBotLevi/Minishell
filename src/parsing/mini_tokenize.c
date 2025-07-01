@@ -65,43 +65,43 @@ typedef struct s_token_flags {
 
 }  t_token_flags;
 
-void set_flags(t_token_flags flags, char *str) {
+void set_flags(t_token_flags *flags, char *str) {
 
     // special chars
 
     // " for double quotes
-    if (*str == '"' && !flags.in_single_quote && !flags.in_double_quote)
-        flags.in_double_quote = 1;
+    if (*str == '"' && !flags->in_single_quote && !flags->in_double_quote)
+        flags->in_double_quote = 1;
     // ' for single quotes
-    if (*str == '\'' && !flags.in_double_quote && !flags.in_single_quote)
-        flags.in_single_quote = 1;
+    if (*str == '\'' && !flags->in_double_quote && !flags->in_single_quote)
+        flags->in_single_quote = 1;
     // # for comment
     if (is_whitespace(*str) && *str+1 && *str+1 == '#'
-        && !flags.in_double_quote && !flags.in_single_quote)
-        flags.in_comment = 1;
+        && !flags->in_double_quote && !flags->in_single_quote)
+        flags->in_comment = 1;
     //$ for variables in plain args or in double quotes
-    if (*str == '$' && !flags.in_single_quote)
-        flags.in_var_expansion = 1;
+    if (*str == '$' && !flags->in_single_quote)
+        flags->in_var_expansion = 1;
     // | for pipe
-    if (*str == '|' && !flags.in_single_quote
-        && !flags.in_double_quote && !flags.in_comment)
-        flags.is_pipe = 1;
+    if (*str == '|' && !flags->in_single_quote
+        && !flags->in_double_quote && !flags->in_comment)
+        flags->is_pipe = 1;
     // < for redirection
-    if (*str == '<' && !flags.in_single_quote
-        && !flags.in_double_quote && !flags.in_comment)
-        flags.is_lt_redir = 1;
+    if (*str == '<' && !flags->in_single_quote
+        && !flags->in_double_quote && !flags->in_comment)
+        flags->is_lt_redir = 1;
     // > for redirection
-    if (*str == '>' && !flags.in_single_quote
-        && !flags.in_double_quote && !flags.in_comment)
-        flags.is_gt_redir = 1;
+    if (*str == '>' && !flags->in_single_quote
+        && !flags->in_double_quote && !flags->in_comment)
+        flags->is_gt_redir = 1;
     // >> for append
     if (*str == '>' && *str+1 && *str+1 == '>'
-        && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
-        flags.in_append_redir = 1;
+        && !flags->in_single_quote && !flags->in_double_quote && !flags->in_comment)
+        flags->in_append_redir = 1;
     // << for heredoc
     if (*str == '<' && *str+1 && *str+1 == '<'
-        && !flags.in_single_quote && !flags.in_double_quote && !flags.in_comment)
-        flags.in_heredoc_redir = 1;
+        && !flags->in_single_quote && !flags->in_double_quote && !flags->in_comment)
+        flags->in_heredoc_redir = 1;
 
     // unset flags
     /*
@@ -112,34 +112,22 @@ void set_flags(t_token_flags flags, char *str) {
     if (*str == '$' && !flags.in_single_quote)
         flags.in_var_expansion = 1;*/
     // " for double quotes
-    if (*str == '"' && flags.in_double_quote)
-        flags.in_double_quote = 0;
+    if (*str == '"' && flags->in_double_quote)
+        flags->in_double_quote = 0;
     // for single quotes
-    if (*str == '\'' && flags.in_single_quote)
-        flags.in_single_quote = 0;
+    if (*str == '\'' && flags->in_single_quote)
+        flags->in_single_quote = 0;
 }
-
-void print_array(char** ar) {
-
-    while (ar && *ar) {
-        printf("%s\n", *ar);
-        ar++;
-    }
-}
-char** split_line(char *line) {
+char** split_line(char *line, t_mini *mini) {
     char **tokens;
     //char *token;
-    t_token_flags *flags;
+    t_token_flags flags;
 
-    tokens = NULL;
-    ft_memset(tokens, 0, sizeof(char*));
-    tokens = ft_split_on_str(line, get_ifs_from_env(NULL));
-    print_array(tokens);
-    flags = NULL;
-    ft_memset(flags, 0, sizeof(t_token_flags));
-    while (*line) {
-        set_flags(*flags, line);
-    }
+    tokens = ft_split_on_str(line, get_ifs_from_env(mini));
+    //print_array(tokens);
+    //flags = malloc(sizeof(t_token_flags));
+    ft_memset(&flags, 0, sizeof(t_token_flags));
+    //set_flags(&flags, line);
     return (tokens);
 }
 
