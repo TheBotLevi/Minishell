@@ -62,6 +62,7 @@ void	free_command_list(t_mini *cmds)
 	}
 }
 
+/*
 void	free_pipeline(t_pipeline *pipeline)
 {
 	int	i;
@@ -77,6 +78,41 @@ void	free_pipeline(t_pipeline *pipeline)
 			free(pipeline->pipes[i++]);
 		free(pipeline->pipes);
 	}
+	free(pipeline);
+}*/
+
+static void	help_free_pipelines(t_pipeline *pipeline)
+{
+	int	i;
+
+	i = 0;
+	while (i < pipeline->cmd_count - 1)
+	{
+		free(pipeline->pipes[i]);
+		i++;
+	}
+	free(pipeline->pipes);
+}
+
+void	free_pipeline(t_pipeline *pipeline)
+{
+	t_mini	*current;
+	t_mini	*next;
+
+	if (!pipeline)
+		return;
+	current = pipeline->commands;
+	while (current)
+	{
+		next = current->next;
+		free_args(current->args);
+		free(current);
+		current = next;
+	}
+	if (pipeline->pipes)
+		help_free_pipelines(pipeline);
+	if (pipeline->pids)
+		free(pipeline->pids);
 	free(pipeline);
 }
 
