@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 15:36:27 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 16:12:14 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ int	main(int ac, char **av, char **envp)
 	(void)	av;
 
 	if (ac != 1) {
-		ft_putendl_fd("minishell: too many arguments\n", STDERR_FILENO);
+		ft_putendl_fd("minishell: too many arguments", STDERR_FILENO);
 		return (1);
 	};
 	mini = mini_init(envp);

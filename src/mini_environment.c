@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:05:09 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/08 20:48:50 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 16:48:43 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,19 @@ char	**get_paths_from_list(t_env *env_list)
 	return (NULL);
 }
 
+int	ft_envsize(t_env *lst) //had to create function because ft_lstsize in libft has t_list and we need to pass a t_env
+{
+	int	count;
+
+	count = 0;
+	while (lst)
+	{
+		count++;
+		lst = lst->next;
+	}
+	return (count);
+}
+
 char	**env_list_to_array(t_env *env_list)
 {
 	int	count;
@@ -89,13 +102,7 @@ char	**env_list_to_array(t_env *env_list)
 	char	**env_array;
 	t_env	*current;
 
-	count = 0; // todo use ft_lstsize
-	current = env_list;
-	while (current)
-	{
-		count++;
-		current = current->next;
-	}
+	count = ft_envsize(env_list); //changed to ft_lstsize like you wanted ;)
 	env_array = (char **)malloc(sizeof(char *) * (count + 1));
 	if (!env_array)
 		return (NULL);

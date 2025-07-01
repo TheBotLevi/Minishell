@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 11:02:33 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 16:30:42 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,6 @@ int	mini_exit(t_mini *mini)
 	}
 	else
 		mini->exit_status = ft_atoi(mini->args[1]) & 255;
-	exit(mini->exit_status);
+//	exit(mini->exit_status);
 	return (mini->exit_status);
 }

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 15:34:15 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 11:22:52 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 16:51:02 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ t_env	*init_environment(char **env)
 			free(pwd);
 		}
 	}
-	update_env(&env_list, "?=0");
+//	update_env(&env_list, "?=0");
 	return (env_list);
 }
 
@@ -55,5 +55,6 @@ t_mini	*mini_init(char ** envp)
 	mini->old_path = NULL;
 	mini->args = NULL;
 	mini->exit_status = 0;
+	mini->pipes = NULL;
 	return (mini);
 }

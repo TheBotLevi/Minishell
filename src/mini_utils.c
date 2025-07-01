@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 10:40:14 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 12:30:44 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 16:10:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void	update_exit_status(t_mini *mini)
 	exit_str = ft_itoa(mini->exit_status);
 	if (exit_str)
 	{
-		update_env_value(&mini->env_struct, "?", exit_str);
+//		update_env_value(&mini->env_struct, "?", exit_str);
 		free(exit_str);
 	}
 }

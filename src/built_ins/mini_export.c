@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:27:49 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:22:35 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 16:05:37 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static int	handle_no_value_var(char *arg, t_env **env)
 
 static void	print_exported_var(t_env *env)
 {
-	ft_putstr_fd("declare -x ", STDOUT_FILENO);
+	ft_putstr_fd("export ", STDOUT_FILENO);
 	ft_putstr_fd(env->key, STDOUT_FILENO);
 	if (env->value)
 	{

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 15:48:05 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/01 15:54:26 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,8 @@ void	free_pipeline(t_pipeline *pipeline)
 		help_free_pipelines(pipeline);
 	if (pipeline->pids)
 		free(pipeline->pids);
+	if (pipeline->commands)
+		free(pipeline->commands);
 	free(pipeline);
 }
 
@@ -120,7 +122,7 @@ void	free_everything(t_mini *mini)
 {
 	if (!mini)
 	return ;
-	free_args(mini->args);
+//	free_args(mini->args);
 	free(mini->old_path);
 	if (mini->pipes)
 		free_pipeline(mini->pipes);
