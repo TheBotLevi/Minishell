@@ -65,70 +65,83 @@ typedef struct s_token_flags {
 
 }  t_token_flags;
 
-void set_flags(t_token_flags *flags, char *str) {
+void unset_flags(t_token_flags *flags, char c, int quote_flag_set) {
+    if (quote_flag_set)
+        return ;
+    if (c == '"' && flags->in_double_quote)
+        flags->in_double_quote = 0;
+    if (c == '\'' && flags->in_single_quote)
+        flags->in_single_quote = 0;
+}
 
-    // special chars
+void set_flags(t_token_flags *flags, char **tokens) {
 
+    char c;
+    char next_c;
+    int quote_flag_set;
+
+    if (!tokens || !tokens[0])
+        return ;
+    c = *tokens[0];
+    next_c = 0;
+    if (tokens[1])
+        next_c = *tokens[1];
+    quote_flag_set = 0;
     // " for double quotes
-    if (*str == '"' && !flags->in_single_quote && !flags->in_double_quote)
+    if (c == '"' && !flags->in_single_quote && !flags->in_double_quote) {
         flags->in_double_quote = 1;
+        quote_flag_set = 1;
+    }
     // ' for single quotes
-    if (*str == '\'' && !flags->in_double_quote && !flags->in_single_quote)
+    if (c == '\'' && !flags->in_double_quote && !flags->in_single_quote){
         flags->in_single_quote = 1;
+        quote_flag_set = 1;
+    }
     // # for comment
-    if (is_whitespace(*str) && *str+1 && *str+1 == '#'
+    if (is_whitespace(c) && next_c && next_c == '#'
         && !flags->in_double_quote && !flags->in_single_quote)
         flags->in_comment = 1;
     //$ for variables in plain args or in double quotes
-    if (*str == '$' && !flags->in_single_quote)
+    if (c == '$' && !flags->in_single_quote)
         flags->in_var_expansion = 1;
     // | for pipe
-    if (*str == '|' && !flags->in_single_quote
+    if (c == '|' && !flags->in_single_quote
         && !flags->in_double_quote && !flags->in_comment)
         flags->is_pipe = 1;
     // < for redirection
-    if (*str == '<' && !flags->in_single_quote
+    if (c == '<' && !flags->in_single_quote
         && !flags->in_double_quote && !flags->in_comment)
         flags->is_lt_redir = 1;
     // > for redirection
-    if (*str == '>' && !flags->in_single_quote
+    if (c == '>' && !flags->in_single_quote
         && !flags->in_double_quote && !flags->in_comment)
         flags->is_gt_redir = 1;
     // >> for append
-    if (*str == '>' && *str+1 && *str+1 == '>'
+    if (c == '>' && next_c && next_c == '>'
         && !flags->in_single_quote && !flags->in_double_quote && !flags->in_comment)
         flags->in_append_redir = 1;
     // << for heredoc
-    if (*str == '<' && *str+1 && *str+1 == '<'
+    if (c == '<' && next_c && next_c == '<'
         && !flags->in_single_quote && !flags->in_double_quote && !flags->in_comment)
         flags->in_heredoc_redir = 1;
-
-    // unset flags
-    /*
-    // # for comment
-    if (is_whitespace(*str) && *str+1 == '#' && !flags.in_double_quote && !flags.in_single_quote)
-        flags.in_comment = 1;
-    //$ for variables in plain args or in double quotes
-    if (*str == '$' && !flags.in_single_quote)
-        flags.in_var_expansion = 1;*/
-    // " for double quotes
-    if (*str == '"' && flags->in_double_quote)
-        flags->in_double_quote = 0;
-    // for single quotes
-    if (*str == '\'' && flags->in_single_quote)
-        flags->in_single_quote = 0;
+    unset_flags(flags, c, quote_flag_set);
 }
+
 char** split_line(char *line, t_mini *mini) {
     char **tokens;
-    //char *token;
+    char **tokens_head;
     t_token_flags flags;
 
     tokens = ft_split_on_str(line, get_ifs_from_env(mini));
     //print_array(tokens);
-    //flags = malloc(sizeof(t_token_flags));
     ft_memset(&flags, 0, sizeof(t_token_flags));
-    //set_flags(&flags, line);
-    return (tokens);
+    tokens_head = tokens;
+    while (tokens && *tokens) {
+        set_flags(&flags, tokens);
+        printf("%s, in comment: %d, in_single quote: %d \n", *tokens, flags.in_comment, flags.in_single_quote);
+        tokens++;
+    }
+    return (tokens_head);
 }
 
 

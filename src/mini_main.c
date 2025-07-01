@@ -12,11 +12,25 @@
 
 #include "../inc/minishell.h"
 
+int	get_char_arr_size(char **arr)
+{
+	int	i;
+
+	i = 0;
+	while (arr[i])
+		i++;
+	return (i);
+}
+
 void test_tokenization(char* line, t_mini* mini) {
+	char **tokens;
+
 	printf("\nInput tokens\n----\n");
-	print_array(split_line(line, mini));
+	tokens = split_line(line, mini);
+	print_array(tokens);
 	printf("----\n");
 	fflush(stdout);
+	free_args(tokens);
 }
 
 void	ft_mini_loop(t_mini *mini)
