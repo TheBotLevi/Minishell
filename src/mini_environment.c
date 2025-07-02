@@ -84,12 +84,14 @@ char	**get_paths_from_list(t_env *env_list)
 int	ft_envsize(t_env *lst) //had to create function because ft_lstsize in libft has t_list and we need to pass a t_env
 {
 	int	count;
+	t_env *current;
 
 	count = 0;
-	while (lst)
+	current = lst;
+	while (current)
 	{
 		count++;
-		lst = lst->next;
+		current = current->next;
 	}
 	return (count);
 }
