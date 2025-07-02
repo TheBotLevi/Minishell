@@ -34,6 +34,7 @@ SRCS = src/mini_main.c \
        src/redirections/mini_redirections.c \
        src/redirections/mini_handle_heredoc.c \
        src/parsing/mini_tokenize.c \
+       src/parsing/mini_quotes.c \
        src/parsing/mini_split.c
 
 MINISHELL = minishell

@@ -60,6 +60,12 @@ typedef struct s_mini
 	struct s_mini	*next;
 }					t_mini;
 
+typedef struct s_quote_state {
+	int in_single_quote;
+	int in_double_quote;
+	int within_quote;
+} t_quote_state;
+
 //global variable
 extern volatile sig_atomic_t	g_exit;
 
@@ -142,5 +148,9 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 char* get_ifs_from_env(t_mini *mini);
 char	**ft_split_on_str(char const *s, char const *c);
 char** split_line(char *line, t_mini *mini);
+int *get_quote_state_array(char const *str);
+int is_within_quote(char c, t_quote_state *state);
+size_t get_int_array_size(const int *arr);
+char	**split_quotes_comments(char const *s);
 
 #endif

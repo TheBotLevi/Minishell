@@ -117,14 +117,13 @@ void	update_exit_status(t_mini *mini)
 }
 
 void print_array(char** ar) {
-	char **current;
+	int i;
 
+	i = 0;
 	if (!ar)
 		return;
-	current = ar;
-	while (*current) {
-		printf("%s\n", *current);
-		current++;
+	while (ar[i] != NULL) {
+		printf("%s\n", ar[i]);
+		i++;
 	}
 }
-

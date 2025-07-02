@@ -35,75 +35,6 @@ static char	**ft_is_valid_input(char const *str, char const *c)
     return (ar);
 }
 
-typedef struct s_quote_state {
-    int in_single_quote;
-    int in_double_quote;
-    int within_quote;
-    //todo track unfinished quotes and treat as normal string
-} t_quote_state;
-
-/* state keeps track of already being in a quote and which type (single or double)
- * IF used in a loop and the last element is still marked as "within_quote" it
- * indicates an unfinished quote
- */
-int is_within_quote(char c, t_quote_state *state) {
-
-    if (!state->within_quote && (c == '\'' || c == '\"')) {
-        state->within_quote = 1;
-        if (c == '\'')
-            state->in_single_quote = 1;
-        if (c == '\"')
-            state->in_double_quote = 1;
-        return (1); // change to 1 to include quote mark
-    }
-    if (state->within_quote && c == '\'' && state->in_single_quote) {
-        state->within_quote = 0;
-        state->in_single_quote = 0;
-        return (1); // change to 1 to include quote mark
-    }
-    if (state->within_quote && c == '\"' && state->in_double_quote) {
-        state->within_quote = 0;
-        state->in_double_quote = 0;
-        return (1); // change to 1 to include quote mark
-    }
-    if (state->within_quote)
-        return (1);
-    return (0);
-}
-
-/* sets last detected quote of the quote_array back to zero as quote was not
- * correctly terminated and should be interpreted as literal string*/
-void cancel_unfinished_quote(int *in_quote_arr, int last_elem_idx) {
-
-    while (in_quote_arr[last_elem_idx] == 1 && last_elem_idx >= 0) {
-        in_quote_arr[last_elem_idx] = 0;
-        last_elem_idx--;
-    }
-}
-
-/* goes through string and detects single and double quotes, returning
-// a -1 terminted int array indicating whether the character is wihtin a
-quoted string (incl. its quotation marks) */
-int *get_quote_state_array(char const *str)
-{
-    int *in_quote_arr;
-    t_quote_state state;
-    int i;
-
-    in_quote_arr = (int *)malloc(sizeof(int)*ft_strlen(str)+1);
-    if (in_quote_arr == NULL)
-        return (NULL);
-    i = 0;
-    while (str[i] != '\0') {
-        in_quote_arr[i] = is_within_quote(str[i], &state);
-        i++;
-    }
-    if (state.within_quote == 1)
-        cancel_unfinished_quote(in_quote_arr, i-1);
-    in_quote_arr[i] = -1;
-    return (in_quote_arr);
-}
-
 static size_t	ft_get_ndelims(char const *str, char const *c)
 {
     size_t	ndelims;
@@ -199,26 +130,14 @@ char	**ft_split_on_str(char const *s, char const *c)
     return (ar);
 }
 
-size_t get_int_array_size(const int *arr) {
-    int i;
-    size_t size;
-
-    i = 0;
-    while (arr[i] != -1)
-    {
-        size++;
-        i++;
-    }
-    return (size);
-}
 
 /* determine the number of splits necessary to separate quotes from rest to know allocation size for array
  * for an array with len 1 or 2, no splits are possible:
  * len 1: no quote possible since only one char --> 0 splits
  * len 2: either all empty quote, or str --> 0 splits
  */
-int get_n_splits(int *quote_arr, int arr_size) {
-    int i;
+int get_n_splits(int *quote_arr, size_t arr_size) {
+    size_t i;
     int n_splits;
     int prev_val;
 
@@ -231,32 +150,44 @@ int get_n_splits(int *quote_arr, int arr_size) {
     {
         if (quote_arr[i] != prev_val)
             n_splits++;
-
         prev_val = quote_arr[i];
         i++;
     }
+    return (n_splits);
 }
 
-char** split_guarding_sep(char const *s, int *quote_arr, int arr_size, int n_splits) {
-    char **ar;
+void split_guarding_sep(char const *s, int *quote_arr, int arr_size, char **ar) {
     int char_ind;
     int array_ind;
     int str_ind;
     int prev_val;
     int start_val;
+    int len;
 
-    ar = (char **)malloc((n_splits + 2) * sizeof(char *));
-    if (ar == NULL)
-        return (NULL);
+    if (!s || !quote_arr || !ar || arr_size <= 0)
+        return;
+
     char_ind = 0;
     array_ind = 0;
     str_ind = 0;
     prev_val = quote_arr[0];
-    while (char_ind < arr_size)
-    {
+    while (char_ind < arr_size) {
         if (quote_arr[char_ind] != prev_val) {
+            len = 0;
             start_val = quote_arr[char_ind];
-            while (quote_arr[char_ind] == start_val) {
+            int temp_char_ind = char_ind;
+            while (temp_char_ind < arr_size && quote_arr[temp_char_ind] == start_val) {
+                len++;
+                temp_char_ind++;
+            }
+
+            ar[array_ind] = (char *)malloc((len + 1) * sizeof(char));
+            if (ar[array_ind] == NULL) {
+                free_n_array(ar, array_ind);
+                return;
+            }
+
+            while (char_ind < arr_size && quote_arr[char_ind] == start_val) {
                 ar[array_ind][str_ind] = s[char_ind];
                 char_ind++;
                 str_ind++;
@@ -264,58 +195,46 @@ char** split_guarding_sep(char const *s, int *quote_arr, int arr_size, int n_spl
             ar[array_ind][str_ind] = '\0';
             array_ind++;
             str_ind = 0;
-            if (quote_arr[char_ind] != prev_val) {
-                ar[array_ind] = ft_set_next_substr(s, get_ifs_from_env(mini), &char_ind);
-                if (ar[array_ind] == NULL)
-                {
-                    free_n_array(ar, array_ind);
-                    return (NULL);
-                }
-            }
-            }
         }
         prev_val = quote_arr[char_ind];
         char_ind++;
-        if (quote_arr[char_ind] == 1)
-            s++;
-            char_ind++;
-        else if (quote_arr[char_ind] == 0)
-        {
-            ar[array_ind] = ft_set_next_substr(s, get_ifs_from_env(mini), &char_ind);
-            if (ar[array_ind] == NULL)
-            {
-                free_n_array(ar, array_ind);
-                return (NULL);
-            }
-            array_ind++;
-        }
     }
-
+    ar[array_ind] = NULL;
 }
 
-/* Search for quotes and isolate them into their own array, leave the rest for consecutive treatment in split on IFS*/
-char	**split_quotes_comments(char const *s, t_mini *mini) {
+/* Search for quotes and isolate them into their own array, leave the rest for
+ * consecutive treatment in split on IFS
+ * get pre, quotes and post arrays, split without eating the separators
+ */
+char	**split_quotes_comments(char const *s) {
 
     int n_splits;
     int *in_quote_arr;
-    int int_arr_size;
+    size_t int_arr_size;
     char **ar;
-    size_t i;
-    size_t str_ind;
 
     in_quote_arr = get_quote_state_array(s);
     if (in_quote_arr == NULL)
         return (NULL);
-
     int_arr_size = get_int_array_size(in_quote_arr);
-    n_splits = get_n_splits(in_quote_arr, int_arr_size);
-    if (n_splits == 0)
-        return (ft_split_on_str(s, get_ifs_from_env(mini)));
-
-    //get pre, quotes and post arrays, split without eating the separators
-    ar = split_guarding_sep(s, in_quote_arr, int_arr_size, n_splits);
+    n_splits = get_n_splits(in_quote_arr, int_arr_size+1);
+    ar = (char **)malloc((n_splits + 2) * sizeof(char *));
     if (ar == NULL)
         return (NULL);
+    if (n_splits == 0) {
+        ar[0] = ft_strdup(s);
+        ar[1] = NULL;
+    }
+    else
+        split_guarding_sep(s, in_quote_arr, int_arr_size, ar);
     free(in_quote_arr);
-
+    if (ar[0] == NULL)
+        return (NULL);
+    return (ar);
 }
+
+/*
+void create_token_array(char **ar, t_mini *mini) {
+    char **tokens;
+
+}*/

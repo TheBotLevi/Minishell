@@ -27,6 +27,8 @@ void test_tokenization(char* line, t_mini* mini) {
 
 	printf("\nInput tokens\n----\n");
 	tokens = split_line(line, mini);
+	if (!tokens)
+		return ;
 	print_array(tokens);
 	printf("----\n");
 	fflush(stdout);

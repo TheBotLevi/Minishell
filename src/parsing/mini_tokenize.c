@@ -126,14 +126,69 @@ void set_flags(t_token_flags *flags, char **tokens) {
         flags->in_heredoc_redir = 1;
     unset_flags(flags, c, quote_flag_set);
 }
+/*
+// Helper function to get array size
+static int get_array_size(char **array) {
+    int size;
+    for (size = 0; array[size] != NULL; size++);
+    return size;
+}
+
+char ***split_further(char **original_array, char *delimiter) {
+    char ***result;
+    int i;
+    int array_size;
+
+    // Count how many strings are in original_array
+    for (array_size = 0; original_array[array_size] != NULL; array_size++);
+
+    // Allocate memory for array of char**
+    result = (char ***)malloc((array_size + 1) * sizeof(char **));
+    if (!result)
+        return NULL;
+
+    // For each string in original array
+    for (i = 0; original_array[i] != NULL; i++) {
+        // Split each string and store the result in result[i]
+        result[i] = ft_split_on_str(original_array[i], delimiter);
+        if (!result[i]) {
+            // Handle error: free previously allocated memory
+            while (--i >= 0) {
+                free_n_array(result[i], get_array_size(result[i]));
+            }
+            free(result);
+            return NULL;
+        }
+    }
+    result[i] = NULL; // Null terminate the array
+
+    return result;
+}
+*/
+
 
 char** split_line(char *line, t_mini *mini) {
-    char **tokens;
-    char **tokens_head;
-    t_token_flags flags;
+    char **arr_quotes_string;
+    //char **tokens_head;
+    //char **tokens;
+    //t_token_flags flags;
 
+    if (!line || !mini)
+        return NULL;
+    arr_quotes_string = split_quotes_comments(line);
+    if (!arr_quotes_string)
+        return NULL;
+
+    return arr_quotes_string;
+
+/*
     tokens = ft_split_on_str(line, get_ifs_from_env(mini));
-    //print_array(tokens);
+    printf("%lu\n", sizeof(tokens));
+    free_args(tokens);
+    arr_quotes_string = split_quotes_comments(line);
+    //print_array(arr_quotes_string);
+    tokens = ft_split_on_str(line, get_ifs_from_env(mini));
+    print_array(tokens);
     ft_memset(&flags, 0, sizeof(t_token_flags));
     tokens_head = tokens;
     while (tokens && *tokens) {
@@ -141,7 +196,7 @@ char** split_line(char *line, t_mini *mini) {
         printf("%s, in comment: %d, in_single quote: %d \n", *tokens, flags.in_comment, flags.in_single_quote);
         tokens++;
     }
-    return (tokens_head);
+    return (arr_quotes_string);*/
 }
 
 
@@ -182,5 +237,3 @@ int	process_command2(char *line, t_mini *mini)
     free_args(mini->args);
     return (mini->exit_status);
 }
-
-
