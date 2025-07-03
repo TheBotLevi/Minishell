@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 11:22:08 by mdiederi          #+#    #+#             */
-/*   Updated: 2025/07/01 10:57:57 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 12:41:17 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,7 +204,7 @@ char** split_line(char *line, t_mini *mini) {
 
 int	process_command2(char *line, t_mini *mini)
 {
-    t_pipeline	*pipeline;
+    t_mini	*pipeline;
 
     if (!line || !*line)
         return (0);

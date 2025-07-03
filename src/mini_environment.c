@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:05:09 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 16:48:43 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 14:38:23 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ t_env	*create_env_list(char **env)
 		new_node = (t_env *)malloc(sizeof(t_env));
 		if (!new_node)
 			return (NULL); //todo free other nodes?
+		ft_bzero(new_node, sizeof(t_env));
 		equals_pos = ft_strchr(env[i], '=');
 		if (equals_pos)
 		{
@@ -35,37 +36,18 @@ t_env	*create_env_list(char **env)
 			env_list = new_node;
 		}
 		else
-		{
 			free(new_node);
-		}
 		i++;
 	}
+	/*
+	t_env *tmp = env_list;
+	while (tmp)
+	{
+   		printf("key=%s value=%s\n", tmp->key, tmp->value);
+    		tmp = tmp->next;
+	}*/
 	return (env_list);
 }
-
-/*static char	*find_exec(char *cmd_name, char **paths)
-{
-	int	i;
-	char	*tmp;
-	char	*exec;
-
-	if (!paths)
-		return (NULL);
-	if (cmd_name[0] == '/' || cmd_name[0] == '.')
-		return (ft_strdup(cmd_name));
-	i = 0;
-	while (paths[i])
-	{
-		tmp = ft_strjoin(paths[i], "/");
-		exec = ft_strjoin(tmp, cmd_name);
-		free(tmp);
-		if (access(exec, X_OK) == 0)
-			return (exec);
-		free(exec);
-		i++;
-	}
-	return (NULL);
-}*/
 
 char	**get_paths_from_list(t_env *env_list)
 {
@@ -81,7 +63,8 @@ char	**get_paths_from_list(t_env *env_list)
 	return (NULL);
 }
 
-int	ft_envsize(t_env *lst) //had to create function because ft_lstsize in libft has t_list and we need to pass a t_env
+//had to create function because ft_lstsize in libft has t_list and we need to pass a t_env
+int	ft_envsize(t_env *lst)
 {
 	int	count;
 	t_env *current;
@@ -104,6 +87,7 @@ char	**env_list_to_array(t_env *env_list)
 	char	**env_array;
 	t_env	*current;
 
+	env_array = NULL;
 	count = ft_envsize(env_list); //changed to ft_lstsize like you wanted ;)
 	env_array = (char **)malloc(sizeof(char *) * (count + 1));
 	if (!env_array)

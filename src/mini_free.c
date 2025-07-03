@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 15:54:26 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 17:27:13 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,26 +62,7 @@ void	free_command_list(t_mini *cmds)
 	}
 }
 
-/*
-void	free_pipeline(t_pipeline *pipeline)
-{
-	int	i;
-
-	i = 0;
-	if (!pipeline)
-		return ;
-	free(pipeline->pids);
-	free_command_list(pipeline->commands);
-	if (pipeline->pipes)
-	{
-		while (i < pipeline->cmd_count)
-			free(pipeline->pipes[i++]);
-		free(pipeline->pipes);
-	}
-	free(pipeline);
-}*/
-
-static void	help_free_pipelines(t_pipeline *pipeline)
+static void	help_free_pipelines(t_mini *pipeline)
 {
 	int	i;
 
@@ -94,7 +75,7 @@ static void	help_free_pipelines(t_pipeline *pipeline)
 	free(pipeline->pipes);
 }
 
-void	free_pipeline(t_pipeline *pipeline)
+void	free_pipeline(t_mini *pipeline)
 {
 	t_mini	*current;
 	t_mini	*next;
@@ -107,14 +88,15 @@ void	free_pipeline(t_pipeline *pipeline)
 		next = current->next;
 		free_args(current->args);
 		free(current);
+		current = NULL;
 		current = next;
 	}
 	if (pipeline->pipes)
 		help_free_pipelines(pipeline);
 	if (pipeline->pids)
 		free(pipeline->pids);
-	if (pipeline->commands)
-		free(pipeline->commands);
+//	if (pipeline->commands)
+//		free(pipeline->commands);
 	free(pipeline);
 }
 
@@ -125,7 +107,7 @@ void	free_everything(t_mini *mini)
 //	free_args(mini->args);
 	free(mini->old_path);
 	if (mini->pipes)
-		free_pipeline(mini->pipes);
+		free_pipeline(mini);
 	free_env_list(mini->env_struct);
 	free(mini);
 }

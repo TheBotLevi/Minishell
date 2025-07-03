@@ -6,13 +6,13 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:14:02 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 12:07:54 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
 
-static int	create_pipes(t_pipeline *pipeline)
+static int	create_pipes(t_mini *pipeline)
 {
 	int	i;
 
@@ -37,7 +37,7 @@ static int	create_pipes(t_pipeline *pipeline)
 	return (0);
 }
 
-static void	setup_pipe_fds(t_pipeline *pipeline, int cmd_index)
+static void	setup_pipe_fds(t_mini *pipeline, int cmd_index)
 {
 	if (cmd_index > 0)
 		dup2(pipeline->pipes[cmd_index - 1][0], STDIN_FILENO);
@@ -45,7 +45,7 @@ static void	setup_pipe_fds(t_pipeline *pipeline, int cmd_index)
 		dup2(pipeline->pipes[cmd_index][1], STDOUT_FILENO);
 }
 
-static void	close_all_pipes(t_pipeline *pipeline)
+static void	close_all_pipes(t_mini *pipeline)
 {
 	int	i;
 
@@ -60,7 +60,7 @@ static void	close_all_pipes(t_pipeline *pipeline)
 	}
 }
 
-static void	execute_single_cmd(t_mini *mini, t_pipeline *pipeline, 
+static void	execute_single_cmd(t_mini *mini, t_mini *pipeline, 
 							int cmd_index)
 {
 	char	**envp;
@@ -90,7 +90,7 @@ static void	execute_single_cmd(t_mini *mini, t_pipeline *pipeline,
 	exit(127);
 }
 
-static int	wait_for_processes(t_pipeline *pipeline)
+static int	wait_for_processes(t_mini *pipeline)
 {
 	int	i;
 	int	status;
@@ -108,7 +108,7 @@ static int	wait_for_processes(t_pipeline *pipeline)
 	return (last_status);
 }
 
-int	create_and_fork_process(t_pipeline *pipeline)
+int	create_and_fork_process(t_mini *pipeline)
 {
 	t_mini	*current;
 	int	cmd_index;
@@ -134,7 +134,7 @@ int	create_and_fork_process(t_pipeline *pipeline)
 	return (0);
 }
 
-int	execute_pipeline(t_pipeline *pipeline)
+int	execute_pipeline(t_mini *pipeline)
 {
 	int		status;
 

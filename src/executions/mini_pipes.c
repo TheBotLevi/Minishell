@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:12:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 11:24:43 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 17:27:47 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ static t_mini	*create_cmd_node(char **args)
 	mini = malloc(sizeof(t_mini));
 	if (!mini)
 		return (NULL);
+	ft_bzero(mini, sizeof(t_mini));
 	mini->args = args;
 	mini->input_fd = -1;
 	mini->output_fd = -1;
@@ -33,16 +34,17 @@ static t_mini	*create_cmd_node(char **args)
 	return (mini);
 }
 
-int	parse_pipeline(char *line, t_pipeline **pipeline)
+int	parse_pipeline(char *line, t_mini **pipeline)
 {
 	char	**pipe_parts;
 	t_mini	*mini_list;
 	t_mini	*current;
 	int		i;
 
-	*pipeline = malloc(sizeof(t_pipeline));
+	*pipeline = malloc(sizeof(t_mini));
 	if (!*pipeline)
 		return (1);
+	ft_bzero(*pipeline, sizeof(t_mini));
 	pipe_parts = ft_split(line, '|');
 	if (!pipe_parts)
 		return (1);
@@ -58,10 +60,11 @@ int	parse_pipeline(char *line, t_pipeline **pipeline)
 		mini_list = current;
 		i++;
 	}
+	(*pipeline)->env_struct = mini_list->env_struct;
 	(*pipeline)->commands = mini_list;
 	(*pipeline)->cmd_count = i;
-	(*pipeline)->pipes = NULL;
-	(*pipeline)->pids = NULL;
+//	(*pipeline)->pipes = NULL;
+//	(*pipeline)->pids = NULL;
 	free_args(pipe_parts);
 	return (0);
 }

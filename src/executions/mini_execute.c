@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 13:44:37 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 17:28:35 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ int	execute_external_cmd(t_mini *mini)
 
 int	process_command(char *line, t_mini *mini)
 {
-	t_pipeline	*pipeline;
+	t_mini	*pipeline;
 
 	if (!line || !*line)
 		return (0);
