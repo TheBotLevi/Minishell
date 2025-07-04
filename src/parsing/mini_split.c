@@ -145,7 +145,7 @@ int get_n_splits(int *quote_arr, size_t arr_size) {
     if (arr_size <= 2)
         return (n_splits);
     prev_val = quote_arr[0];
-    i = 0;
+    i = 1;
     while (i < arr_size)
     {
         if (quote_arr[i] != prev_val)
@@ -156,7 +156,25 @@ int get_n_splits(int *quote_arr, size_t arr_size) {
     return (n_splits);
 }
 
-void split_guarding_sep(char const *s, int *quote_arr, int arr_size, char **ar) {
+int set_str_len(int *start_val, int char_ind, const int arr_size, const int *quote_arr) {
+    int len;
+
+    len = 0;
+    *start_val = quote_arr[char_ind];
+    while (char_ind < arr_size && quote_arr[char_ind] == *start_val) {
+        len++;
+        char_ind++;
+    }
+    return (len);
+}
+
+void finish_array(char**ar, int* array_ind, int* str_ind) {
+    ar[*array_ind][*str_ind] = '\0';
+    (*array_ind)++;
+    *str_ind = 0;
+}
+
+void split_guarding_sep(char const *s, const int *quote_arr, int arr_size, char **ar) {
     int char_ind;
     int array_ind;
     int str_ind;
@@ -166,35 +184,24 @@ void split_guarding_sep(char const *s, int *quote_arr, int arr_size, char **ar) 
 
     if (!s || !quote_arr || !ar || arr_size <= 0)
         return;
-
     char_ind = 0;
     array_ind = 0;
     str_ind = 0;
     prev_val = quote_arr[0];
     while (char_ind < arr_size) {
         if (quote_arr[char_ind] != prev_val) {
-            len = 0;
-            start_val = quote_arr[char_ind];
-            int temp_char_ind = char_ind;
-            while (temp_char_ind < arr_size && quote_arr[temp_char_ind] == start_val) {
-                len++;
-                temp_char_ind++;
-            }
-
+            len = set_str_len(&start_val, char_ind, arr_size, quote_arr);
             ar[array_ind] = (char *)malloc((len + 1) * sizeof(char));
             if (ar[array_ind] == NULL) {
                 free_n_array(ar, array_ind);
                 return;
             }
-
             while (char_ind < arr_size && quote_arr[char_ind] == start_val) {
                 ar[array_ind][str_ind] = s[char_ind];
                 char_ind++;
                 str_ind++;
             }
-            ar[array_ind][str_ind] = '\0';
-            array_ind++;
-            str_ind = 0;
+            finish_array(ar, &array_ind, &str_ind);
         }
         prev_val = quote_arr[char_ind];
         char_ind++;

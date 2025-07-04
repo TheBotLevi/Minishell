@@ -176,9 +176,10 @@ char** split_line(char *line, t_mini *mini) {
     if (!line || !mini)
         return NULL;
     arr_quotes_string = split_quotes_comments(line);
+    printf("quotes array:\n");
+    print_array(arr_quotes_string);
     if (!arr_quotes_string)
         return NULL;
-
     return arr_quotes_string;
 
 /*

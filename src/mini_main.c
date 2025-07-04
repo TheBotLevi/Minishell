@@ -29,7 +29,7 @@ void test_tokenization(char* line, t_mini* mini) {
 	tokens = split_line(line, mini);
 	if (!tokens)
 		return ;
-	print_array(tokens);
+	//print_array(tokens);
 	printf("----\n");
 	fflush(stdout);
 	free_args(tokens);

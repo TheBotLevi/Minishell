@@ -80,11 +80,16 @@ int *get_quote_state_array(char const *str)
     i = 0;
     while (str[i] != '\0') {
         in_quote_arr[i] = is_within_quote(str[i], &state);
-        printf("char: %c, within_quote: %d, single: %d, double: %d\n", str[i], state.within_quote, state.in_single_quote, state.in_double_quote);
+        //printf("char: %c, within_quote: %d, single: %d, double: %d\n", str[i], state.within_quote, state.in_single_quote, state.in_double_quote);
         i++;
     }
     if (state.within_quote == 1)
         cancel_unfinished_quote(in_quote_arr, i-1);
     in_quote_arr[i] = -1;
+    i = 0;
+    printf("in_quote_arr: ");
+    while (in_quote_arr[i] != -1)
+        printf("%d ", in_quote_arr[i++]);
+    printf("\n");
     return (in_quote_arr);
 }

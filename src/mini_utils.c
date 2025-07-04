@@ -123,7 +123,8 @@ void print_array(char** ar) {
 	if (!ar)
 		return;
 	while (ar[i] != NULL) {
-		printf("%s\n", ar[i]);
+		printf("[%s]", ar[i]);
 		i++;
 	}
+	printf("\n");
 }
