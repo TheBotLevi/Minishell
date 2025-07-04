@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 15:34:15 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 16:51:02 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 14:25:34 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,22 @@ t_env	*init_environment(char **env)
 	return (env_list);
 }
 
+static void	mini_init_init(t_mini *mini)
+{
+	mini->old_path = NULL;
+	mini->args = NULL;
+	mini->exit_status = 0;
+	mini->pipes = NULL;
+	mini->cmd_count = 0;
+	mini->commands = NULL;
+	mini->fd = -1;
+	mini->filename = NULL;
+	mini->input_fd = -1;
+	mini->output_fd = -1;
+	mini->pids = NULL;
+	mini->pipes = NULL;
+}
+
 t_mini	*mini_init(char ** envp)
 {
 	t_mini	*mini;
@@ -52,9 +68,6 @@ t_mini	*mini_init(char ** envp)
 		free(mini);
 		return (NULL);
 	}
-	mini->old_path = NULL;
-	mini->args = NULL;
-	mini->exit_status = 0;
-	mini->pipes = NULL;
+	mini_init_init(mini);
 	return (mini);
 }

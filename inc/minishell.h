@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 15:53:50 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/03 17:25:37 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,13 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
-typedef struct s_pipeline
+/*typedef struct s_pipeline
 {
-	t_mini			*commands;
+	char			*commands; //changed from t_mini to char for clean code purposes
 	int				cmd_count;
 	int				**pipes;
 	pid_t			*pids;
-}					t_pipeline;
+}					t_pipeline;*/
 
 typedef struct s_mini
 {
@@ -54,9 +54,13 @@ typedef struct s_mini
 	int				fd;
 	char			*filename;
 	int				exit_status;
+	t_mini			*commands;
+	int				cmd_count;
+	int				**pipes;
+	pid_t			*pids;
 	t_env		*env_struct;
-	t_pipeline	*pipes;
-	t_list		*list;
+//	t_pipeline	*pipes;
+//	t_list		*list;
 	struct s_mini	*next;
 }					t_mini;
 
@@ -112,6 +116,7 @@ t_env	*create_env_list(char **env);
 void				free_n_array(char **ar, size_t i);
 void				free_args(char **args);
 void				free_env_list(t_env *env);
+void	free_command_list(t_mini *cmds);
 void	free_everything(t_mini *mini);
 
 // execute
@@ -136,9 +141,9 @@ int	update_env_value(t_env **env, char *key, char *value);
 
 // pipes
 int		has_pipes(char *line);
-int		parse_pipeline(char *line, t_pipeline **pipeline);
-int		execute_pipeline(t_pipeline *pipeline);
-void	free_pipeline(t_pipeline *pipeline);
+int		parse_pipeline(char *line, t_mini **pipeline);
+int		execute_pipeline(t_mini *pipeline);
+void	free_pipeline(t_mini *pipeline);
 
 //redirections
 int	execute_redirections(t_mini *mini);
