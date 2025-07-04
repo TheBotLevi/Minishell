@@ -156,9 +156,11 @@ int get_n_splits(int *quote_arr, size_t arr_size) {
     return (n_splits);
 }
 
-int set_str_len(int *start_val, int char_ind, const int arr_size, const int *quote_arr) {
+int set_str_len(int *start_val, int char_ind, const int *quote_arr) {
     int len;
+    size_t arr_size;
 
+    arr_size = get_int_array_size(quote_arr);
     len = 0;
     *start_val = quote_arr[char_ind];
     while (char_ind < arr_size && quote_arr[char_ind] == *start_val) {
@@ -174,7 +176,7 @@ void finish_array(char**ar, int* array_ind, int* str_ind) {
     *str_ind = 0;
 }
 
-void split_guarding_sep(char const *s, const int *quote_arr, int arr_size, char **ar) {
+void split_guarding_sep(char const *s, const int *quote_arr, char **ar) {
     int char_ind;
     int array_ind;
     int str_ind;
@@ -182,21 +184,21 @@ void split_guarding_sep(char const *s, const int *quote_arr, int arr_size, char 
     int start_val;
     int len;
 
-    if (!s || !quote_arr || !ar || arr_size <= 0)
+    if (!s || !quote_arr || !ar || get_int_array_size(quote_arr) <= 0)
         return;
     char_ind = 0;
     array_ind = 0;
     str_ind = 0;
     prev_val = quote_arr[0];
-    while (char_ind < arr_size) {
+    while (char_ind < get_int_array_size(quote_arr)) {
         if (quote_arr[char_ind] != prev_val) {
-            len = set_str_len(&start_val, char_ind, arr_size, quote_arr);
+            len = set_str_len(&start_val, char_ind, quote_arr);
             ar[array_ind] = (char *)malloc((len + 1) * sizeof(char));
             if (ar[array_ind] == NULL) {
                 free_n_array(ar, array_ind);
                 return;
             }
-            while (char_ind < arr_size && quote_arr[char_ind] == start_val) {
+            while (char_ind < get_int_array_size(quote_arr) && quote_arr[char_ind] == start_val) {
                 ar[array_ind][str_ind] = s[char_ind];
                 char_ind++;
                 str_ind++;
@@ -233,7 +235,7 @@ char	**split_quotes_comments(char const *s) {
         ar[1] = NULL;
     }
     else
-        split_guarding_sep(s, in_quote_arr, int_arr_size, ar);
+        split_guarding_sep(s, in_quote_arr, ar);
     free(in_quote_arr);
     if (ar[0] == NULL)
         return (NULL);
