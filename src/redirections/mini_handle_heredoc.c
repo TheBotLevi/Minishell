@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 11:12:41 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 08:57:14 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/07 17:18:00 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static int	handle_heredoc_delimiter(int pipefd[2], char *delimiter)
 			free(line);
 			close(pipefd[1]);
 			printf("exiting handle_heredoc_delimiter\n");
-			return(130);
+			exit(130);
 		}
 		if (ft_strcmp(line, delimiter) == 0)
 		{
@@ -60,7 +60,7 @@ static int	handle_heredoc_delimiter(int pipefd[2], char *delimiter)
 		free(line);
 	}
 	close(pipefd[1]);
-	return(0);
+	exit(0);
 }
 
 int	handle_heredoc_redirection(t_mini *mini, char *delimiter)
@@ -77,6 +77,13 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter)
 	pid = fork();
 	if (pid == 0)
 		handle_heredoc_delimiter(pipefd, delimiter);
+	else if (pid < 0)
+	{
+		close(pipefd[0]);
+		close(pipefd[1]);
+		perror("minishell: fork");
+		return (-1);
+	}
 	signal(SIGINT, SIG_IGN);
 	close(pipefd[1]);
 	waitpid(pid, &mini->exit_status, 0);
