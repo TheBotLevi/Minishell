@@ -1,0 +1,13 @@
+inc
+libft
+Makefile
+minishell
+obj
+readline_suppress.supp
+README.md
+scratch.txt
+src
+test1.txt
+test cases
+Test_file_01.txt
+Test_file_02.txt

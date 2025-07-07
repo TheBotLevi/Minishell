@@ -63,6 +63,7 @@ cat < input.txt
 echo hello >> output.txt
 cat << EOF             # Heredoc
 ls > file1 2> file2   # Stdout and stderr redirection
+cat < scratch.txt
 ```
 
 

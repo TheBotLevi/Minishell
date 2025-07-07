@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 16:12:14 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/07 13:31:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	ft_mini_loop(t_mini *mini)
 			free(line);
 			break ;
 		}
-		printf("exit status: %d\n", status);
+//		printf("exit status: %d\n", status);
 		free(line);
 	}
 }
