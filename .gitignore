@@ -1,0 +1,4 @@
+# .gitignore (in root)
+*.o
+obj/
+minishell
