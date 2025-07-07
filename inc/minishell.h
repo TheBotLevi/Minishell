@@ -70,6 +70,14 @@ typedef struct s_quote_state {
 	int within_quote;
 } t_quote_state;
 
+typedef struct s_tok_data {
+	char const *line;
+	size_t n_elems;
+	int *in_quote_arr;
+	int n_splits;
+	char **ar;
+} t_tok_data;
+
 //global variable
 extern volatile sig_atomic_t	g_exit;
 
@@ -156,6 +164,7 @@ char** split_line(char *line, t_mini *mini);
 int *get_quote_state_array(char const *str);
 int is_within_quote(char c, t_quote_state *state);
 size_t get_int_array_size(const int *arr);
-char	**split_quotes_comments(char const *s);
+t_tok_data *split_quotes_comments(char const *line);
+void free_tok_data(t_tok_data *tok_data);
 
 #endif
