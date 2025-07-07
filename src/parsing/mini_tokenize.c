@@ -169,13 +169,16 @@ char ***split_further(char **original_array, char *delimiter) {
 
 char** split_line(char *line, t_mini *mini) {
     char **arr_quotes_string;
+    t_tok_data *tok_data;
     //char **tokens_head;
     //char **tokens;
     //t_token_flags flags;
 
     if (!line || !mini)
         return NULL;
-    arr_quotes_string = split_quotes_comments(line);
+    tok_data = split_quotes_comments(line);
+    arr_quotes_string = tok_data->ar;
+    free_tok_data(tok_data);
     printf("quotes array:\n");
     print_array(arr_quotes_string);
     if (!arr_quotes_string)
