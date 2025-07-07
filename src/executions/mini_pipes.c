@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:12:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/03 17:27:47 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/07 10:10:44 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,26 +45,29 @@ int	parse_pipeline(char *line, t_mini **pipeline)
 	if (!*pipeline)
 		return (1);
 	ft_bzero(*pipeline, sizeof(t_mini));
-	pipe_parts = ft_split(line, '|');
+	pipe_parts = ft_split(line, '|');	//this changes for the parsing part, I'll explain!
 	if (!pipe_parts)
 		return (1);
-	
 	mini_list = NULL;
 	i = 0;
 	while (pipe_parts[i])
 	{
-		current = create_cmd_node(parse_input(pipe_parts[i]));
+		current = create_cmd_node(parse_input(pipe_parts[i]));	//this probably as well
 		if (!current)
+		{
+			free_args(pipe_parts);
 			return (1);
+		}
+		current->env_struct = (*pipeline)->env_struct;
 		current->next = mini_list;
 		mini_list = current;
 		i++;
 	}
-	(*pipeline)->env_struct = mini_list->env_struct;
+//	(*pipeline)->env_struct = mini_list->env_struct;
 	(*pipeline)->commands = mini_list;
 	(*pipeline)->cmd_count = i;
-//	(*pipeline)->pipes = NULL;
-//	(*pipeline)->pids = NULL;
+	(*pipeline)->pipes = NULL;
+	(*pipeline)->pids = NULL;
 	free_args(pipe_parts);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/03 17:27:13 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/04 12:48:15 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ void	free_args(char **args)
 		return ;
 	while (args[i])
 	{
+//		printf("Hello %d\n", i);
 		free(args[i]);
 		i++;
 	}
@@ -55,7 +56,7 @@ void	free_command_list(t_mini *cmds)
 	while (cmds)
 	{
 		tmp = cmds->next;
-		free_args(cmds->args);
+//		free_args(cmds->args);
 		free(cmds->old_path);
 		free(cmds);
 		cmds = tmp;

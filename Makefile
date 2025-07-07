@@ -11,8 +11,7 @@ PATH_LIBFT = libft
 LIBFT = ${PATH_LIBFT}/libft.a
 
 OBJS = ${SRCS:${SRC_DIR}/%.c=${OBJ_DIR}/%.o}
-SRCS = src/mini_main.c \
-       src/mini_utils.c \
+SRCS = src/mini_utils.c \
        src/executions/mini_pipes.c \
        src/executions/mini_pipes_exec.c \
        src/mini_handle_built_in.c \
@@ -35,7 +34,9 @@ SRCS = src/mini_main.c \
        src/redirections/mini_handle_heredoc.c \
        src/parsing/mini_tokenize.c \
        src/parsing/mini_quotes.c \
-       src/parsing/mini_split.c
+       src/parsing/mini_split.c \
+       src/mini_main.c \
+       #src/mini_test_main.c \
 
 MINISHELL = minishell
 

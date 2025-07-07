@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/28 12:30:48 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/04 12:23:19 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,24 +81,28 @@ int	execute_redirections(t_mini *mini)
 	{
 		if (ft_strcmp(mini->args[i], "<") == 0 && mini->args[i + 1])
 		{
+			mini->filename = mini->args[i + 1];
 			if (handle_input_redirection(mini) < 0)
 				return (1);
 			i += 2;
 		}
 		else if (ft_strcmp(mini->args[i], ">") == 0 && mini->args[i + 1])
 		{
+			mini->filename = mini->args[i + 1];
 			if (handle_output_redirection(mini) < 0)
 				return (2);
 			i += 2;
 		}
 		else if (ft_strcmp(mini->args[i], ">>") == 0 && mini->args[i + 1])
 		{
+			mini->filename = mini->args[i + 1];
 			if (handle_append_redirection(mini) < 0)
 				return (3);
 			i += 2;
 		}
 		else if (ft_strcmp(mini->args[i], "<<") == 0 && mini->args[i + 1])
 		{
+			mini->filename = mini->args[i + 1];
 			if (handle_heredoc_redirection(mini, mini->args[i + 1]) < 0)
 			{
 				restore_main_signals();

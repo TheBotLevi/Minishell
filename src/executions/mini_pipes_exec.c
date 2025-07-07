@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/03 12:07:54 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/07 09:46:21 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,21 +70,34 @@ static void	execute_single_cmd(t_mini *mini, t_mini *pipeline,
 	setup_child_signals();
 	setup_pipe_fds(pipeline, cmd_index);
 	close_all_pipes(pipeline);
+	
+	// Handle redirections for this command
+	if (execute_redirections(mini) != 0)
+		exit(1);
+	
+	// Handle builtins
 	if (is_builtin(mini->args[0]))
 		exit(handle_builtin(mini));
+
+	// Execute external commands
 	envp = env_list_to_array(mini->env_struct);
 	paths = get_paths_from_list(mini->env_struct);
 	exec_path = find_exec(mini->args[0], paths);
+
 	if (paths)
 		free_args(paths);
 	if (exec_path)
 	{
 		execve(exec_path, mini->args, envp);
+		perror("minishell: execve");
 		free(exec_path);
 	}
-	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putstr_fd(mini->args[0], STDERR_FILENO);
-	ft_putendl_fd(": command not found", STDERR_FILENO);
+	else
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(mini->args[0], STDERR_FILENO);
+		ft_putendl_fd(": command not found", STDERR_FILENO);
+	}
 	if (envp)
 		free_args(envp);
 	exit(127);
