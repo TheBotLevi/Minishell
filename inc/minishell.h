@@ -75,6 +75,7 @@ typedef struct s_tok_data {
 	size_t n_elems;
 	int *in_quote_arr;
 	int n_splits;
+	int*	size_arr;
 	char **ar;
 } t_tok_data;
 

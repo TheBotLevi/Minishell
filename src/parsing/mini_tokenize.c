@@ -178,12 +178,12 @@ char** split_line(char *line, t_mini *mini) {
         return NULL;
     tok_data = split_quotes_comments(line);
     arr_quotes_string = tok_data->ar;
-    free_tok_data(tok_data);
     printf("quotes array:\n");
     print_array(arr_quotes_string);
     if (!arr_quotes_string)
         return NULL;
-    return arr_quotes_string;
+    free_tok_data(tok_data);
+    return NULL;
 
 /*
     tokens = ft_split_on_str(line, get_ifs_from_env(mini));

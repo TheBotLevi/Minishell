@@ -146,7 +146,7 @@ int get_n_splits(int *quote_arr, size_t arr_size) {
         return (n_splits);
     prev_val = quote_arr[0];
     i = 1;
-    while (i < arr_size)
+    while (i < (arr_size-1))
     {
         if (quote_arr[i] != prev_val)
             n_splits++;
@@ -184,60 +184,37 @@ int *get_sizes_arr(const int *quote_arr, const size_t arr_size, const int n_spli
     return (size_arr);
 }
 
-int set_str_len(int *start_val, int char_ind, const int *quote_arr) {
-    int len;
-    size_t arr_size;
-
-    arr_size = get_int_array_size(quote_arr);
-    len = 0;
-    *start_val = quote_arr[char_ind];
-    while (char_ind < (int)arr_size && quote_arr[char_ind] == *start_val) {
-        len++;
-        char_ind++;
-    }
-    return (len);
-}
-
 void finish_array(char**ar, int* array_ind, int* str_ind) {
     ar[*array_ind][*str_ind] = '\0';
     (*array_ind)++;
     *str_ind = 0;
 }
 
-void split_guarding_sep(char const *s, const int *quote_arr, char **ar) {
+void split_guarding_sep(t_tok_data *tok_data) {
     int char_ind;
     int array_ind;
     int str_ind;
-    int prev_val;
-    int start_val;
-    int len;
 
-    if (!s || !quote_arr || !ar || get_int_array_size(quote_arr) <= 0)
+    if (!tok_data->line || !tok_data->in_quote_arr || !tok_data->ar || tok_data->n_elems <= 0)
         return;
     char_ind = 0;
     array_ind = 0;
     str_ind = 0;
-    prev_val = quote_arr[0];
-    while (char_ind < (int)get_int_array_size(quote_arr)) {
-        if (quote_arr[char_ind] != prev_val) {
-            len = set_str_len(&start_val, char_ind, quote_arr);
-            ar[array_ind] = (char *)malloc((len + 1) * sizeof(char));
-            if (ar[array_ind] == NULL) {
-                free_n_array(ar, array_ind);
-                return;
-            }
-            while (char_ind < (int)get_int_array_size(quote_arr) && quote_arr[char_ind] == start_val) {
-                ar[array_ind][str_ind] = s[char_ind];
-                char_ind++;
-                str_ind++;
-            }
-            finish_array(ar, &array_ind, &str_ind);
+    while (array_ind < tok_data->n_splits + 1) {
+        tok_data->ar[array_ind] = (char *)malloc((tok_data->size_arr[array_ind] + 1) * sizeof(char));
+        if (tok_data->ar[array_ind] == NULL) {
+            free_n_array(tok_data->ar, array_ind);
+            return;
         }
-        prev_val = quote_arr[char_ind];
-        char_ind++;
+        while (str_ind < tok_data->size_arr[array_ind]) {
+            tok_data->ar[array_ind][str_ind] = tok_data->line[char_ind];
+            char_ind++;
+            str_ind++;
+        }
+        finish_array(tok_data->ar, &array_ind, &str_ind);
+        }
+    tok_data->ar[array_ind] = NULL;
     }
-    ar[array_ind] = NULL;
-}
 
 
 t_tok_data* init_tok_data(char const *line) {
@@ -250,26 +227,33 @@ t_tok_data* init_tok_data(char const *line) {
     tok_data->n_elems = ft_strlen(line);
     tok_data->in_quote_arr = get_quote_state_array(line);
     if (tok_data->in_quote_arr == NULL) {
-        free(tok_data);
+        free_tok_data(tok_data);
         return (NULL);
     }
     tok_data->n_splits = get_n_splits(tok_data->in_quote_arr, tok_data->n_elems+1);
+    tok_data->size_arr = get_sizes_arr(tok_data->in_quote_arr, tok_data->n_elems+1, tok_data->n_splits);
+    if (tok_data->size_arr == NULL) {
+        free_tok_data(tok_data);
+        return (NULL);
+    }
     tok_data->ar = (char **)malloc((tok_data->n_splits + 2) * sizeof(char *));
-    if (tok_data->ar == NULL)
-    {
-        free(tok_data->in_quote_arr);
-        free(tok_data);
+    if (tok_data->ar == NULL) {
+        free_tok_data(tok_data);
         return (NULL);
     }
     return(tok_data);
 }
 
-void free_tok_data(t_tok_data *tok_data) {
+void free_tok_data(t_tok_data *tok_data){
     if (!tok_data)
         return;
     free(tok_data->in_quote_arr);
-    free(tok_data->ar);
+    tok_data->in_quote_arr = NULL;
+    free(tok_data->size_arr);
+    tok_data->size_arr = NULL;
+    free_args(tok_data->ar);
     free(tok_data);
+    tok_data = NULL;
 }
 
 /* Search for quotes and isolate them into their own array, leave the rest for
@@ -291,7 +275,7 @@ t_tok_data *split_quotes_comments(char const *line) {
         tok_data->ar[1] = NULL;
     }
     else
-        split_guarding_sep(line, tok_data->in_quote_arr, tok_data->ar);
+        split_guarding_sep(tok_data);
     if (tok_data->ar[0] == NULL){
         free_tok_data(tok_data);
         return (NULL);

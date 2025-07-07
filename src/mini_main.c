@@ -60,7 +60,7 @@ void	ft_mini_loop(t_mini *mini)
 		}
 		if (line && *line)
 			add_history(line);
-		//test_tokenization(line, mini);
+		test_tokenization(line, mini);
 		status = process_command(line, mini);
 		update_exit_status(mini);
 		if (ft_strcmp(line, "exit") == 0)

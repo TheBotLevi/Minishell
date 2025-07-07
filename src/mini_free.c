@@ -33,6 +33,7 @@ void	free_args(char **args)
 		i++;
 	}
 	free(args);
+	args = NULL;
 }
 
 void	free_env_list(t_env *env)
