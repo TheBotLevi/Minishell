@@ -74,6 +74,7 @@ void unset_flags(t_token_flags *flags, char c, int quote_flag_set) {
         flags->in_single_quote = 0;
 }
 
+/*
 void set_flags(t_token_flags *flags, char **tokens) {
 
     char c;
@@ -126,7 +127,7 @@ void set_flags(t_token_flags *flags, char **tokens) {
         flags->in_heredoc_redir = 1;
     unset_flags(flags, c, quote_flag_set);
 }
-/*
+
 // Helper function to get array size
 static int get_array_size(char **array) {
     int size;
@@ -166,6 +167,19 @@ char ***split_further(char **original_array, char *delimiter) {
 }
 */
 
+typedef struct s_command {
+    char *cmd;
+    char *fin_args;
+    char **args;
+   /* char *redir_in;
+    char *redir_out;
+    char *redir_append;
+    char *heredoc;
+    char *delimiter;
+    char *cmd_str;
+    int is_builtin;*/
+} t_command;
+
 
 char** split_line(char *line, t_mini *mini) {
     char **arr_quotes_string;
@@ -181,7 +195,16 @@ char** split_line(char *line, t_mini *mini) {
     printf("quotes array:\n");
     print_array(arr_quotes_string);
     if (!arr_quotes_string)
-        return NULL;
+        return NULL;/*
+    int i;
+    i = 0;
+    while (arr_quotes_string[i] != NULL) {
+        int is_quote = (arr_quotes_string[i] == '\'' || arr_quotes_string[i] == '"');
+        int has_special_char = 0;
+        ft_strchr(arr_quotes_string[i], '|')
+
+        i++;
+    }*/
     free_tok_data(tok_data);
     return NULL;
 

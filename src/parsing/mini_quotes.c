@@ -63,9 +63,27 @@ void cancel_unfinished_quote(int *in_quote_arr, int last_elem_idx) {
     }
 }
 
+/*ensures that after unquoted #, rest of line is ignored by ending the int array
+ *through setting the rest to -1*/
+void cancel_non_quote_comment(char const *str, int *in_quote_arr) {
+    int i;
+
+    i = 0;
+    while (in_quote_arr[i] != -1) {
+        if (in_quote_arr[i] == 0 && str[i] == '#') {
+            while (in_quote_arr[i] != -1) {
+                in_quote_arr[i] = -1;
+                i++;
+            }
+            break;
+        }
+        i++;
+    }
+}
+
 /* goes through string and detects single and double quotes, returning
 // a -1 terminted int array indicating whether the character is wihtin a
-quoted string (incl. its quotation marks) */
+quoted string (incl. its quotation marks) or comment */
 int *get_quote_state_array(char const *str)
 {
     int *in_quote_arr;
@@ -86,6 +104,7 @@ int *get_quote_state_array(char const *str)
     if (state.within_quote == 1)
         cancel_unfinished_quote(in_quote_arr, i-1);
     in_quote_arr[i] = -1;
+    cancel_non_quote_comment(str, in_quote_arr);
     i = 0;
     printf("in_quote_arr: ");
     while (in_quote_arr[i] != -1)

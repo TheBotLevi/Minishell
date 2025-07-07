@@ -38,25 +38,14 @@ static char	**ft_is_valid_input(char const *str, char const *c)
 static size_t	ft_get_ndelims(char const *str, char const *c)
 {
     size_t	ndelims;
-    /*int in_quote;
-    t_quote_state state;*/
 
     ndelims = 0;
     if (!str)
         return (ndelims);
     while (is_in_set(*str, c))
         str++;
-    /*in_quote = 0;
-    memset(&state, 0, sizeof(t_quote_state));*/
     while (*str)
     {
-       /* in_quote = is_within_quote(*str, &state);
-        if (is_in_set(*str, c) && !in_quote)
-        {
-            ndelims++;
-            while (is_in_set(*str, c))
-                str++;
-        }*/
         if (is_in_set(*str, c)) {
             ndelims++;
             while (is_in_set(*str, c))
@@ -74,19 +63,12 @@ static char	*ft_set_next_substr(char const *s, char const *c, size_t *str_ind) {
     char	*substr;
     size_t	len_substr;
     size_t	start;
-    //int *in_quote_arr;
-    //t_quote_state state;
 
     start = 0;
     start += *str_ind;
-    /*in_quote_arr = get_quote_state_array(s);
-    if (in_quote_arr == NULL) //todo remove
-        return (NULL);*/
     while (is_in_set(s[start], c))
         start++;
     len_substr = 0;
-    //in_quote = 0;
-
     while ((s[start + len_substr] && !is_in_set(s[start + len_substr], c))) // || (s[start + len_substr] && is_within_quote(s[start + len_substr], &state)))
         len_substr++;
     *str_ind = len_substr + start;
@@ -223,13 +205,13 @@ t_tok_data* init_tok_data(char const *line) {
     tok_data = malloc(sizeof(t_tok_data));
     if (!tok_data)
         return (NULL);
-    tok_data->line = line;
-    tok_data->n_elems = ft_strlen(line);
     tok_data->in_quote_arr = get_quote_state_array(line);
     if (tok_data->in_quote_arr == NULL) {
         free_tok_data(tok_data);
         return (NULL);
     }
+    tok_data->n_elems = get_int_array_size(tok_data->in_quote_arr);
+    tok_data->line = ft_substr(line, 0, tok_data->n_elems);
     tok_data->n_splits = get_n_splits(tok_data->in_quote_arr, tok_data->n_elems+1);
     tok_data->size_arr = get_sizes_arr(tok_data->in_quote_arr, tok_data->n_elems+1, tok_data->n_splits);
     if (tok_data->size_arr == NULL) {
@@ -249,6 +231,8 @@ void free_tok_data(t_tok_data *tok_data){
         return;
     free(tok_data->in_quote_arr);
     tok_data->in_quote_arr = NULL;
+    free(tok_data->line);
+    tok_data->line = NULL;
     free(tok_data->size_arr);
     tok_data->size_arr = NULL;
     free_args(tok_data->ar);
