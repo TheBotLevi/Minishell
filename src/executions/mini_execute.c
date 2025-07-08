@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/07 13:28:53 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/08 13:40:44 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,9 @@ int	execute_external_cmd(t_mini *mini)
 	{
 		setup_child_signals();
 		if (execute_redirections(mini) != 0)
-				exit(1);
+			exit(1);
+		if (is_builtin(mini->args[0]))
+			exit(handle_builtin(mini));
 		paths = get_paths_from_list(mini->env_struct);
 		exec_path = find_exec(mini->args[0], paths);
 		if (paths)
@@ -85,15 +87,10 @@ int	process_command(char *line, t_mini *mini)
 	{
 		mini->args = parse_input(line);
 		if (mini->args && mini->args[0])
-		{
-			if (is_builtin(mini->args[0]))
-				mini->exit_status = handle_builtin(mini);
-			else
-				mini->exit_status = execute_external_cmd(mini);
-		}
+			mini->exit_status = execute_external_cmd(mini);
 		if (mini->args)
 		{
-			free(mini->args);
+			free_args(mini->args);
 			mini->args = NULL;
 		}
 		update_exit_status(mini);

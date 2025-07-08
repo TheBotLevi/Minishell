@@ -7,3 +7,5 @@ hola
 konichiwa
 hello
 hello
+DEBUG: dup2 successfull, stdout redirected
+HOLA AMIGO

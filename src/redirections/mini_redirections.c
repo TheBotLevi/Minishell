@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/07 17:41:57 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/08 13:28:05 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ static int	handle_output_redirection(t_mini *mini)
 
 static int	handle_append_redirection(t_mini *mini)
 {
+	printf("DEBUG: Opening file '%s' for append\n", mini->filename);
 	mini->fd = open(mini->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (mini->fd < 0)
 	{
@@ -110,12 +111,14 @@ static int	handle_append_redirection(t_mini *mini)
 		ft_putendl_fd(": Permission denied", STDERR_FILENO);
 		return (-1);
 	}
+	printf("DEBUG: File opened successfully, fd = %d\n", mini->fd);
 	if (dup2(mini->fd, STDOUT_FILENO) < 0)
 	{
 		close(mini->fd);
 		perror("minishell: dup2");
 		return (-1);
 	}
+	printf("DEBUG: dup2 successfull, stdout redirected\n");
 	close(mini->fd);
 	return (0);
 }
