@@ -225,12 +225,14 @@ void set_token_flags(t_token **tokens, t_mini *mini) {
     current = *tokens;
     set_quote_flags(&current);
     mark_comment(tokens);
-    /*current = *tokens;
+    current = *tokens;
     while (current) {
-        next = current->next;
-
-    current = current->next;
-    }*/
+        printf("%c: is quote:%d, is_single: %d, is_double: %d,"
+               " is_start: %d, is_end: %d, is_comment_start: %d, is_comment: %d \n",
+               current->c,current->is_quote, current->is_single_quote, current->is_double_quote, current->is_start_quote,
+               current->is_end_quote,current->is_comment_start, current->is_comment);
+        current = current->next;
+    }
 }
 
 void tokenize(char *line, t_token **tokens, t_mini *mini) {
