@@ -64,11 +64,40 @@ typedef struct s_mini
 	struct s_mini	*next;
 }					t_mini;
 
+typedef struct s_token {
+	char c;
+	int is_quote;
+	int is_single_quote;
+	int is_double_quote;
+	int is_start_quote;
+	int is_end_quote;
+	int is_cmd_sep;
+	int is_pipe;
+	int is_ifs;
+	int is_dollar;
+	int is_var;
+	int is_braced_var;
+	int is_exit_status;
+	//int is_eof; // signals ctrl+D
+	int is_comment_start;
+	int is_comment;
+	int is_heredoc;
+	int is_heredoc_delimiter;
+	int is_heredoc_end;
+	int is_redirection;
+	int is_redirection_end;
+	struct s_token *prev;
+	struct s_token *next;
+} t_token;
+
 typedef struct s_quote_state {
 	int in_single_quote;
 	int in_double_quote;
 	int within_quote;
+	int is_start_quote;
+	int is_end_quote;
 } t_quote_state;
+
 
 typedef struct s_tok_ar {
 	char *elem;
@@ -179,5 +208,9 @@ size_t get_int_array_size(const int *arr);
 t_tok_data *split_quotes_comments(char const *line);
 void free_tok_data(t_tok_data *tok_data);
 void cancel_non_quote_comment(char const *str, int *in_quote_arr);
+int set_quote_flags(t_token **tokens);
+int is_within_quote_token(const char c, t_quote_state *state);
+void cancel_unfinished_quote_token(t_token *token);
+void mark_comment(t_token **tokens);
 
 #endif

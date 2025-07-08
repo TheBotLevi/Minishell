@@ -180,32 +180,114 @@ typedef struct s_command {
     int is_builtin;*/
 } t_command;
 
+void free_tokens(t_token **tokens) {
+    t_token *current;
+    t_token *next;
+
+    current = *tokens;
+    while (current) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+int create_basic_tokens(char *line, t_token **tokens, t_mini *mini) {
+    int i;
+    t_token *token;
+    t_token *prev;
+    (void) mini;
+
+    i = 0;
+    prev = NULL;
+    while (line[i]) {
+        token = (t_token *)malloc(sizeof(t_token));
+        ft_memset(token, 0, sizeof(t_token));
+        if (!token) {
+            free_tokens(tokens);
+            return (1);
+        }
+        token->c = line[i];
+        token->next = NULL;
+        if (prev) {
+            token->prev = prev;
+            prev->next = token;
+        }
+        prev = token;
+        i++;
+    }
+    return (0);
+}
+void set_token_flags(t_token **tokens, t_mini *mini) {
+    t_token *current;
+    (void) mini;
+
+    current = *tokens;
+    set_quote_flags(&current);
+    mark_comment(tokens);
+    /*current = *tokens;
+    while (current) {
+        next = current->next;
+
+    current = current->next;
+    }*/
+}
+
+void tokenize(char *line, t_token **tokens, t_mini *mini) {
+    int i;
+    t_token *token;
+    t_token *prev;
+
+
+    if (!line || !mini)
+        return ;
+    if (create_basic_tokens(line, tokens, mini) == 0)
+        set_token_flags(tokens, mini);
+
+    i = 0;
+    prev = NULL;
+    while (line[i]) {
+        token = (t_token *)malloc(sizeof(t_token));
+        ft_memset(token, 0, sizeof(t_token));
+        if (!token) {
+            free_tokens(tokens);
+            return ;
+        }
+        token->c = line[i];
+        token->next = NULL;
+        if (prev) {
+            token->prev = prev;
+            prev->next = token;
+        }
+        prev = token;
+        i++;
+    }
+}
 
 char** split_line(char *line, t_mini *mini) {
-    char **arr_quotes_string;
-    t_tok_data *tok_data;
+    //char **arr_quotes_string;
+    //t_tok_data *tok_data;
+    t_token **tokens;
+    (void) mini;
     //char **tokens_head;
     //char **tokens;
     //t_token_flags flags;
 
     if (!line || !mini)
         return NULL;
-    tok_data = split_quotes_comments(line);
+    tokens = (t_token **)malloc(ft_strlen(line) * sizeof(t_token));
+    if (!tokens)
+        return NULL;
+    tokenize(line, tokens, mini);
+    /*tok_data = split_quotes_comments(line);
     arr_quotes_string = tok_data->ar;
     printf("quotes array:\n");
     print_array(arr_quotes_string);
     if (!arr_quotes_string)
-        return NULL;/*
-    int i;
-    i = 0;
-    while (arr_quotes_string[i] != NULL) {
-        int is_quote = (arr_quotes_string[i] == '\'' || arr_quotes_string[i] == '"');
-        int has_special_char = 0;
-        ft_strchr(arr_quotes_string[i], '|')
-
-        i++;
-    }*/
-    free_tok_data(tok_data);
+        return NULL;
+    }
+    free_tok_data(tok_data);*/
+    free(tokens);
     return NULL;
 
 /*
