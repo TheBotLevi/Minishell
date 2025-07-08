@@ -68,7 +68,7 @@ void	ft_mini_loop(t_mini *mini)
 			free(line);
 			break ;
 		}
-//		printf("exit status: %d\n", status);
+		printf("exit status: %d\n", status);
 		free(line);
 	}
 }
