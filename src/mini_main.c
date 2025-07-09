@@ -46,7 +46,7 @@ void	ft_mini_loop(t_mini *mini)
 	{
 		//setup_signals();
 		g_exit = 0;
-		line = readline("minishell > ");
+		line = readline("mariashell > ");
 //		printf("hello\n");
 		if (line == NULL)
 		{

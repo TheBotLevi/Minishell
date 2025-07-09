@@ -48,22 +48,289 @@ char* get_ifs_from_env(t_mini *mini) {
     return (default_ifs);*/
 }
 
+
+void free_tokens(t_token **tokens) {
+    t_token *current;
+    t_token *next;
+
+    current = *tokens;
+    while (current) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+int create_basic_tokens(char *line, t_token **tokens, t_mini *mini) {
+    int i;
+    t_token *token;
+    t_token *prev;
+    (void) mini;
+
+    i = 0;
+    prev = NULL;
+    while (line[i]) {
+        printf("%c\n", line[i]);
+        token = (t_token *)malloc(sizeof(t_token));
+        if (!token) {
+            free_tokens(tokens);
+            return (1);
+        }
+        ft_memset(token, 0, sizeof(t_token));
+        token->c = line[i];
+        token->next = NULL;
+        token->prev = prev;
+        if (prev)
+            prev->next = token;
+        prev = token;
+        if (i == 0)
+            *tokens = prev;
+        i++;
+    }
+    return (0);
+}
+
+// mark cmd sep: |, <, >, <<, >> ()
+
+int set_pipe_flags(t_token **tokens) {
+    t_token *current;
+    int n_pipes;
+
+    n_pipes = 0;
+    current = *tokens;
+    while (current && current->is_comment) {
+        if (current->c == '|' && !current->is_quote) {
+            current->is_pipe = 1;
+            n_pipes++;
+        }
+        current = current->next;
+    }
+    return (n_pipes);
+}
+
+
+
+
+//todo add test case: > cannot be the last symbol in a valid redirection in Bash.
+
+/*
+< should redirect input
+> should redirect output
+>> should redirect output in append mode.
+<< should be given a delimiter, then read the input until a line containing the
+delimiter is seen. However, it doesn’t have to update the history!
+ */
+
+void set_middle_redirection_flags(t_token *current, t_token *prev, t_token *next) {
+
+    if (current->c == '<' && prev->c != '<' && next->c != '<')
+        current->is_redir_input = 1;
+    else if (current->c == '>' && prev->c != '>' && next->c != '>')
+        current->is_redir_output = 1;
+    else if (current->c == '>' && prev->c == '>' && !prev->is_redir_output){
+        prev->is_redir_output_append = 1;
+        prev->is_redirection = 1;
+        current->is_redir_output_append = 1;
+    }
+    else if (current->c == '<' && prev->c == '<' && !prev->is_redir_input){
+        prev->is_redir_heredoc = 1;
+        prev->is_redirection = 1;
+        current->is_redir_heredoc = 1;
+    }
+    else
+        current->is_redirection = 0;
+}
+void set_ends_redirection_flags(t_token *current, t_token *prev, t_token *next) {
+
+    if (!prev && next) // beginning of line
+        {
+        if (current->c == '<' && next->c != '<')
+            current->is_redir_input = 1;
+        else if (current->c == '>' && next->c != '>')
+            current->is_redir_output = 1;
+        else
+            current->is_redirection = 0;
+    }
+    if (!next && prev) // end of line
+        {
+        if (current->c == '<' && prev->c != '<')
+            current->is_redir_input = 1;
+        else if (current->c == '>' && prev->c != '>')
+            current->is_redir_output = 1;
+        else if (current->c == '>' && prev->c == '>' && !prev->is_redir_output){
+            prev->is_redir_output_append = 1;
+            prev->is_redirection = 1;
+            current->is_redir_output_append = 1;
+        }
+        else if (current->c == '<' && prev->c == '<' && !prev->is_redir_input){
+            prev->is_redir_heredoc = 1;
+            prev->is_redirection = 1;
+            current->is_redir_heredoc = 1;
+        }
+        else
+            current->is_redirection = 0;
+    }
+}
+
+void set_redirection_flags(t_token **tokens) {
+    t_token *current;
+    t_token *prev;
+    t_token *next;
+
+    current = *tokens;
+    while (current && !current->is_comment) {
+        if (current->is_quote)
+            continue;
+        prev = current->prev;
+        next = current->next;
+        if (is_in_set(current->c, "<>")) {
+            current->is_redirection = 1;
+            if (prev && next) {
+                set_middle_redirection_flags(current, prev, next);
+            }
+            else
+                set_ends_redirection_flags(current, prev, next);
+        }
+        current = next;
+    }
+}
+
+void set_token_flags(t_token **tokens, t_mini *mini) {
+    t_token *current;
+    int n_pipes;
+    (void) mini;
+
+    set_quote_flags(tokens);
+    mark_comment(tokens);
+    n_pipes = set_pipe_flags(tokens);
+    printf("n_pipes: %d\n", n_pipes);
+    set_redirection_flags(tokens);
+    //todo set ifs and operatiirs
+    current = *tokens;
+    while (current) {
+        printf("%c: is quote:%d, is_single: %d, is_double: %d,"
+               " is_start: %d, is_end: %d, is_comment_start: %d, is_comment: %d \n",
+               current->c,current->is_quote, current->is_single_quote, current->is_double_quote, current->is_start_quote,
+               current->is_end_quote,current->is_comment_start, current->is_comment);
+        current = current->next;
+    }
+}
+
+void tokenize(char *line, t_token **tokens, t_mini *mini) {
+    /*int i;
+    t_token *token;
+    t_token *prev;
+*/
+
+    if (!line || !mini)
+        return ;
+    if (create_basic_tokens(line, tokens, mini) == 0)
+        set_token_flags(tokens, mini);
+    /*i = 0;
+    prev = NULL;
+    while (line[i]) {
+        token = (t_token *)malloc(sizeof(t_token));
+        ft_memset(token, 0, sizeof(t_token));
+        if (!token) {
+            free_tokens(tokens);
+            return ;
+        }
+        token->c = line[i];
+        token->next = NULL;
+        if (prev) {
+            token->prev = prev;
+            prev->next = token;
+        }
+        prev = token;
+        i++;
+    }*/
+}
+
+t_token** split_line(char *line, t_mini *mini) {
+    //char **arr_quotes_string;
+    //t_tok_data *tok_data;
+    t_token **tokens;
+    (void) mini;
+    //char **tokens_head;
+    //char **tokens;
+    //t_token_flags flags;
+
+    if (!line || !mini)
+        return NULL;
+    tokens = (t_token **)malloc(sizeof(t_token*));
+    if (!tokens)
+        return NULL;
+    *tokens = NULL;
+    tokenize(line, tokens, mini);
+    /*tok_data = split_quotes_comments(line);
+    arr_quotes_string = tok_data->ar;
+    printf("quotes array:\n");
+    print_array(arr_quotes_string);
+    if (!arr_quotes_string)
+        return NULL;
+    }
+    free_tok_data(tok_data);*/
+    return tokens;
+
+/*
+    tokens = ft_split_on_str(line, get_ifs_from_env(mini));
+    printf("%lu\n", sizeof(tokens));
+    free_args(tokens);
+    arr_quotes_string = split_quotes_comments(line);
+    //print_array(arr_quotes_string);
+    tokens = ft_split_on_str(line, get_ifs_from_env(mini));
+    print_array(tokens);
+    ft_memset(&flags, 0, sizeof(t_token_flags));
+    tokens_head = tokens;
+    while (tokens && *tokens) {
+        set_flags(&flags, tokens);
+        printf("%s, in comment: %d, in_single quote: %d \n", *tokens, flags.in_comment, flags.in_single_quote);
+        tokens++;
+    }
+    return (arr_quotes_string);*/
+}
+
+
+int	process_command2(char *line, t_mini *mini)
+{
+    t_mini	*pipeline;
+
+    if (!line || !*line)
+        return (0);
+    // Check if command contains pipes
+    if (has_pipes(line))
+    {
+        if (parse_pipeline(line, &pipeline) == 0)
+        {
+            mini->exit_status = execute_pipeline(pipeline);
+            free_pipeline(pipeline);
+        }
+        else
+            mini->exit_status = 1;
+        update_exit_status(mini);
+        return (mini->exit_status);
+    }
+    // Handle single command (no pipes)
+    mini->args = parse_input(line);
+    if (!mini->args || !mini->args[0])
+    {
+        if (mini->args)
+            free_args(mini->args);
+        return (0);
+    }
+    if (is_builtin(mini->args[0]))
+        mini->exit_status = handle_builtin(mini);
+    else
+        mini->exit_status = execute_external_cmd(mini);
+    update_exit_status(mini);
+    free_args(mini->args);
+    return (mini->exit_status);
+}
+
+
+// ########## UNUSED
+
 //char** split_on_str
-
-typedef struct s_token_flags {
-    int in_comment;
-    int in_single_quote;
-    int in_double_quote;
-    int in_string;
-    int in_special;
-    int in_var_expansion;
-    int is_pipe;
-    int is_lt_redir;
-    int is_gt_redir;
-    int in_append_redir;
-    int in_heredoc_redir;
-
-}  t_token_flags;
 
 void unset_flags(t_token_flags *flags, char c, int quote_flag_set) {
     if (quote_flag_set)
@@ -166,186 +433,3 @@ char ***split_further(char **original_array, char *delimiter) {
     return result;
 }
 */
-
-typedef struct s_command {
-    char *cmd;
-    char *fin_args;
-    char **args;
-   /* char *redir_in;
-    char *redir_out;
-    char *redir_append;
-    char *heredoc;
-    char *delimiter;
-    char *cmd_str;
-    int is_builtin;*/
-} t_command;
-
-void free_tokens(t_token **tokens) {
-    t_token *current;
-    t_token *next;
-
-    current = *tokens;
-    while (current) {
-        next = current->next;
-        free(current);
-        current = next;
-    }
-}
-
-int create_basic_tokens(char *line, t_token **tokens, t_mini *mini) {
-    int i;
-    t_token *token;
-    t_token *prev;
-    (void) mini;
-
-    i = 0;
-    prev = NULL;
-    while (line[i]) {
-        printf("%c\n", line[i]);
-        token = (t_token *)malloc(sizeof(t_token));
-        if (!token) {
-            free_tokens(tokens);
-            return (1);
-        }
-        ft_memset(token, 0, sizeof(t_token));
-        token->c = line[i];
-        token->next = NULL;
-        token->prev = prev;
-        if (prev)
-            prev->next = token;
-        prev = token;
-        if (i == 0)
-            *tokens = prev;
-        i++;
-    }
-    return (0);
-}
-void set_token_flags(t_token **tokens, t_mini *mini) {
-    t_token *current;
-    (void) mini;
-
-    set_quote_flags(tokens);
-    mark_comment(tokens);
-    //todo set ifs and operatiirs
-    current = *tokens;
-    while (current) {
-        printf("%c: is quote:%d, is_single: %d, is_double: %d,"
-               " is_start: %d, is_end: %d, is_comment_start: %d, is_comment: %d \n",
-               current->c,current->is_quote, current->is_single_quote, current->is_double_quote, current->is_start_quote,
-               current->is_end_quote,current->is_comment_start, current->is_comment);
-        current = current->next;
-    }
-}
-
-void tokenize(char *line, t_token **tokens, t_mini *mini) {
-    /*int i;
-    t_token *token;
-    t_token *prev;
-*/
-
-    if (!line || !mini)
-        return ;
-    if (create_basic_tokens(line, tokens, mini) == 0)
-        set_token_flags(tokens, mini);
-    /*i = 0;
-    prev = NULL;
-    while (line[i]) {
-        token = (t_token *)malloc(sizeof(t_token));
-        ft_memset(token, 0, sizeof(t_token));
-        if (!token) {
-            free_tokens(tokens);
-            return ;
-        }
-        token->c = line[i];
-        token->next = NULL;
-        if (prev) {
-            token->prev = prev;
-            prev->next = token;
-        }
-        prev = token;
-        i++;
-    }*/
-}
-
-t_token** split_line(char *line, t_mini *mini) {
-    //char **arr_quotes_string;
-    //t_tok_data *tok_data;
-    t_token **tokens;
-    (void) mini;
-    //char **tokens_head;
-    //char **tokens;
-    //t_token_flags flags;
-
-    if (!line || !mini)
-        return NULL;
-    tokens = (t_token **)malloc(sizeof(t_token*));
-    if (!tokens)
-        return NULL;
-    *tokens = NULL;
-    tokenize(line, tokens, mini);
-    /*tok_data = split_quotes_comments(line);
-    arr_quotes_string = tok_data->ar;
-    printf("quotes array:\n");
-    print_array(arr_quotes_string);
-    if (!arr_quotes_string)
-        return NULL;
-    }
-    free_tok_data(tok_data);*/
-    return tokens;
-
-/*
-    tokens = ft_split_on_str(line, get_ifs_from_env(mini));
-    printf("%lu\n", sizeof(tokens));
-    free_args(tokens);
-    arr_quotes_string = split_quotes_comments(line);
-    //print_array(arr_quotes_string);
-    tokens = ft_split_on_str(line, get_ifs_from_env(mini));
-    print_array(tokens);
-    ft_memset(&flags, 0, sizeof(t_token_flags));
-    tokens_head = tokens;
-    while (tokens && *tokens) {
-        set_flags(&flags, tokens);
-        printf("%s, in comment: %d, in_single quote: %d \n", *tokens, flags.in_comment, flags.in_single_quote);
-        tokens++;
-    }
-    return (arr_quotes_string);*/
-}
-
-
-
-
-int	process_command2(char *line, t_mini *mini)
-{
-    t_mini	*pipeline;
-
-    if (!line || !*line)
-        return (0);
-    // Check if command contains pipes
-    if (has_pipes(line))
-    {
-        if (parse_pipeline(line, &pipeline) == 0)
-        {
-            mini->exit_status = execute_pipeline(pipeline);
-            free_pipeline(pipeline);
-        }
-        else
-            mini->exit_status = 1;
-        update_exit_status(mini);
-        return (mini->exit_status);
-    }
-    // Handle single command (no pipes)
-    mini->args = parse_input(line);
-    if (!mini->args || !mini->args[0])
-    {
-        if (mini->args)
-            free_args(mini->args);
-        return (0);
-    }
-    if (is_builtin(mini->args[0]))
-        mini->exit_status = handle_builtin(mini);
-    else
-        mini->exit_status = execute_external_cmd(mini);
-    update_exit_status(mini);
-    free_args(mini->args);
-    return (mini->exit_status);
-}

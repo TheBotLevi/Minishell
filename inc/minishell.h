@@ -45,6 +45,37 @@ typedef struct s_env
 	pid_t			*pids;
 }					t_pipeline;*/
 
+typedef struct s_command {
+	char *cmd;
+	char *fin_args;
+	char **args;
+	/* char *redir_in;
+	 char *redir_out;
+	 char *redir_append;
+	 char *heredoc;
+	 char *delimiter;
+	 char *cmd_str;
+	 int is_builtin;*/
+} t_command;
+
+typedef struct s_token_flags {
+	int in_comment;
+	int in_single_quote;
+	int in_double_quote;
+	int in_string;
+	int in_special;
+	int in_var_expansion;
+	int is_pipe;
+	int is_lt_redir;
+	int is_gt_redir;
+	int in_append_redir;
+	int in_heredoc_redir;
+
+}  t_token_flags;
+
+typedef struct s_token_data {
+} t_token_data;
+
 typedef struct s_mini
 {
 	char			**args;	//is going to change for parsing (tokenization)
@@ -81,11 +112,16 @@ typedef struct s_token {
 	//int is_eof; // signals ctrl+D
 	int is_comment_start;
 	int is_comment;
-	int is_heredoc;
-	int is_heredoc_delimiter;
-	int is_heredoc_end;
+	int is_redir_heredoc;
+	int is_redir_heredoc_delim_start;
+	int is_redir_heredoc_delim_end;
+	int is_redir_heredoc_delimiter;
+	//int is_heredoc_end;
 	int is_redirection;
 	int is_redirection_end;
+	int is_redir_input;
+	int is_redir_output;
+	int is_redir_output_append;
 	struct s_token *prev;
 	struct s_token *next;
 } t_token;
