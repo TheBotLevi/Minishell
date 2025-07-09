@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 13:39:47 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/09 16:59:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,10 +147,7 @@ int	handle_redirections(t_mini *mini, int i)
 	{
 		mini->filename = mini->args[i + 1];
 		if (handle_heredoc_redirection(mini, mini->args[i + 1]) < 0)
-		{
-			restore_main_signals();
 			return (4);
-		}
 	}
 	return (0);
 }

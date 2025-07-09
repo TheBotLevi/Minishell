@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/07 13:31:03 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:39:40 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	ft_mini_loop(t_mini *mini)
 	status = 0;
 	while (1)
 	{
-		//setup_signals();
+		setup_signals();
 		g_exit = 0;
 		line = readline("mariashell > ");
 //		printf("hello\n");
@@ -52,23 +52,32 @@ void	ft_mini_loop(t_mini *mini)
 		{
 			if (g_exit == 130)
 			{
-				status = 130;
+//				ft_putchar_fd('\n', STDOUT_FILENO);
 				continue ;
 			}
 			ft_putendl_fd("exit\n", STDOUT_FILENO);
 			break ;
 		}
-		if (line && *line)
-			add_history(line);
+		if (!*line)
+		{
+			free(line);
+			continue ;
+		}
+		add_history(line);
 		//test_tokenization(line, mini);
 		status = process_command(line, mini);
+		if (status == 130 || mini->exit_status == 130)
+		{
+			mini->exit_status = 130;
+			g_exit = 0;
+		}
 		update_exit_status(mini);
 		if (ft_strcmp(line, "exit") == 0)
 		{
 			free(line);
 			break ;
 		}
-		printf("exit status: %d\n", status);
+//		printf("exit status: %d\n", status);
 		free(line);
 	}
 }

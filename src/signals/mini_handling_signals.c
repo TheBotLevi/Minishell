@@ -6,23 +6,22 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/08 17:45:45 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/25 18:05:15 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:30:17 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
+
+volatile sig_atomic_t	g_exit = 0;
 
 void	handle_sigint(int sig)
 {
 	(void)sig;
 	ft_putchar_fd('\n', STDOUT_FILENO);
 	g_exit = 130;
-	if (isatty(STDIN_FILENO))
-	{
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
+	rl_on_new_line();
+	rl_replace_line("", 0);
+	rl_redisplay();
 }
 
 void	setup_signals(void)
