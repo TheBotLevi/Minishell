@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 15:34:15 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/03 14:25:34 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/09 14:17:32 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,12 @@ static void	mini_init_init(t_mini *mini)
 	mini->output_fd = -1;
 	mini->pids = NULL;
 	mini->pipes = NULL;
+	mini->saved_stdin = -1;
+	mini->saved_stdout = -1;
+	mini->redir_flag = 0;
 }
 
-t_mini	*mini_init(char ** envp)
+t_mini	*mini_init(char **envp)
 {
 	t_mini	*mini;
 

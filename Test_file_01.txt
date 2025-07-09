@@ -1,11 +1,2 @@
-HALLO
-hello
-bonjour
-hey
-hi
-hola
-konichiwa
-hello
-hello
-DEBUG: dup2 successfull, stdout redirected
-HOLA AMIGO
+yo what's up
+I'm good what about you?

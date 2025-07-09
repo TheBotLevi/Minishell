@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/03 17:25:37 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/09 12:02:43 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,9 @@ typedef struct s_mini
 	t_mini			*commands;
 	int				cmd_count;
 	int				**pipes;
+	int			saved_stdin;
+	int			saved_stdout;
+	int			redir_flag;
 	pid_t			*pids;
 	t_env		*env_struct;
 //	t_pipeline	*pipes;
