@@ -23,7 +23,7 @@ int	get_char_arr_size(char **arr)
 }
 
 void test_tokenization(char* line, t_mini* mini) {
-	char **tokens;
+	t_token **tokens;
 
 	printf("\nInput tokens\n----\n");
 	tokens = split_line(line, mini);
@@ -32,7 +32,7 @@ void test_tokenization(char* line, t_mini* mini) {
 	//print_array(tokens);
 	printf("----\n");
 	fflush(stdout);
-	free_args(tokens);
+	free_tokens(tokens);
 }
 
 void	ft_mini_loop(t_mini *mini)

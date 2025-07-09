@@ -121,6 +121,7 @@ int *get_quote_state_array(char const *str)
  */
 int is_within_quote_token(const char c, t_quote_state *state) {
 
+    state->is_end_quote = 0;
     if (!state->within_quote && is_in_set(c, "\'\"")) {
         state->within_quote = 1;
         state->is_start_quote = 1;
@@ -131,12 +132,14 @@ int is_within_quote_token(const char c, t_quote_state *state) {
         return (1);
     }
     if (c == '\'' && state->in_single_quote) {
+        state->is_start_quote = 0;
         state->is_end_quote = 1;
         state->within_quote = 0;
         state->in_single_quote = 0;
         return (1);
     }
     if (c == '\"' && state->in_double_quote) {
+        state->is_start_quote = 0;
         state->is_end_quote = 1;
         state->within_quote = 0;
         state->in_double_quote = 0;
@@ -144,7 +147,6 @@ int is_within_quote_token(const char c, t_quote_state *state) {
     }
     if (state->within_quote) {
         state->is_start_quote = 0;
-        state->is_end_quote = 0;
         return (1);
     }
     return (0);
@@ -199,7 +201,7 @@ void mark_comment(t_token **tokens) {
 }
 
 /* goes through string and detects single and double quotes, returning
-// a -1 terminted int array indicating whether the character is wihtin a
+// a -1 terminated int array indicating whether the character is wihtin a
 quoted string (incl. its quotation marks) or comment */
 int set_quote_flags(t_token **tokens) {
     t_quote_state state;
@@ -215,7 +217,14 @@ int set_quote_flags(t_token **tokens) {
         current->is_single_quote = state.in_single_quote;
         current->is_start_quote = state.is_start_quote;
         current->is_end_quote = state.is_end_quote;
-        current = current->next;
+        if (current->is_end_quote && current->prev) {
+            current->is_double_quote = current->prev->is_double_quote;
+            current->is_single_quote = current->prev->is_single_quote;
+        }
+        if (current->next)
+            current = current->next;
+        else
+            break;
     }
     if (state.within_quote == 1)
         cancel_unfinished_quote_token(current);

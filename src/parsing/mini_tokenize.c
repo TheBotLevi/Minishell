@@ -201,19 +201,21 @@ int create_basic_tokens(char *line, t_token **tokens, t_mini *mini) {
     i = 0;
     prev = NULL;
     while (line[i]) {
+        printf("%c\n", line[i]);
         token = (t_token *)malloc(sizeof(t_token));
-        ft_memset(token, 0, sizeof(t_token));
         if (!token) {
             free_tokens(tokens);
             return (1);
         }
+        ft_memset(token, 0, sizeof(t_token));
         token->c = line[i];
         token->next = NULL;
-        if (prev) {
-            token->prev = prev;
+        token->prev = prev;
+        if (prev)
             prev->next = token;
-        }
         prev = token;
+        if (i == 0)
+            *tokens = prev;
         i++;
     }
     return (0);
@@ -222,9 +224,9 @@ void set_token_flags(t_token **tokens, t_mini *mini) {
     t_token *current;
     (void) mini;
 
-    current = *tokens;
-    set_quote_flags(&current);
+    set_quote_flags(tokens);
     mark_comment(tokens);
+    //todo set ifs and operatiirs
     current = *tokens;
     while (current) {
         printf("%c: is quote:%d, is_single: %d, is_double: %d,"
@@ -236,17 +238,16 @@ void set_token_flags(t_token **tokens, t_mini *mini) {
 }
 
 void tokenize(char *line, t_token **tokens, t_mini *mini) {
-    int i;
+    /*int i;
     t_token *token;
     t_token *prev;
-
+*/
 
     if (!line || !mini)
         return ;
     if (create_basic_tokens(line, tokens, mini) == 0)
         set_token_flags(tokens, mini);
-
-    i = 0;
+    /*i = 0;
     prev = NULL;
     while (line[i]) {
         token = (t_token *)malloc(sizeof(t_token));
@@ -263,10 +264,10 @@ void tokenize(char *line, t_token **tokens, t_mini *mini) {
         }
         prev = token;
         i++;
-    }
+    }*/
 }
 
-char** split_line(char *line, t_mini *mini) {
+t_token** split_line(char *line, t_mini *mini) {
     //char **arr_quotes_string;
     //t_tok_data *tok_data;
     t_token **tokens;
@@ -277,9 +278,10 @@ char** split_line(char *line, t_mini *mini) {
 
     if (!line || !mini)
         return NULL;
-    tokens = (t_token **)malloc(ft_strlen(line) * sizeof(t_token));
+    tokens = (t_token **)malloc(sizeof(t_token*));
     if (!tokens)
         return NULL;
+    *tokens = NULL;
     tokenize(line, tokens, mini);
     /*tok_data = split_quotes_comments(line);
     arr_quotes_string = tok_data->ar;
@@ -289,8 +291,7 @@ char** split_line(char *line, t_mini *mini) {
         return NULL;
     }
     free_tok_data(tok_data);*/
-    free(tokens);
-    return NULL;
+    return tokens;
 
 /*
     tokens = ft_split_on_str(line, get_ifs_from_env(mini));

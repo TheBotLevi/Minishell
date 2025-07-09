@@ -201,7 +201,7 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 //parsing
 char* get_ifs_from_env(t_mini *mini);
 char	**ft_split_on_str(char const *s, char const *c);
-char** split_line(char *line, t_mini *mini);
+t_token** split_line(char *line, t_mini *mini);
 int *get_quote_state_array(char const *str);
 int is_within_quote(char c, t_quote_state *state);
 size_t get_int_array_size(const int *arr);
@@ -212,5 +212,6 @@ int set_quote_flags(t_token **tokens);
 int is_within_quote_token(const char c, t_quote_state *state);
 void cancel_unfinished_quote_token(t_token *token);
 void mark_comment(t_token **tokens);
+void free_tokens(t_token **tokens);
 
 #endif
