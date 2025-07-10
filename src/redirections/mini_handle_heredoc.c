@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 11:12:41 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 17:38:38 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/10 13:59:47 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,10 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter)
 	}
 	pid = fork();
 	if (pid == 0)
+	{
+//		handle_heredoc_signal_child();
 		handle_heredoc_delimiter(pipefd, delimiter);
+	}
 	else if (pid < 0)
 	{
 		close(pipefd[0]);
@@ -104,11 +107,11 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter)
 	if (WIFEXITED(mini->exit_status) && WEXITSTATUS(mini->exit_status) == 130)
 	{
 		close(pipefd[0]);
-		restore_main_signals();
-		g_exit = saved_g_exit;
+//		restore_main_signals();
+		g_exit = 130;
 		return (-1);
 	}
-	restore_main_signals();
+//	restore_main_signals();
 	g_exit = saved_g_exit;
 	if (dup2(pipefd[0], STDIN_FILENO) < 0)
 	{

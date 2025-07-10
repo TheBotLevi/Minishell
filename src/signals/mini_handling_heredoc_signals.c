@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/19 12:06:35 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 17:44:50 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:04:51 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,24 @@ void	handle_heredoc_sigint(int sig)
 //	kill(0, SIGINT);
 	write(STDOUT_FILENO, "\n", 1);
 //	exit(130);
-//	close(STDIN_FILENO);
+//	rl_replace_line("", 0);
 	rl_done = 1;
+	close(STDIN_FILENO);
 }
+
+/*
+void	handle_heredoc_sigint_child(int sig)
+{
+	(void)sig;
+	write(STDOUT_FILENO, "\n", 1);
+}
+
+void	handle_heredoc_signal_child(void)
+{
+	signal(SIGINT, handle_heredoc_sigint_child);
+	signal(SIGQUIT, SIG_IGN);
+}
+*/
 
 void	handle_heredoc_signals(void)
 {

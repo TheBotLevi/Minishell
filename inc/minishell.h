@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 12:02:43 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/10 11:07:13 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,7 @@ void	handle_sigint(int sig);
 void	handle_heredoc_sigint(int sig);
 void	handle_heredoc_signals(void);
 void	restore_main_signals(void);
+void	handle_heredoc_signal_child(void);
 
 //init
 t_env	*init_environment(char **env);

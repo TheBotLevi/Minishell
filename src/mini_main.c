@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 17:39:40 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:09:27 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,10 @@ void	ft_mini_loop(t_mini *mini)
 			if (g_exit == 130)
 			{
 //				ft_putchar_fd('\n', STDOUT_FILENO);
+				g_exit = 0;
 				continue ;
 			}
-			ft_putendl_fd("exit\n", STDOUT_FILENO);
+			ft_putendl_fd("exit", STDOUT_FILENO);
 			break ;
 		}
 		if (!*line)
@@ -66,7 +67,7 @@ void	ft_mini_loop(t_mini *mini)
 		add_history(line);
 		//test_tokenization(line, mini);
 		status = process_command(line, mini);
-		if (status == 130 || mini->exit_status == 130)
+		if (status == 130 || g_exit == 130)
 		{
 			mini->exit_status = 130;
 			g_exit = 0;

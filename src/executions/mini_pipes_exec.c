@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/07 09:46:21 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/10 16:20:11 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,11 @@ static int	wait_for_processes(t_mini *pipeline)
 			last_status = WEXITSTATUS(status);
 		i++;
 	}
+	if (pipeline->pids)
+	{
+		free(pipeline->pids);
+		pipeline->pids = NULL;
+	}
 	return (last_status);
 }
 
@@ -157,7 +162,10 @@ int	execute_pipeline(t_mini *pipeline)
 		return (2);
 	if (create_and_fork_process(pipeline) != 0)
 		return (3);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 	close_all_pipes(pipeline);
 	status = wait_for_processes(pipeline);
+	setup_signals();
 	return (status);
 }

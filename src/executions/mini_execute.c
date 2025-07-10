@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 15:44:07 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/10 13:41:03 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,8 @@ int	execute_external_cmd(t_mini *mini)
 		}
 		handle_external_command(mini);
 	}
+	signal(SIGINT, SIG_IGN);
+//	signal(SIGQUIT, SIG_IGN);
 	return (handle_parent_process(pid, envp));
 }
 
