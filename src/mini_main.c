@@ -12,21 +12,12 @@
 
 #include "../inc/minishell.h"
 
-int	get_char_arr_size(char **arr)
-{
-	int	i;
 
-	i = 0;
-	while (arr[i])
-		i++;
-	return (i);
-}
-
-void test_tokenization(char* line, t_mini* mini) {
+void test_parsing(char* line, t_mini* mini) {
 	t_token **tokens;
 
 	printf("\nInput tokens\n----\n");
-	tokens = split_line(line, mini);
+	tokens = tokenize(line, mini);
 	if (!tokens)
 		return ;
 	//print_array(tokens);
@@ -65,7 +56,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		test_tokenization(line, mini);
+		test_parsing(line, mini);
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{

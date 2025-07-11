@@ -58,24 +58,6 @@ typedef struct s_command {
 	 int is_builtin;*/
 } t_command;
 
-typedef struct s_token_flags {
-	int in_comment;
-	int in_single_quote;
-	int in_double_quote;
-	int in_string;
-	int in_special;
-	int in_var_expansion;
-	int is_pipe;
-	int is_lt_redir;
-	int is_gt_redir;
-	int in_append_redir;
-	int in_heredoc_redir;
-
-}  t_token_flags;
-
-typedef struct s_token_data {
-} t_token_data;
-
 typedef struct s_mini
 {
 	char			**args;	//is going to change for parsing (tokenization)
@@ -105,7 +87,7 @@ typedef struct s_token {
 	int is_double_quote;
 	int is_start_quote;
 	int is_end_quote;
-	int is_cmd_sep;
+	//int is_cmd_sep;
 	int is_pipe;
 	int is_ifs;
 	int is_dollar;
@@ -119,7 +101,7 @@ typedef struct s_token {
 	int is_redir_heredoc_delimiter;
 	//int is_heredoc_end;
 	int is_redirection;
-	int is_redirection_end;
+	//int is_redirection_end;
 	int is_redir_input;
 	int is_redir_output;
 	int is_redir_output_append;
@@ -134,27 +116,6 @@ typedef struct s_quote_state {
 	int is_start_quote;
 	int is_end_quote;
 } t_quote_state;
-
-
-typedef struct s_tok_ar {
-	char *elem;
-	struct s_tok_ar *next;
-	int is_quote;
-	int is_single_quote;
-	int is_double_quote;
-}t_tok_ar;
-
-typedef struct s_tok_data {
-	char *line;
-	size_t n_elems;
-	int *in_quote_arr;
-	int n_splits;
-	int*	size_arr;
-	char **ar;
-	//t_tok_ar *ar;
-} t_tok_data;
-
-
 
 //global variable
 extern volatile sig_atomic_t	g_exit;
@@ -237,8 +198,43 @@ void	free_pipeline(t_mini *pipeline);
 int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 
-//parsing
-char* get_ifs_from_env(t_mini *mini);
+//parsing files
+
+//mini_tokenize
+void	mark_exit_status(t_token **current, t_token **next);
+void	mark_braced_var(t_token **current, t_token *next);
+void	mark_unbraced_var(t_token **current, t_token **next);
+void	set_var_expansion_flags(t_token **tokens);
+t_token	**tokenize(char *line, t_mini *mini);
+
+//mini_token_flags_ifs_redir_pipe
+void	set_ifs_flags(t_mini *mini, t_token **tokens);
+void	set_redirection_flags(t_token **tokens);
+void	set_is_redirection_flag(t_token **head);
+void	set_pipe_flags(t_token **tokens);
+
+// mini_token_utils
+void	print_tokens(t_token *tokens);
+void	free_tokens(t_token **tokens);
+int		create_basic_tokens(char *line, t_token **tokens, t_mini *mini);
+
+//mini_quotes
+int is_within_quote_token(const char c, t_quote_state *state);
+void cancel_unfinished_quote_token(t_token *token);
+void mark_comment(t_token **tokens);
+int set_quote_flags(t_token **tokens);
+
+//mini_split //todo to be modified and cleaned up
+typedef struct s_tok_data {
+	char *line;
+	size_t n_elems;
+	int *in_quote_arr;
+	int n_splits;
+	int*	size_arr;
+	char **ar;
+	//t_tok_ar *ar;
+} t_tok_data;
+
 char	**ft_split_on_str(char const *s, char const *c);
 t_token** split_line(char *line, t_mini *mini);
 int *get_quote_state_array(char const *str);
@@ -247,10 +243,7 @@ size_t get_int_array_size(const int *arr);
 t_tok_data *split_quotes_comments(char const *line);
 void free_tok_data(t_tok_data *tok_data);
 void cancel_non_quote_comment(char const *str, int *in_quote_arr);
-int set_quote_flags(t_token **tokens);
-int is_within_quote_token(const char c, t_quote_state *state);
-void cancel_unfinished_quote_token(t_token *token);
-void mark_comment(t_token **tokens);
-void free_tokens(t_token **tokens);
+
+
 
 #endif
