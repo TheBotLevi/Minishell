@@ -195,6 +195,50 @@ void set_redirection_flags(t_token **tokens) {
     }
 }
 
+void mark_braced_var(t_token *current, t_token *next) {
+
+/*
+while (current && !current->is_comment ) {
+    next = current->next;
+ *  if (current->c == '$' && !current->is_single_quote)
+ */
+    if (next && next->c == '{')
+        next->is_braced_var = 1;
+
+}
+
+void set_var_expansion_flags(t_token **tokens) {
+    t_token *current;
+    t_token *prev;
+    t_token *next;
+
+    current = *tokens;
+    while (current && !current->is_comment ) {
+        next = current->next;
+        if (current->c == '$' && !current->is_single_quote) {
+            current->is_dollar = 1;
+            if (next && next->c == '?') {
+                current->is_exit_status = 1;
+                next->is_exit_status = 1;
+                next->is_var = 1;
+            }
+            else if (next && (ft_isalpha(next->c) || next->c == '_')) {
+                next->is_var = 1;
+                next = next->next;
+                while (next && (ft_isalnum(next->c) || next->c == '_')) {
+                    next->is_var = 1;
+                    next = next->next;
+                }
+                current->next = next; // skip to after var name
+            }
+            else
+                mark_braced_var(current, next);
+        }
+        current = current->next;
+
+    }
+}
+
 void set_token_flags(t_token **tokens, t_mini *mini) {
     t_token *current;
     int n_pipes;
@@ -205,6 +249,7 @@ void set_token_flags(t_token **tokens, t_mini *mini) {
     n_pipes = set_pipe_flags(tokens);
     printf("n_pipes: %d\n", n_pipes);
     set_redirection_flags(tokens);
+    set_var_expansion_flags(tokens);
     //todo set ifs and operatiirs
     current = *tokens;
     while (current) {
