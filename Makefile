@@ -51,10 +51,10 @@ ${MINISHELL}: ${OBJS} ${LIBFT}
 	${CC} -g ${CFLAGS} -o $@ $^ -lreadline -lhistory
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/%.c ${INCLUDES} | ${OBJ_DIRS}
-	${CC} -g ${CFLAGS} -c $< -o $@
+	@ ${CC} -g ${CFLAGS} -c $< -o $@
 
 ${LIBFT}:
-	${MAKE} -C ${PATH_LIBFT}
+	${MAKE} -C ${PATH_LIBFT} --no-print-directory > /dev/null 2>&1
 
 clean:
 	rm -f ${OBJS}
