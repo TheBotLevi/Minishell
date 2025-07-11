@@ -116,8 +116,6 @@ typedef struct s_token {
 	int is_comment_start;
 	int is_comment;
 	int is_redir_heredoc;
-	int is_redir_heredoc_delim_start;
-	int is_redir_heredoc_delim_end;
 	int is_redir_heredoc_delimiter;
 	//int is_heredoc_end;
 	int is_redirection;

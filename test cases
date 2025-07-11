@@ -414,3 +414,14 @@ Surprise (or not...)
 - set USER environment variable.
 - Test echo "'$USER'" this should print 'USER_VALUE'
 - Test echo '"$USER"' this should print "$USER"
+
+
+cat <<    # comment
+'EOF'
+Because:
+    Bash sees the # as a comment and ignores the rest of the line.
+    So the << appears to be dangling — and you'll get a syntax error.
+
+If any part of the delimiter is unquoted, then:
+    Variable expansion, command substitution, and backslash
+     interpretation will happen in the here-document body.

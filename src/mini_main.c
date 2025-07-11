@@ -65,7 +65,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		//test_tokenization(line, mini);
+		test_tokenization(line, mini);
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{

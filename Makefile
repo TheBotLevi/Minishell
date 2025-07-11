@@ -35,6 +35,7 @@ SRCS = src/mini_utils.c \
        src/parsing/mini_tokenize.c \
        src/parsing/mini_quotes.c \
        src/parsing/mini_split.c \
+       src/parsing/mini_syntax.c \
        src/mini_main.c \
        #src/mini_test_main.c \
 

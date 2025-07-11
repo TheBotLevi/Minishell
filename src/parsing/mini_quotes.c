@@ -160,19 +160,18 @@ void cancel_unfinished_quote_token(t_token *token) {
     if (!token)
         return;
     current = token;
-    while (current && current->is_quote) {
+    while (current && current->is_quote && !current->is_start_quote) {
         current->is_quote = 0;
         current->is_double_quote = 0;
         current->is_single_quote = 0;
         current->is_start_quote = 0;
         current = current->prev;
-        if (current && current->is_start_quote) {
+    }
+    if (current && current->is_start_quote) {
             current->is_quote = 0;
             current->is_double_quote = 0;
             current->is_single_quote = 0;
             current->is_start_quote = 0;
-            break;
-        }
     }
 }
 
@@ -200,9 +199,9 @@ void mark_comment(t_token **tokens) {
     }
 }
 
-/* goes through string and detects single and double quotes, returning
-// a -1 terminated int array indicating whether the character is wihtin a
-quoted string (incl. its quotation marks) or comment */
+/* goes through string and detects single and double quotes, setting the correspondig token flags.
+ * when last token has been reached, it exits without incrementing to check if a quote remains unfinished
+//  */
 int set_quote_flags(t_token **tokens) {
     t_quote_state state;
     t_token *current;
@@ -221,12 +220,9 @@ int set_quote_flags(t_token **tokens) {
             current->is_double_quote = current->prev->is_double_quote;
             current->is_single_quote = current->prev->is_single_quote;
         }
-        if (current->next)
-            current = current->next;
-        else
-            break;
+        if (!current->next && state.within_quote == 1)
+            cancel_unfinished_quote_token(current);
+        current = current->next;
     }
-    if (state.within_quote == 1)
-        cancel_unfinished_quote_token(current);
     return (0);
 }

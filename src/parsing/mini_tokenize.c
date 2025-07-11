@@ -70,7 +70,6 @@ int create_basic_tokens(char *line, t_token **tokens, t_mini *mini) {
     i = 0;
     prev = NULL;
     while (line[i]) {
-        printf("%c\n", line[i]);
         token = (t_token *)malloc(sizeof(t_token));
         if (!token) {
             free_tokens(tokens);
@@ -90,15 +89,13 @@ int create_basic_tokens(char *line, t_token **tokens, t_mini *mini) {
     return (0);
 }
 
-// mark cmd sep: |, <, >, <<, >> ()
-
 int set_pipe_flags(t_token **tokens) {
     t_token *current;
     int n_pipes;
 
     n_pipes = 0;
     current = *tokens;
-    while (current && current->is_comment) {
+    while (current && !current->is_comment) {
         if (current->c == '|' && !current->is_quote) {
             current->is_pipe = 1;
             n_pipes++;
@@ -109,10 +106,6 @@ int set_pipe_flags(t_token **tokens) {
 }
 
 
-
-
-//todo add test case: > cannot be the last symbol in a valid redirection in Bash.
-
 /*
 < should redirect input
 > should redirect output
@@ -120,7 +113,6 @@ int set_pipe_flags(t_token **tokens) {
 << should be given a delimiter, then read the input until a line containing the
 delimiter is seen. However, it doesn’t have to update the history!
  */
-
 void set_middle_redirection_flags(t_token *current, t_token *prev, t_token *next) {
 
     if (current->c == '<' && prev->c != '<' && next->c != '<')
@@ -136,13 +128,23 @@ void set_middle_redirection_flags(t_token *current, t_token *prev, t_token *next
         prev->is_redir_heredoc = 1;
         prev->is_redirection = 1;
         current->is_redir_heredoc = 1;
+        while (next) {
+            next->is_redirection = 1;
+            next->is_redir_heredoc_delimiter = 1;
+            next = next->next;
+        }
     }
     else
         current->is_redirection = 0;
 }
+
+/*set redirection flags for first or last elements of the line
+ * case: beginning of line: !prev && next
+ * case: end of line: !next && prev
+ */
 void set_ends_redirection_flags(t_token *current, t_token *prev, t_token *next) {
 
-    if (!prev && next) // beginning of line
+    if (!prev && next)
         {
         if (current->c == '<' && next->c != '<')
             current->is_redir_input = 1;
@@ -151,7 +153,7 @@ void set_ends_redirection_flags(t_token *current, t_token *prev, t_token *next) 
         else
             current->is_redirection = 0;
     }
-    if (!next && prev) // end of line
+    if (!next && prev)
         {
         if (current->c == '<' && prev->c != '<')
             current->is_redir_input = 1;
@@ -179,15 +181,12 @@ void set_redirection_flags(t_token **tokens) {
 
     current = *tokens;
     while (current && !current->is_comment) {
-        if (current->is_quote)
-            continue;
         prev = current->prev;
         next = current->next;
-        if (is_in_set(current->c, "<>")) {
+        if (is_in_set(current->c, "<>") && !current->is_quote) {
             current->is_redirection = 1;
-            if (prev && next) {
+            if (prev && next)
                 set_middle_redirection_flags(current, prev, next);
-            }
             else
                 set_ends_redirection_flags(current, prev, next);
         }
@@ -196,20 +195,32 @@ void set_redirection_flags(t_token **tokens) {
 }
 
 void mark_braced_var(t_token *current, t_token *next) {
+    t_token *start;
+    //t_token *end;
+    (void)current;
 
-/*
-while (current && !current->is_comment ) {
-    next = current->next;
- *  if (current->c == '$' && !current->is_single_quote)
- */
-    if (next && next->c == '{')
-        next->is_braced_var = 1;
-
+    start = next->prev;
+    if (next && next->c == '{') {
+        next = next->next;
+        if (next && (ft_isalpha(next->c) || next->c == '_')) {
+            next->is_var = 1;
+            next = next->next;
+            while (next && next->c != '}' && (ft_isalnum(next->c) || next->c == '_'))
+                next = next->next;
+            if (next && next->c == '}') {
+                current = next;
+                while (next && next != start) {
+                    next->is_braced_var = 1;
+                    next->is_var = 1;
+                    next = next->prev;
+                }
+            }
+        }
+    }
 }
 
 void set_var_expansion_flags(t_token **tokens) {
     t_token *current;
-    t_token *prev;
     t_token *next;
 
     current = *tokens;
@@ -229,15 +240,29 @@ void set_var_expansion_flags(t_token **tokens) {
                     next->is_var = 1;
                     next = next->next;
                 }
-                current->next = next; // skip to after var name
+                current = next; // skip to after var name
             }
             else
                 mark_braced_var(current, next);
         }
-        current = current->next;
-
+        if (current)
+            current = current->next;
     }
 }
+
+void set_ifs_flags(t_mini *mini, t_token **tokens) {
+    t_token *current;
+    char *ifs;
+
+    current = *tokens;
+    ifs = get_ifs_from_env(mini);
+    while (current && !current->is_comment) {
+        if (is_in_set(current->c, ifs) && !current->is_quote)
+            current->is_ifs = 1;
+        current = current->next;
+        }
+    }
+
 
 void set_token_flags(t_token **tokens, t_mini *mini) {
     t_token *current;
@@ -250,13 +275,15 @@ void set_token_flags(t_token **tokens, t_mini *mini) {
     printf("n_pipes: %d\n", n_pipes);
     set_redirection_flags(tokens);
     set_var_expansion_flags(tokens);
-    //todo set ifs and operatiirs
+    set_ifs_flags(mini, tokens);
     current = *tokens;
     while (current) {
-        printf("%c: is quote:%d, is_single: %d, is_double: %d,"
-               " is_start: %d, is_end: %d, is_comment_start: %d, is_comment: %d \n",
-               current->c,current->is_quote, current->is_single_quote, current->is_double_quote, current->is_start_quote,
-               current->is_end_quote,current->is_comment_start, current->is_comment);
+        printf("%c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, end\":%d, #_start:%d, #:%d,"
+               " |:%d, $:%d, $?:%d, $var:%d, ${}:%d, <:%d, <<:%d, <<_del: %d, >:%d, >>:%d \n",
+               current->c, current->is_ifs,current->is_quote, current->is_single_quote, current->is_double_quote, current->is_start_quote,
+               current->is_end_quote,current->is_comment_start, current->is_comment, current->is_pipe, current->is_dollar,
+               current->is_exit_status, current->is_var, current->is_braced_var, current->is_redir_input,
+               current->is_redir_heredoc, current->is_redir_heredoc_delimiter, current->is_redir_output, current->is_redir_output_append);
         current = current->next;
     }
 }
@@ -271,24 +298,7 @@ void tokenize(char *line, t_token **tokens, t_mini *mini) {
         return ;
     if (create_basic_tokens(line, tokens, mini) == 0)
         set_token_flags(tokens, mini);
-    /*i = 0;
-    prev = NULL;
-    while (line[i]) {
-        token = (t_token *)malloc(sizeof(t_token));
-        ft_memset(token, 0, sizeof(t_token));
-        if (!token) {
-            free_tokens(tokens);
-            return ;
-        }
-        token->c = line[i];
-        token->next = NULL;
-        if (prev) {
-            token->prev = prev;
-            prev->next = token;
-        }
-        prev = token;
-        i++;
-    }*/
+    // todo perform variable substitution
 }
 
 t_token** split_line(char *line, t_mini *mini) {
