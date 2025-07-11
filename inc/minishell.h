@@ -198,8 +198,7 @@ void	free_pipeline(t_mini *pipeline);
 int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 
-//parsing files
-
+//### parsing files
 //mini_tokenize
 void	mark_exit_status(t_token **current, t_token **next);
 void	mark_braced_var(t_token **current, t_token *next);
@@ -212,6 +211,7 @@ void	set_ifs_flags(t_mini *mini, t_token **tokens);
 void	set_redirection_flags(t_token **tokens);
 void	set_is_redirection_flag(t_token **head);
 void	set_pipe_flags(t_token **tokens);
+void	set_double_redir_flags(t_token	**current);
 
 // mini_token_utils
 void	print_tokens(t_token *tokens);

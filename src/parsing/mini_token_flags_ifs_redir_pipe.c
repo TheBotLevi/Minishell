@@ -59,29 +59,45 @@ void	set_is_redirection_flag(t_token **head)
 	t_token	*current;
 
 	current = *head;
-	while (current && !current->is_comment){
-		if (!current->is_quote && (current->is_redir_output || current->is_redir_input ||
-			current->is_redir_heredoc || current->is_redir_output_append))
+	while (current && !current->is_comment)
+	{
+		if (!current->is_quote && (current->is_redir_output
+				|| current->is_redir_input || current->is_redir_heredoc
+				|| current->is_redir_output_append))
 			current->is_redirection = 1;
 		current = current->next;
 	}
 }
 
-void set_redirection_flags(t_token **tokens) {
-	t_token *current = *tokens;
+void set_double_redir_flags(t_token	**current) {
 
-	while (current && !current->is_comment) {
-		if (!current->is_quote) {
-			if (current->c == '>' && current->next && current->next->c == '>') {
-				current->is_redir_output_append = 1;
-				current->next->is_redir_output_append = 1;
-				current = current->next;
-			}
-			else if (current->c == '<' && current->next && current->next->c == '<') {
-				current->is_redir_heredoc = 1;
-				current->next->is_redir_heredoc = 1;
-				current = current->next;
-			}
+	if ((*current)->c == '>')
+	{
+		(*current)->is_redir_output_append = 1;
+		(*current)->next->is_redir_output_append = 1;
+
+	}
+	else if ((*current)->c == '<')
+	{
+		(*current)->is_redir_heredoc = 1;
+		(*current)->next->is_redir_heredoc = 1;
+	}
+	(*current) = (*current)->next;
+}
+
+void	set_redirection_flags(t_token **tokens)
+{
+	t_token	*current;
+
+	current = *tokens;
+	while (current && !current->is_comment)
+	{
+		if (!current->is_quote)
+		{
+			if (current->c == '>' && current->next && current->next->c == '>')
+				set_double_redir_flags(&current);
+			else if (current->c == '<' && current->next && current->next->c == '<')
+				set_double_redir_flags(&current);
 			else if (current->c == '>')
 				current->is_redir_output = 1;
 			else if (current->c == '<')
@@ -89,5 +105,4 @@ void set_redirection_flags(t_token **tokens) {
 		}
 		current = current->next;
 	}
-	set_is_redirection_flag(tokens);
 }

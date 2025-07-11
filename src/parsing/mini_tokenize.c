@@ -101,6 +101,7 @@ t_token	**tokenize(char *line, t_mini *mini)
 		mark_comment(tokens);
 		set_pipe_flags(tokens);
 		set_redirection_flags(tokens);
+		set_is_redirection_flag(tokens);
 		set_var_expansion_flags(tokens);
 		set_ifs_flags(mini, tokens);
 		print_tokens(*tokens); // todo delete DEBUG
