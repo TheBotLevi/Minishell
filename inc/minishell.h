@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/10 11:07:13 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:40:28 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,7 @@ void				free_args(char **args);
 void				free_env_list(t_env *env);
 void	free_command_list(t_mini *cmds);
 void	free_everything(t_mini *mini);
+void	free_env_array(char **array, int count);
 
 // execute
 int					execute_external_cmd(t_mini *mini);

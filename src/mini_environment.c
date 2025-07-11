@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:05:09 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/03 14:38:23 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/11 15:01:40 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,10 @@ t_env	*create_env_list(char **env)
 	{
 		new_node = (t_env *)malloc(sizeof(t_env));
 		if (!new_node)
-			return (NULL); //todo free other nodes?
+		{
+			free_env_list(env_list);
+			return (NULL);
+		}
 		ft_bzero(new_node, sizeof(t_env));
 		equals_pos = ft_strchr(env[i], '=');
 		if (equals_pos)
@@ -96,9 +99,24 @@ char	**env_list_to_array(t_env *env_list)
 	current = env_list;
 	while (current)
 	{
+		if (!current->key || !current->value)
+		{
+			current = current->next;
+			continue ;
+		}
 		tmp = ft_strjoin(current->key, "=");
+		if (!tmp)
+		{
+			free_env_array(env_array, i);
+			return (NULL);
+		}
 		env_array[i] = ft_strjoin(tmp, current->value);
 		free(tmp);
+		if (!env_array[i])
+		{
+			free_env_array(env_array, i);
+			return (NULL);
+		}
 		current = current->next;
 		i++;
 	}

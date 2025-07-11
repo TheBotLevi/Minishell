@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/10 14:09:27 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/11 12:15:33 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,14 @@ void	ft_mini_loop(t_mini *mini)
 //		printf("hello\n");
 		if (line == NULL)
 		{
-			if (g_exit == 130)
-			{
-//				ft_putchar_fd('\n', STDOUT_FILENO);
-				g_exit = 0;
-				continue ;
-			}
 			ft_putendl_fd("exit", STDOUT_FILENO);
 			break ;
+		}
+		if (g_exit == 130)
+		{
+//			ft_putchar_fd('\n', STDOUT_FILENO);
+			g_exit = 0;
+//			continue ;
 		}
 		if (!*line)
 		{

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/04 12:48:15 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:43:04 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,22 @@ void	free_n_array(char **ar, size_t i)
 	while (i > 0)
 		free(ar[--i]);
 	free(ar);
+}
+
+void	free_env_array(char **array, int count)
+{
+	int	i;
+
+	i = 0;
+	if (!array)
+		return ;
+	while (i < count)
+	{
+		if (array[i])
+			free(array[i]);
+		i++;
+	}
+	free(array);
 }
 
 void	free_args(char **args)
