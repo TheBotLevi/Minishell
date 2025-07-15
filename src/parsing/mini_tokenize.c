@@ -87,24 +87,26 @@ void	set_var_expansion_flags(t_token **tokens)
 t_token	**tokenize(char *line, t_mini *mini)
 {
 	t_token	**tokens;
+	int n_pipes;
 
-	(void)mini;
 	if (!line || !mini)
 		return (NULL);
 	tokens = (t_token **)malloc(sizeof(t_token *));
 	if (!tokens)
 		return (NULL);
 	*tokens = NULL;
+	n_pipes = 0;
 	if (create_basic_tokens(line, tokens, mini) == 0)
 	{
 		set_quote_flags(tokens);
 		mark_comment(tokens);
-		set_pipe_flags(tokens);
+		n_pipes = set_pipe_flags(tokens);
 		set_redirection_flags(tokens);
 		set_is_redirection_flag(tokens);
 		set_var_expansion_flags(tokens);
 		set_ifs_flags(mini, tokens);
 		print_tokens(*tokens); // todo delete DEBUG
 	}
+	mini->n_cmds = n_pipes + 1;
 	return (tokens);
 }

@@ -45,18 +45,6 @@ typedef struct s_env
 	pid_t			*pids;
 }					t_pipeline;*/
 
-typedef struct s_command {
-	char *cmd;
-	char *fin_args;
-	char **args;
-	/* char *redir_in;
-	 char *redir_out;
-	 char *redir_append;
-	 char *heredoc;
-	 char *delimiter;
-	 char *cmd_str;
-	 int is_builtin;*/
-} t_command;
 
 typedef struct s_mini
 {
@@ -77,8 +65,11 @@ typedef struct s_mini
 	t_env		*env_struct;
 //	t_pipeline	*pipes;
 //	t_list		*list;
+	int				n_cmds;
 	struct s_mini	*next;
 }					t_mini;
+
+
 
 typedef struct s_token {
 	char c;
@@ -210,7 +201,7 @@ t_token	**tokenize(char *line, t_mini *mini);
 void	set_ifs_flags(t_mini *mini, t_token **tokens);
 void	set_redirection_flags(t_token **tokens);
 void	set_is_redirection_flag(t_token **head);
-void	set_pipe_flags(t_token **tokens);
+int		set_pipe_flags(t_token **tokens);
 void	set_double_redir_flags(t_token	**current);
 
 // mini_token_utils
@@ -235,7 +226,7 @@ typedef struct s_tok_data {
 	//t_tok_ar *ar;
 } t_tok_data;
 
-char	**ft_split_on_str(char const *s, char const *c);
+char	**ft_split_on_ifs(t_token **tokens, t_token *end);
 t_token** split_line(char *line, t_mini *mini);
 int *get_quote_state_array(char const *str);
 int is_within_quote(char c, t_quote_state *state);
@@ -244,6 +235,33 @@ t_tok_data *split_quotes_comments(char const *line);
 void free_tok_data(t_tok_data *tok_data);
 void cancel_non_quote_comment(char const *str, int *in_quote_arr);
 
+#define REDIR_INPUT 1
+#define REDIR_OUTPUT 2
+#define REDIR_APPEND 3
+#define REDIR_HEREDOC 4
+
+/*Type codes:
+ *1: REDIR_IN
+ *2: REDIR_OUT
+ *3: REDIR_APPEND
+ *4: HEREDOC */
+typedef struct s_redirect {
+	char *filename;
+	int type;
+	struct s_redirect *next;
+} t_redirect;
+
+typedef struct s_command {
+	char **argv;
+	t_redirect *redirections;
+	int is_heredoc;
+	int				is_builtin;
+	int				has_pipe_in;
+	int				has_pipe_out;
+	struct s_command *next;
+} t_command;
+
+t_command**	parse_tokens(t_mini *mini, t_token ** tokens);
 
 
 #endif

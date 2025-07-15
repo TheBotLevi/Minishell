@@ -34,17 +34,22 @@ void	set_ifs_flags(t_mini *mini, t_token **tokens)
 	}
 }
 
-void	set_pipe_flags(t_token **tokens)
+int	set_pipe_flags(t_token **tokens)
 {
 	t_token	*current;
+	int n_pipes;
 
+	n_pipes = 0;
 	current = *tokens;
 	while (current && !current->is_comment)
 	{
-		if (current->c == '|' && !current->is_quote)
+		if (current->c == '|' && !current->is_quote) {
 			current->is_pipe = 1;
+			n_pipes++;
+		}
 		current = current->next;
 	}
+	return (n_pipes);
 }
 
 /*

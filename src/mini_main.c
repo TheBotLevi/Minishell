@@ -15,11 +15,15 @@
 
 void test_parsing(char* line, t_mini* mini) {
 	t_token **tokens;
+	t_command**	cmds;
 
 	printf("\nInput tokens\n----\n");
 	tokens = tokenize(line, mini);
 	if (!tokens)
 		return ;
+	cmds = parse_tokens(mini, tokens);
+	if (cmds)
+		printf("%s\n", (*cmds)->argv[0]);
 	//print_array(tokens);
 	printf("----\n");
 	fflush(stdout);
@@ -56,7 +60,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		test_parsing(line, mini);
+		//test_parsing(line, mini);
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{

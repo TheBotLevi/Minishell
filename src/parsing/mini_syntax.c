@@ -12,6 +12,55 @@
 
 #include "../../inc/minishell.h"
 
+
+/*
+ *
+*✅ Typical Redirection Conflicts to Detect
+1. Multiple input redirections (<, <<)
+
+	cat < input1 < input2 → ambiguous: which one should apply?
+
+	cat < input << EOF → also ambiguous: file vs. heredoc
+
+2. Multiple output redirections (>, >>)
+
+	ls > out1 > out2 → only out2 will be used
+
+3. Mix of > and >>
+
+	echo hi > file >> file → strange but technically valid, last wins
+ *
+ */
+
+// silently allow multiple redirections but only use the last one for each stream:
+//t_redirect *get_last_input_redir(t_redirect *r);
+//t_redirect *get_last_output_redir(t_redirect *r);
+
+int validate_redirections(t_redirect *redirs) {
+	int seen_stdin = 0;
+	int seen_stdout = 0;
+
+	while (redirs) {
+		if (redirs->type == REDIR_INPUT || redirs->type == REDIR_HEREDOC) {
+			if (seen_stdin) {
+				fprintf(stderr, "Ambiguous input redirection: multiple stdin sources.\n");
+				return 1;
+			}
+			seen_stdin = 1;
+		}
+		if (redirs->type == REDIR_OUTPUT || redirs->type == REDIR_APPEND) {
+			if (seen_stdout) {
+				fprintf(stderr, "Ambiguous output redirection: multiple stdout targets.\n");
+				return 1;
+			}
+			seen_stdout = 1;
+		}
+		redirs = redirs->next;
+	}
+	return 0; // No conflict
+}
+
+
 // todo mark and cmd sep: |, <, >, <<, >> () to split into commands
 
 //todo add test case: > cannot be the last symbol in a valid redirection in Bash.
@@ -27,36 +76,134 @@ If any part of the delimiter is unquoted, then:
 Bash treats the first word after << (up to the next unquoted whitespace) as the delimiter —
 it can include quotes only if there's no unquoted space between parts.
  */
-/*
-void	parse_delimiter(t_token *current, t_token *next)
-{
-    int is_delim_quoted;
-    int is_delim_unquoted;
-    int is_delim_mixed;
-    int is_delim_empty;
-    int is_delim_whitespace;
-    int is_delim_comment;
-    int is_delim_start;
-    int is_delim_end;
 
-	int i;
-    is_delim_quoted = 0;
-    is_delim_unquoted = 0;
-    is_delim_mixed = 0;
-    is_delim_empty = 0;
-    is_delim_whitespace = 0;
-    is_delim_comment = 0;
-    is_delim_start = 0;
-    is_delim_end = 0;
-	(void)current;
-	while (next)
-		next = next->next;
-	//todo look for quoted argument
-	//next->is_comment = 0; //todo deal with this in syntax parsing
-	//next->is_comment_start = 0;
+void	free_cmds(t_command **args)
+{
+	int	i;
+
+	i = 0;
+	if (!args)
+		return ;
+	while (args[i])
+	{
+		free(args[i]);
+		i++;
+	}
+	free(args);
+	args = NULL;
 }
-*/
+
+/* returns arg length minus quote marks*/
+int get_next_arg_len(t_token **token) {
+	int len;
+	t_token *current;
+
+	len = 0;
+	current = *token; //todo simplifie and truly advance the pointer if set later anyways
+	while (current && current->is_ifs) //skip leading whitespace
+		current = current->next;
+	while (current && !current->is_ifs && !current->is_pipe && !current->is_comment_start && !current->is_comment && !current->is_start_quote && !current->is_redirection) {
+		current = current->next;
+		if (!current->is_start_quote || !current->is_end_quote)
+			len++;
+	}
+	*token = current;
+	return (len);
+}
+/*
+int create_redirs(t_command **cmd, t_token *current) {
+
+t_redirect *redirs;
+	t_redirect *last_redir;
+	t_command **cmd;
+	t_token *current;
+	//validate_redirections()
+
+	return (0);
+}*/
+
+/*returns -1 when end of tokens*/
+int get_next_cmd(t_command *cmd, t_token **cur_token) {
+
+	t_token *current;
+	t_token *cmd_end;
+	//t_token *start_redir;
+	int has_redir;
+	//int arg_len;
+
+	current = *cur_token;
+	//start_redir = NULL;
+	has_redir = 0;
+	while (current && !current->is_pipe) { //perhaps add comment as stop? except heredoc
+		if (current->is_redirection && !has_redir) {
+			has_redir = 1;
+			//start_redir = current;
+			if (current->is_redir_heredoc)
+				cmd->is_heredoc = 1;
+			/*
+			if (create_redirs(&cmd, current))
+				return (-1);*/
+		}
+		current = current->next;
+	}
+	cmd_end = current;
+	current = *cur_token;
+	cmd->argv = ft_split_on_ifs(&current, cmd_end);
+	if (!cmd->argv || !cmd->argv[0])
+		return (-1);
+	print_array(cmd->argv);
+	/*
+	arg_len = 0;
+	while (current && current != cmd_end) {
+		arg_len = get_next_arg_len(&current);
+	}
+
+	//expand vars
+	//todo parse_args(current, cmd);
+	if (current && current->is_pipe) {
+		*cur_token = current;
+		return (0);
+	}
+	*cur_token = cmd_end;
+	return (-1);*/
+	return (0);
+}
+
+t_command**	parse_tokens(t_mini *mini, t_token ** tokens)
+{
+	t_command	*cmd;
+	t_command	**cmds;
+	int			i;
+	t_token* cur_token;
+
+	cmds = malloc((mini->n_cmds + 1) * sizeof(t_command *));
+	if (!cmds)
+		return (NULL);
+	ft_memset(cmds, 0, (mini->n_cmds + 1) * sizeof(t_command *));
+	i = 0;
+	cur_token = tokens[0];
+	while (i < mini->n_cmds) {
+		cmd = malloc(sizeof(t_command));
+		if (!cmd) {
+			free_cmds(cmds);
+			return (NULL);
+		}
+		ft_memset(cmd, 0, sizeof(t_command));
+		get_next_cmd(cmd, &cur_token);
+		cmds[i] = cmd;
+		i++;
+	}
+	cmds[i] = NULL;
+	return (cmds);
+}
+
+//todo look for quoted argument
+//next->is_comment = 0; //todo deal with this in syntax parsing
+//next->is_comment_start = 0;
+
 // todo perform variable substitution
+
+// check for EOL is pipe (starts multiline input) --> invalid command --> check if last cmd has no args
 
 int	process_command2(char *line, t_mini *mini)
 {
