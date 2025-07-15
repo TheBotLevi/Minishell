@@ -67,7 +67,9 @@ static void	set_string_from_tokens(char *substr, t_token *start, t_token *stop)
 	int i;
 
 	i = 0;
-	while (start && start != stop) {
+	if (start->is_start_quote)
+		start = start->next;
+	while (start && start != stop && !start->is_end_quote) {
 		substr[i] = start->c;
 		start = start->next;
 		i++;
@@ -86,8 +88,9 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 		stop = stop->next;
 	len_substr = 0;
 	*start = stop;
-	while (stop && stop != end && !stop->is_ifs) {
-		len_substr++;
+	while (stop && stop != end && !stop->is_ifs) { //todo add quopte logic here
+		if (!stop->is_start_quote || !stop->is_end_quote)
+			len_substr++;
 		stop = stop->next;
 	}
 	if (len_substr > 0)
