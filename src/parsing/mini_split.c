@@ -85,6 +85,7 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 	while (stop && stop != end && stop->is_ifs)
 		stop = stop->next;
 	len_substr = 0;
+	*start = stop;
 	while (stop && stop != end && !stop->is_ifs) {
 		len_substr++;
 		stop = stop->next;
@@ -95,9 +96,9 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 		if (substr == NULL)
 			return (NULL);
 		set_string_from_tokens(substr, *start, stop);
+		*start = stop;
 		return (substr);
 	}
-	*start = stop;
 	return (NULL);
 }
 
@@ -130,5 +131,6 @@ char	**ft_split_on_ifs(t_token **tokens, t_token *end)
 		i++;
 	}
 	ar[i] = NULL;
+	*tokens = curr;
 	return (ar);
 }

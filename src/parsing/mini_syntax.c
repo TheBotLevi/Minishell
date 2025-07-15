@@ -152,6 +152,7 @@ int get_next_cmd(t_command *cmd, t_token **cur_token) {
 	if (!cmd->argv || !cmd->argv[0])
 		return (-1);
 	print_array(cmd->argv);
+	//printf("%c\n", current->c);
 	/*
 	arg_len = 0;
 	while (current && current != cmd_end) {
@@ -166,6 +167,7 @@ int get_next_cmd(t_command *cmd, t_token **cur_token) {
 	}
 	*cur_token = cmd_end;
 	return (-1);*/
+	*cur_token = cmd_end;
 	return (0);
 }
 
@@ -190,6 +192,9 @@ t_command**	parse_tokens(t_mini *mini, t_token ** tokens)
 		}
 		ft_memset(cmd, 0, sizeof(t_command));
 		get_next_cmd(cmd, &cur_token);
+		if (cur_token && cur_token->is_pipe) {
+			cur_token = cur_token->next;
+		}
 		cmds[i] = cmd;
 		i++;
 	}
