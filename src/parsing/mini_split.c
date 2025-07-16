@@ -12,7 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-
 // if str is not just delimiter, return null, else return empty array
 static char	**ft_is_valid_input(t_token *str, t_token *end)
 {
@@ -88,7 +87,7 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 		stop = stop->next;
 	len_substr = 0;
 	*start = stop;
-	while (stop && stop != end && !stop->is_ifs) { //todo add quopte logic here
+	while (stop && stop != end && !stop->is_ifs) {
 		if (!stop->is_start_quote || !stop->is_end_quote)
 			len_substr++;
 		stop = stop->next;

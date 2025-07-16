@@ -59,13 +59,12 @@ void	print_tokens(t_token *tokens)
 	}
 }
 
-int	create_basic_tokens(char *line, t_token **tokens, t_mini *mini)
+int	create_basic_tokens(char *line, t_token **tokens)
 {
 	int		i;
 	t_token	*token;
 	t_token	*prev;
 
-	(void)mini;
 	i = 0;
 	prev = NULL;
 	while (line[i])

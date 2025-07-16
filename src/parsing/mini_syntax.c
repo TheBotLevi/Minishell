@@ -122,8 +122,160 @@ t_redirect *redirs;
 	return (0);
 }*/
 
+int get_token_lst_size(t_token *start, t_token *end) {
+	int size;
+
+	size = 0;
+	while (start) {
+		size++;
+		if (start == end)
+			break;
+		start = start->next;
+	}
+	return (size);
+}
+
+char *get_char_from_tokens(t_token *start, t_token *end) {
+
+	char *str;
+	int size;
+	int i;
+
+	size = get_token_lst_size(start, end);
+	str = malloc(size + 1);
+	if (!str)
+		return (0);
+	i = 0;
+	while (start) {
+		str[i++] = start->c;
+		if (start == end)
+			break;
+		start = start->next;
+	}
+	str[size] = '\0';
+	return (str);
+}
+
+void delete_token(t_token *token) {
+	if (!token)
+		return ;
+	free(token);
+}
+
+void	token_lst_add_back(t_token **lst, t_token *new)
+{
+	t_token	*last_elem;
+
+	if (!lst || !new)
+		return ;
+	if (*lst == NULL)
+	{
+		*lst = new;
+		return ;
+	}
+	last_elem = *lst;
+	while (last_elem && last_elem->next)
+		last_elem = last_elem->next;
+	last_elem->next = new;
+}
+
+
+t_token *insert_expansion_into_tokens(t_token **dollar, t_token **end, char *env_val) {
+	t_token *new_tokens;
+	t_token *prev_node;
+	t_token *post_node;
+	t_token *tmp;
+
+	if (!*dollar || !*end)
+		return (NULL);
+	prev_node = (*dollar)->prev; //todo check if modifies node in list
+	post_node = (*end)->next;
+	new_tokens = NULL;
+	if (create_basic_tokens(env_val, &new_tokens))
+		return (NULL);
+	if (prev_node)
+		prev_node->next = new_tokens;
+	else
+		*dollar = new_tokens;
+	token_lst_add_back(&new_tokens, post_node);
+	tmp = *dollar;
+	t_token *next;
+	while (tmp && tmp != (*end)->next) {
+		next = tmp->next;
+		delete_token(tmp);
+		tmp = next;
+	}
+	return (post_node);
+}
+
+int find_next_var_exp(t_token **start, t_token **end, t_token **char_start, t_token **char_end) {
+	t_token *current;
+
+	current = *start;
+	while (current){
+		if (current->is_dollar) { // && !current->is_exit_status todo see if generalizes
+			*start = current;
+			current = current->next; //skip dollar
+			if (current && current->is_braced_var)
+				current = current->next; //skip brace
+			*char_start = current;
+			while (current && current->is_var) {
+				*char_end = current;
+				current = current->next;
+			}
+			*end = *char_end;
+			if ((*char_end)->is_braced_var)
+				*char_end = (*end)->prev;
+			return(0);
+		}
+		current = current->next;
+	}
+	return (-1);
+}
+
+char* expand_var_exp(t_mini* mini, t_token *char_start, t_token *char_end) {
+	char *str;
+	char *env_val;
+
+	if (char_start && char_start->is_exit_status)
+		return(ft_itoa(mini->exit_status));
+	str = get_char_from_tokens(char_start, char_end);
+	if (!str)
+		return (NULL);
+	env_val = get_env_value(mini->env_struct, str);
+	free(str);
+	str = NULL;
+	return (env_val);
+}
+
+
+/* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded*/
+int expand_vars(t_mini *mini, t_token **tokens) {
+	t_token *start;
+	t_token *end;
+	t_token *char_start;
+	t_token *char_end;
+	char *env_val;
+
+	start = *tokens;
+	if (find_next_var_exp(&start, &end, &char_start, &char_end) != 0)
+		return (1);
+	env_val = expand_var_exp(mini, char_start, char_end);
+	*tokens = insert_expansion_into_tokens(&start, &end, env_val);
+	return (0);
+	/*
+	if (current && current->is_exit_status) {
+		current = insert_expansion_into_tokens(&current, &(current->next), ft_itoa(mini->exit_status));
+			if (!current)
+				return(1);
+		}
+		current = current->next;
+	}*/
+}
+
+
 /*returns -1 when end of tokens*/
-int get_next_cmd(t_command *cmd, t_token **cur_token) {
+int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 
 	t_token *current;
 	t_token *cmd_end;
@@ -148,6 +300,7 @@ int get_next_cmd(t_command *cmd, t_token **cur_token) {
 	}
 	cmd_end = current;
 	current = *cur_token;
+	while (expand_vars(mini, &current)== 0){}
 	cmd->argv = ft_split_on_ifs(&current, cmd_end);
 	if (!cmd->argv || !cmd->argv[0])
 		return (-1);
@@ -191,7 +344,7 @@ t_command**	parse_tokens(t_mini *mini, t_token ** tokens)
 			return (NULL);
 		}
 		ft_memset(cmd, 0, sizeof(t_command));
-		get_next_cmd(cmd, &cur_token);
+		get_next_cmd(mini, cmd, &cur_token);
 		if (cur_token && cur_token->is_pipe) {
 			cur_token = cur_token->next;
 		}
@@ -205,8 +358,6 @@ t_command**	parse_tokens(t_mini *mini, t_token ** tokens)
 //todo look for quoted argument
 //next->is_comment = 0; //todo deal with this in syntax parsing
 //next->is_comment_start = 0;
-
-// todo perform variable substitution
 
 // check for EOL is pipe (starts multiline input) --> invalid command --> check if last cmd has no args
 

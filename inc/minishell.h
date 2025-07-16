@@ -207,7 +207,7 @@ void	set_double_redir_flags(t_token	**current);
 // mini_token_utils
 void	print_tokens(t_token *tokens);
 void	free_tokens(t_token **tokens);
-int		create_basic_tokens(char *line, t_token **tokens, t_mini *mini);
+int		create_basic_tokens(char *line, t_token **tokens);
 
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);

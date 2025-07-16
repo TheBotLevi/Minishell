@@ -96,7 +96,7 @@ t_token	**tokenize(char *line, t_mini *mini)
 		return (NULL);
 	*tokens = NULL;
 	n_pipes = 0;
-	if (create_basic_tokens(line, tokens, mini) == 0)
+	if (create_basic_tokens(line, tokens) == 0)
 	{
 		set_quote_flags(tokens);
 		mark_comment(tokens);
