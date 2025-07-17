@@ -180,32 +180,53 @@ void	token_lst_add_back(t_token **lst, t_token *new)
 }
 
 
-t_token *insert_expansion_into_tokens(t_token **dollar, t_token **end, char *env_val) {
-	t_token *new_tokens;
-	t_token *prev_node;
-	t_token *post_node;
+t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
+	t_token **new_tokens;
 	t_token *tmp;
 
-	if (!*dollar || !*end)
+	if (!start || !end || !env_val)
 		return (NULL);
-	prev_node = (*dollar)->prev; //todo check if modifies node in list
-	post_node = (*end)->next;
-	new_tokens = NULL;
-	if (create_basic_tokens(env_val, &new_tokens))
+	new_tokens = (t_token **)malloc(sizeof(t_token *));
+	if (!new_tokens)
 		return (NULL);
-	if (prev_node)
-		prev_node->next = new_tokens;
-	else
-		*dollar = new_tokens;
-	token_lst_add_back(&new_tokens, post_node);
-	tmp = *dollar;
-	t_token *next;
-	while (tmp && tmp != (*end)->next) {
-		next = tmp->next;
-		delete_token(tmp);
-		tmp = next;
+	*new_tokens = NULL;
+	if (create_basic_tokens(env_val, new_tokens))
+		return (NULL);
+	if (!end->next && start->prev) { // starts in the middle and ends on last elem of the list
+		start->prev->next = *new_tokens;
+		while (start){ //free from start to end
+			tmp = start;
+			start = start->next;
+			free(tmp);
+		}
 	}
-	return (post_node);
+	else if (end->next && !start->prev && start == *head) //start is head and end is in middle
+	{
+		while (*head && *head != end){ //free from head to end-1
+			tmp = *head;
+			head = &(*head)->next;
+			free(tmp);
+		}
+		token_lst_add_back(new_tokens, end->next); // last new token->next becomes end->next
+		*head = *new_tokens;
+		free(end);
+	}
+	else if (end->next && start->prev) //starts in the middle and end is in middle
+	{
+		token_lst_add_back(new_tokens, end->next); // append old tokens to new list
+		start->prev->next = *new_tokens; // point from start-1 to new list
+		while (start && start != end){ //free from start to end
+			tmp = start;
+			start = start->next;
+			free(tmp);
+		}
+		free(end);
+	}
+	free(new_tokens);
+	printf("post expansion:\n");
+	print_tokens(*head);
+	printf("-------\n");
+	return (*head);
 }
 
 int find_next_var_exp(t_token **start, t_token **end, t_token **char_start, t_token **char_end) {
@@ -249,7 +270,9 @@ char* expand_var_exp(t_mini* mini, t_token *char_start, t_token *char_end) {
 }
 
 
-/* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded*/
+/* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded
+ * Do not free env_val when returned from expand_var_exp as it uses get_env_var which points to still in use pointer in env_struct
+ */
 int expand_vars(t_mini *mini, t_token **tokens) {
 	t_token *start;
 	t_token *end;
@@ -261,16 +284,15 @@ int expand_vars(t_mini *mini, t_token **tokens) {
 	if (find_next_var_exp(&start, &end, &char_start, &char_end) != 0)
 		return (1);
 	env_val = expand_var_exp(mini, char_start, char_end);
-	*tokens = insert_expansion_into_tokens(&start, &end, env_val);
+	if (env_val)
+		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
+	else{
+		env_val = ft_strdup("");
+		printf("Env val: %s\n", env_val);
+		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
+		free(env_val);
+	}
 	return (0);
-	/*
-	if (current && current->is_exit_status) {
-		current = insert_expansion_into_tokens(&current, &(current->next), ft_itoa(mini->exit_status));
-			if (!current)
-				return(1);
-		}
-		current = current->next;
-	}*/
 }
 
 
@@ -282,6 +304,7 @@ int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 	//t_token *start_redir;
 	int has_redir;
 	//int arg_len;
+	(void)mini;
 
 	current = *cur_token;
 	//start_redir = NULL;
@@ -292,7 +315,7 @@ int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 			//start_redir = current;
 			if (current->is_redir_heredoc)
 				cmd->is_heredoc = 1;
-			/*
+			/* todo
 			if (create_redirs(&cmd, current))
 				return (-1);*/
 		}
@@ -300,26 +323,10 @@ int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 	}
 	cmd_end = current;
 	current = *cur_token;
-	while (expand_vars(mini, &current)== 0){}
 	cmd->argv = ft_split_on_ifs(&current, cmd_end);
 	if (!cmd->argv || !cmd->argv[0])
 		return (-1);
 	print_array(cmd->argv);
-	//printf("%c\n", current->c);
-	/*
-	arg_len = 0;
-	while (current && current != cmd_end) {
-		arg_len = get_next_arg_len(&current);
-	}
-
-	//expand vars
-	//todo parse_args(current, cmd);
-	if (current && current->is_pipe) {
-		*cur_token = current;
-		return (0);
-	}
-	*cur_token = cmd_end;
-	return (-1);*/
 	*cur_token = cmd_end;
 	return (0);
 }

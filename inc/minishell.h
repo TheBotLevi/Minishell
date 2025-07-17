@@ -234,6 +234,7 @@ size_t get_int_array_size(const int *arr);
 t_tok_data *split_quotes_comments(char const *line);
 void free_tok_data(t_tok_data *tok_data);
 void cancel_non_quote_comment(char const *str, int *in_quote_arr);
+int expand_vars(t_mini *mini, t_token **tokens);
 
 #define REDIR_INPUT 1
 #define REDIR_OUTPUT 2

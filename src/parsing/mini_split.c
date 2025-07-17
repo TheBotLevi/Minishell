@@ -50,7 +50,7 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end)
 		if (str->is_ifs)
 		{
 			ndelims++;
-			while (str->is_ifs)
+			while (str && str != end && str->is_ifs)
 				str = str->next;
 		}
 		else
