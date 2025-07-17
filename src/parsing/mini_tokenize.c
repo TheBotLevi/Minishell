@@ -84,9 +84,30 @@ void	set_var_expansion_flags(t_token **tokens)
 	}
 }
 
+void	unset_all_flags(t_token **tokens)
+{
+	t_token	*current;
+	t_token	*next;
+	t_token	*prev;
+	char c;
+
+	current = *tokens;
+	while (current) {
+		prev = current->prev;
+		next = current->next;
+		c = current->c;
+		ft_memset(current, 0, sizeof(t_token));
+		current->prev = prev;
+		current->next = next;
+		current->c = c;
+		current = next;
+	}
+}
+
 t_token	**tokenize(char *line, t_mini *mini)
 {
 	t_token	**tokens;
+	t_token	*tmp;
 	int n_pipes;
 
 	if (!line || !mini)
@@ -101,18 +122,22 @@ t_token	**tokenize(char *line, t_mini *mini)
 		set_quote_flags(tokens);
 		mark_comment(tokens);
 		set_var_expansion_flags(tokens);
-		while (expand_vars(mini, tokens)== 0) {
+		printf("pre var exp :\n ");  // todo delete DEBUG
+		print_tokens(*tokens);
+		while (expand_vars(mini, &tmp)== 0) {
+			free_tokens(tokens);
+			*tokens = tmp;
+			unset_all_flags(tokens);
 			set_quote_flags(tokens);
 			mark_comment(tokens);
 			set_var_expansion_flags(tokens);
 		}
-		printf("all var exp finished:\n");
-		print_tokens(*tokens);
 		n_pipes = set_pipe_flags(tokens);
 		set_redirection_flags(tokens);
 		set_is_redirection_flag(tokens);
 		set_ifs_flags(mini, tokens);
-		//print_tokens(*tokens); // todo delete DEBUG
+		printf("all var exp finished:\n ");  // todo delete DEBUG
+		print_tokens(*tokens);
 	}
 	mini->n_cmds = n_pipes + 1;
 	return (tokens);

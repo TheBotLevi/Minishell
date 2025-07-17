@@ -39,7 +39,9 @@ static char	**ft_is_valid_input(t_token *str, t_token *end)
 static size_t	ft_get_ndelims(t_token *str, t_token *end)
 {
 	size_t	ndelims;
+	t_token	*last;
 
+	last = NULL;
 	ndelims = 0;
 	if (!str)
 		return (ndelims);
@@ -53,10 +55,14 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end)
 			while (str && str != end && str->is_ifs)
 				str = str->next;
 		}
-		else
+		else {
+			last = str;
 			str = str->next;
+		}
 	}
-	if (ndelims > 0 && str && str->prev && str->prev->is_ifs)
+	/*if (ndelims > 0 && str && str->prev && str->prev->is_ifs)
+		ndelims--;*/
+	if (last && last->next && last->next != end && last->next->is_ifs)
 		ndelims--;
 	return (ndelims);
 }
