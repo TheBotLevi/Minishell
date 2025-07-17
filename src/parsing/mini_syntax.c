@@ -86,6 +86,8 @@ void	free_cmds(t_command **args)
 		return ;
 	while (args[i])
 	{
+		if (args[i]->argv)
+			free_args(args[i]->argv);
 		free(args[i]);
 		i++;
 	}
@@ -184,14 +186,21 @@ t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *e
 	t_token **new_tokens;
 	t_token *tmp;
 
-	if (!start || !end || !env_val)
+	if (!start || !end || !env_val) {
+		free_tokens(head);
 		return (NULL);
+	}
 	new_tokens = (t_token **)malloc(sizeof(t_token *));
-	if (!new_tokens)
+	if (!new_tokens){
+		free_tokens(head);
 		return (NULL);
+	}
 	*new_tokens = NULL;
-	if (create_basic_tokens(env_val, new_tokens))
+	if (create_basic_tokens(env_val, new_tokens)) {
+		free_tokens(head);
+		free(new_tokens);
 		return (NULL);
+	}
 	if (!end->next && start->prev) { // starts in the middle and ends on last elem of the list
 		start->prev->next = *new_tokens;
 		while (start){ //free from start to end
@@ -223,9 +232,6 @@ t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *e
 		free(end);
 	}
 	free(new_tokens);
-	printf("post expansion:\n");
-	print_tokens(*head);
-	printf("-------\n");
 	return (*head);
 }
 
@@ -351,11 +357,16 @@ t_command**	parse_tokens(t_mini *mini, t_token ** tokens)
 			return (NULL);
 		}
 		ft_memset(cmd, 0, sizeof(t_command));
-		get_next_cmd(mini, cmd, &cur_token);
+		cmds[i] = cmd;
+		if (i > 0)
+			cmds[i - 1]->next = cmd;
+		if (get_next_cmd(mini, cmd, &cur_token)== -1) {
+			free_cmds(cmds);
+			return (NULL);
+		}
 		if (cur_token && cur_token->is_pipe) {
 			cur_token = cur_token->next;
 		}
-		cmds[i] = cmd;
 		i++;
 	}
 	cmds[i] = NULL;

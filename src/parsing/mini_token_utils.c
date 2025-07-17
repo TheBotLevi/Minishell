@@ -24,6 +24,7 @@ void	free_tokens(t_token **tokens)
 		free(current);
 		current = next;
 	}
+	free(tokens);
 }
 
 void	print_tokens(t_token *tokens)
