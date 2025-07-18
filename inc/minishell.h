@@ -268,6 +268,6 @@ typedef struct s_command {
 t_command*	parse_tokens(t_mini *mini, t_token* token);
 
 //mini_cmd_utils
-void	free_cmds(t_command *args);
+void	free_cmds(t_command *cmd);
 
 #endif

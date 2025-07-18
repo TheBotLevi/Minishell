@@ -12,30 +12,25 @@
 
 #include "../../inc/minishell.h"
 
-void	free_cmds(t_command *args)
+void	free_cmds(t_command *cmd)
 {
-    /*
-    int	i;
-
-    i = 0;*/
-
     t_command	*tmp;
 
-    if (!args)
+    if (!cmd)
         return ;
-    while (args)
+    while (cmd)
     {
-        if (args->argv)
-            free_args(args->argv);
-        tmp = args->next;
-        free(args);
-        args = tmp;
+        tmp = cmd->next;
+        if (cmd->argv)
+            free_args(cmd->argv);
+        free(cmd);
+        cmd = tmp;
     }
-    /*while (args[i])
+    /*while (cmd[i])
     {
-        if (args[i]->argv)
-            free_args(args[i]->argv);
-        free(args[i]);
+        if (cmd[i]->argv)
+            free_args(cmd[i]->argv);
+        free(cmd[i]);
         i++;
     }*/
 }

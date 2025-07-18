@@ -255,7 +255,7 @@ int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 	cmd_end = current;
 	current = *cur_token;
 	cmd->argv = ft_split_on_ifs(&current, cmd_end);
-	if (!cmd->argv || !cmd->argv[0])
+	if (!cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]
 		return (-1);
 	*cur_token = cmd_end;
 	return (0);
@@ -283,7 +283,7 @@ t_command*	parse_tokens(t_mini *mini, t_token* token)
 			cmd_head = cmd;
 		else
 			prev->next = cmd;
-		if (get_next_cmd(mini, cmd, &token) == -1)
+		if (get_next_cmd(mini, cmd, &token) == -1) //todo  add option of ending early withuot freeing when commands are invalid//empty
 		{
 			free(cmd);
 			free_cmds(cmd_head);
