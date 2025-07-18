@@ -221,26 +221,10 @@ void mark_comment(t_token **tokens);
 int set_quote_flags(t_token **tokens);
 
 //mini_split //todo to be modified and cleaned up
-typedef struct s_tok_data {
-	char *line;
-	size_t n_elems;
-	int *in_quote_arr;
-	int n_splits;
-	int*	size_arr;
-	char **ar;
-	//t_tok_ar *ar;
-} t_tok_data;
-
 char	**ft_split_on_ifs(t_token **tokens, t_token *end);
 t_token** split_line(char *line, t_mini *mini);
-int *get_quote_state_array(char const *str);
-int is_within_quote(char c, t_quote_state *state);
-size_t get_int_array_size(const int *arr);
-t_tok_data *split_quotes_comments(char const *line);
-void free_tok_data(t_tok_data *tok_data);
-void cancel_non_quote_comment(char const *str, int *in_quote_arr);
-int expand_vars(t_mini *mini, t_token **tokens);
 
+//mini_syntax
 #define REDIR_INPUT 1
 #define REDIR_OUTPUT 2
 #define REDIR_APPEND 3
@@ -268,6 +252,9 @@ typedef struct s_command {
 } t_command;
 
 t_command*	parse_tokens(t_mini *mini, t_token* token);
+
+//mini_token_var_exp
+int expand_vars(t_mini *mini, t_token **tokens);
 
 //mini_cmd_utils
 void	free_cmds(t_command *cmd);

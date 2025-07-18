@@ -12,7 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-
 /*
  *
 *✅ Typical Redirection Conflicts to Detect
@@ -60,9 +59,6 @@ int validate_redirections(t_redirect *redirs) {
 	return (0);
 }
 
-
-// todo mark and cmd sep: |, <, >, <<, >> () to split into commands
-
 //todo add test case: > cannot be the last symbol in a valid redirection in Bash.
 
 /* Handle delimiter, can be quoted, unquoted or mix
@@ -85,176 +81,146 @@ it can include quotes only if there's no unquoted space between parts.
 << should be given a delimiter, then read the input until a line containing the
 delimiter is seen. However, it doesn’t have to update the history!
  */
-/*
-int create_redirs(t_command **cmd, t_token *current) {
 
-t_redirect *redirs;
+int count_redirs(t_token *start_redir, t_token *end_redir) {
+	int count;
+
+	count = 0;
+	while (start_redir) {
+		if (start_redir->is_redirection) {
+			if (!start_redir->prev ||
+				(start_redir->prev && !start_redir->prev->is_redirection))
+				count++;
+		}
+		start_redir = start_redir->next;
+		if (start_redir == end_redir)
+			break;
+	}
+	return (0);
+}
+
+int find_next_redir( t_token **start_redir, t_token **end_redir) {
+	t_token *start_redir_tmp;
+	//t_token *end_redir_tmp;
+
+	start_redir_tmp = *start_redir;
+	while (start_redir_tmp && start_redir_tmp != *end_redir) {
+		start_redir_tmp = start_redir_tmp->next;
+	}
+	//if none found: return 1
+	return (1);
+
+	return (0);
+}
+
+int get_redir_type(t_token redir_token) {
+	if (redir_token.is_redir_input)
+		return (REDIR_INPUT);
+	if (redir_token.is_redir_output)
+		return (REDIR_OUTPUT);
+	if (redir_token.is_redir_heredoc)
+		return (REDIR_HEREDOC);
+	if (redir_token.is_redir_output_append)
+		return (REDIR_APPEND);
+	return (0);
+}
+
+int parse_next_redir_tokens(t_redirect** redir, t_token **start_redir, t_token **end_redir) {
+
+	t_redirect *redir_tmp;
+	t_token *start_redir_tmp;
+	t_token *end_redir_tmp;
+
+	redir_tmp = *redir;
+	find_next_redir(&start_redir_tmp, &end_redir_tmp);
+	//redir_tmp->filename = start_redir->filename;
+	redir_tmp->type = get_redir_type(*start_redir_tmp);
+	*redir = redir_tmp;
+	*start_redir = start_redir_tmp;// set new starting point to old
+	return(0);
+}
+
+int create_redirs(t_command **cmd, t_token *start_redir, t_token *end_redir) {
+
+	int count_redir;
+	t_redirect *head_redir;
+	t_redirect *redir;
+	t_redirect *prev;
 	t_redirect *last_redir;
 	t_token *current;
 	//validate_redirections()
 
+	head_redir = NULL;
+	prev = NULL;
+	count_redir = count_redirs(start_redir, end_redir);
+	while (i < count_redir) {
+		redir = malloc(sizeof(t_redirect));
+		memset(redir, 0, sizeof(t_redirect));
+		if (i == 0) {
+			head_redir = redir;
+			(*cmd)->redirections = redir;
+		}
+		else
+			prev->next = redir;
+		if (parse_next_redir_tokens(&redir, &start_redir, &end_redir))
+			return(1);
+		if (!redir || !end_redir)
+			break;
+		prev = redir;
+	}
 	return (0);
-}*/
-
-t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
-{
-	t_token *tmp;
-
-	if (!end->next && start->prev) { // starts in the middle and ends on last elem of the list
-		start->prev->next = *new_tokens;
-		while (start){ //free from start to end
-			tmp = start;
-			start = start->next;
-			free(tmp);
-		}
-	}
-	else if (end->next && !start->prev && start == *head) //start is head and end is in middle
-	{
-		while (*head && *head != end){ //free from head to end-1
-			tmp = *head;
-			head = &(*head)->next;
-			free(tmp);
-		}
-		token_lst_add_back(new_tokens, end->next); // last new token->next becomes end->next
-		*head = *new_tokens;
-		free(end);
-	}
-	else if (end->next && start->prev) //starts in the middle and end is in middle
-	{
-		token_lst_add_back(new_tokens, end->next); // append old tokens to new list
-		start->prev->next = *new_tokens; // point from start-1 to new list
-		while (start && start != end){ //free from start to end
-			tmp = start;
-			start = start->next;
-			free(tmp);
-		}
-		free(end);
-	}
-	return (*head);
 }
 
-t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
-	t_token **new_tokens;
+// HEREDOC complexity todo look for quoted argument
+//next->is_comment = 0; //todo deal with this in syntax parsing
+//next->is_comment_start = 0;
 
-	if (!start || !end || !env_val) {
-		free_tokens(head);
-		return (NULL);
-	}
-	new_tokens = (t_token **)malloc(sizeof(t_token *));
-	if (!new_tokens){
-		free_tokens(head);
-		return (NULL);
-	}
-	*new_tokens = NULL;
-	if (create_basic_tokens(env_val, new_tokens)) {
-		free(env_val);
-		free_tokens(head);
-		free(new_tokens);
-		return (NULL);
-	}
-	*head = replace_expanded_tokens(head, new_tokens, start, end);
-	free(new_tokens);
-	return (*head);
-}
-
-int find_next_var_exp(t_token **start, t_token **end, t_token **char_start, t_token **char_end) {
+/*update end_token to point to after redirection, update tokens and remove the redirection tokens*/
+int detect_redir(t_command **cmd, t_token **cur_token, t_token **start_redir, t_token **end_cmd) {
 	t_token *current;
+	int has_redir;
 
-	current = *start;
-	while (current){
-		if (current->is_dollar) { // && !current->is_exit_status todo see if generalizes
-			*start = current;
-			current = current->next; //skip dollar
-			if (current && current->is_braced_var)
-				current = current->next; //skip brace
-			*char_start = current;
-			while (current && current->is_var) {
-				*char_end = current;
-				current = current->next;
+	has_redir = 0;
+	current = *cur_token;
+	while (current && !current->is_pipe) {
+		if (current->is_redirection && !has_redir) {
+			has_redir = 1;
+			*start_redir = current;
+			if (current->is_redir_heredoc) // todo correct to only take into account if first/only redirection?
+				(*cmd)->is_heredoc = 1;
+			//when comment add stop? except heredoc
+		if (!(*cmd)->is_heredoc && current->is_comment_start){
+			//todo do sth -> stop early and end cmd?
+			//*end_cmd = current;
+			// if (has_redir)
+			//		*cur_token = create_redirs(&cmd, start_redir, end_cmd);
+			// return(1);
+			break;
 			}
-			*end = *char_end;
-			if ((*char_end)->is_braced_var)
-				*char_end = (*end)->prev;
-			return(0);
 		}
 		current = current->next;
 	}
-	return (-1);
-}
-
-char* lookup_var(t_mini* mini, t_token *char_start, t_token *char_end) {
-	char *str;
-	char *env_val;
-
-	if (char_start && char_start->is_exit_status) {
-		env_val = ft_itoa(mini->exit_status); // todo ok to set to empty string thwn not found?
-	}
-	else {
-		str = get_char_from_tokens(char_start, char_end);
-		if (!str)
-			return (NULL);
-		env_val = get_env_value(mini->env_struct, str);
-		free(str);
-		str = NULL;
-	}
-	if (!env_val)
-		env_val = ft_strdup("");
-	return (env_val);
-}
-
-/* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded
- * Do not free env_val when returned from lookup_var as it uses get_env_var which points to still in use pointer in env_struct
- */
-int expand_vars(t_mini *mini, t_token **tokens) {
-	t_token *start;
-	t_token *end;
-	t_token *char_start;
-	t_token *char_end;
-	char *env_val;
-
-	start = *tokens;
-	env_val = NULL;
-	if (find_next_var_exp(&start, &end, &char_start, &char_end) != 0)
-		return (1);
-	env_val = lookup_var(mini, char_start, char_end);
-	if (!env_val)
-		return (-1);
-	*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
-	free(env_val);
-	if (!*tokens)
-		return (-1);
+	*end_cmd = current;
+	if (has_redir)
+		*cur_token = create_redirs(&cmd, start_redir, end_cmd);
+	*end_cmd = current;
 	return (0);
 }
-
 
 /*returns -1 when end of tokens*/
 int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 
 	t_token *current;
 	t_token *cmd_end;
-	//t_token *start_redir;
-	int has_redir;
-	//int arg_len;
+	t_token *start_redir;
 	(void)mini;
 
+	start_redir = NULL;
+	cmd_end = NULL;
+	if (detect_redir(&cmd, cur_token, &start_redir, &cmd_end))
+		return (1);
 	current = *cur_token;
-	//start_redir = NULL;
-	has_redir = 0;
-	while (current && !current->is_pipe) { //perhaps add comment as stop? except heredoc
-		if (current->is_redirection && !has_redir) {
-			has_redir = 1;
-			//start_redir = current;
-			if (current->is_redir_heredoc)
-				cmd->is_heredoc = 1;
-			/* todo
-			if (create_redirs(&cmd, current))
-				return (-1);*/
-		}
-		current = current->next;
-	}
-	cmd_end = current;
-	current = *cur_token;
-	cmd->argv = ft_split_on_ifs(&current, cmd_end);
+	cmd->argv = ft_split_on_ifs(&current, start_redir);
 	if (!cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]
 		return (-1);
 	*cur_token = cmd_end;
@@ -299,11 +265,6 @@ t_command*	parse_tokens(t_mini *mini, t_token* token)
 	return (cmd_head);
 }
 
-//todo look for quoted argument
-//next->is_comment = 0; //todo deal with this in syntax parsing
-//next->is_comment_start = 0;
-
-// check for EOL is pipe (starts multiline input) --> invalid command --> check if last cmd has no args
 
 int	process_command2(char *line, t_mini *mini)
 {

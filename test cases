@@ -390,6 +390,8 @@ Go Crazy and history
   error
 - Try to execute a long command with a ton of arguments
 - Have fun with that beautiful minishell and enjoy it
+// check for EOL is pipe (starts multiline input) --> invalid command --> check if last cmd has no args
+
 
 Environment Variables
 
