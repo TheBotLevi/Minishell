@@ -89,3 +89,54 @@ int	create_basic_tokens(char *line, t_token **tokens)
 	}
 	return (0);
 }
+
+int get_token_lst_size(t_token *start, t_token *end) {
+	int size;
+
+	size = 0;
+	while (start) {
+		size++;
+		if (start == end)
+			break;
+		start = start->next;
+	}
+	return (size);
+}
+
+char *get_char_from_tokens(t_token *start, t_token *end) {
+
+	char *str;
+	int size;
+	int i;
+
+	size = get_token_lst_size(start, end);
+	str = malloc(size + 1);
+	if (!str)
+		return (0);
+	i = 0;
+	while (start) {
+		str[i++] = start->c;
+		if (start == end)
+			break;
+		start = start->next;
+	}
+	str[size] = '\0';
+	return (str);
+}
+
+void	token_lst_add_back(t_token **lst, t_token *new)
+{
+	t_token	*last_elem;
+
+	if (!lst || !new)
+		return ;
+	if (*lst == NULL)
+	{
+		*lst = new;
+		return ;
+	}
+	last_elem = *lst;
+	while (last_elem && last_elem->next)
+		last_elem = last_elem->next;
+	last_elem->next = new;
+}

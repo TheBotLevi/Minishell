@@ -57,7 +57,7 @@ int validate_redirections(t_redirect *redirs) {
 		}
 		redirs = redirs->next;
 	}
-	return 0; // No conflict
+	return (0);
 }
 
 
@@ -77,140 +77,29 @@ Bash treats the first word after << (up to the next unquoted whitespace) as the 
 it can include quotes only if there's no unquoted space between parts.
  */
 
-void	free_cmds(t_command *args)
-{
-	/*
-	int	i;
 
-	i = 0;*/
-
-	t_command	*tmp;
-
-	if (!args)
-		return ;
-	while (args)
-	{
-		if (args->argv)
-			free_args(args->argv);
-		tmp = args->next;
-		free(args);
-		args = tmp;
-	}
-	/*while (args[i])
-	{
-		if (args[i]->argv)
-			free_args(args[i]->argv);
-		free(args[i]);
-		i++;
-	}*/
-}
-
-/* returns arg length minus quote marks*/
-int get_next_arg_len(t_token **token) {
-	int len;
-	t_token *current;
-
-	len = 0;
-	current = *token; //todo simplifie and truly advance the pointer if set later anyways
-	while (current && current->is_ifs) //skip leading whitespace
-		current = current->next;
-	while (current && !current->is_ifs && !current->is_pipe && !current->is_comment_start && !current->is_comment && !current->is_start_quote && !current->is_redirection) {
-		current = current->next;
-		if (!current->is_start_quote || !current->is_end_quote)
-			len++;
-	}
-	*token = current;
-	return (len);
-}
+/*
+< should redirect input
+> should redirect output
+>> should redirect output in append mode.
+<< should be given a delimiter, then read the input until a line containing the
+delimiter is seen. However, it doesn’t have to update the history!
+ */
 /*
 int create_redirs(t_command **cmd, t_token *current) {
 
 t_redirect *redirs;
 	t_redirect *last_redir;
-	t_command **cmd;
 	t_token *current;
 	//validate_redirections()
 
 	return (0);
 }*/
 
-int get_token_lst_size(t_token *start, t_token *end) {
-	int size;
-
-	size = 0;
-	while (start) {
-		size++;
-		if (start == end)
-			break;
-		start = start->next;
-	}
-	return (size);
-}
-
-char *get_char_from_tokens(t_token *start, t_token *end) {
-
-	char *str;
-	int size;
-	int i;
-
-	size = get_token_lst_size(start, end);
-	str = malloc(size + 1);
-	if (!str)
-		return (0);
-	i = 0;
-	while (start) {
-		str[i++] = start->c;
-		if (start == end)
-			break;
-		start = start->next;
-	}
-	str[size] = '\0';
-	return (str);
-}
-
-void delete_token(t_token *token) {
-	if (!token)
-		return ;
-	free(token);
-}
-
-void	token_lst_add_back(t_token **lst, t_token *new)
+t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
 {
-	t_token	*last_elem;
-
-	if (!lst || !new)
-		return ;
-	if (*lst == NULL)
-	{
-		*lst = new;
-		return ;
-	}
-	last_elem = *lst;
-	while (last_elem && last_elem->next)
-		last_elem = last_elem->next;
-	last_elem->next = new;
-}
-
-
-t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
-	t_token **new_tokens;
 	t_token *tmp;
 
-	if (!start || !end || !env_val) {
-		free_tokens(head);
-		return (NULL);
-	}
-	new_tokens = (t_token **)malloc(sizeof(t_token *));
-	if (!new_tokens){
-		free_tokens(head);
-		return (NULL);
-	}
-	*new_tokens = NULL;
-	if (create_basic_tokens(env_val, new_tokens)) {
-		free_tokens(head);
-		free(new_tokens);
-		return (NULL);
-	}
 	if (!end->next && start->prev) { // starts in the middle and ends on last elem of the list
 		start->prev->next = *new_tokens;
 		while (start){ //free from start to end
@@ -241,6 +130,29 @@ t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *e
 		}
 		free(end);
 	}
+	return (*head);
+}
+
+t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
+	t_token **new_tokens;
+
+	if (!start || !end || !env_val) {
+		free_tokens(head);
+		return (NULL);
+	}
+	new_tokens = (t_token **)malloc(sizeof(t_token *));
+	if (!new_tokens){
+		free_tokens(head);
+		return (NULL);
+	}
+	*new_tokens = NULL;
+	if (create_basic_tokens(env_val, new_tokens)) {
+		free(env_val);
+		free_tokens(head);
+		free(new_tokens);
+		return (NULL);
+	}
+	*head = replace_expanded_tokens(head, new_tokens, start, end);
 	free(new_tokens);
 	return (*head);
 }
@@ -270,24 +182,28 @@ int find_next_var_exp(t_token **start, t_token **end, t_token **char_start, t_to
 	return (-1);
 }
 
-char* expand_var_exp(t_mini* mini, t_token *char_start, t_token *char_end) {
+char* lookup_var(t_mini* mini, t_token *char_start, t_token *char_end) {
 	char *str;
 	char *env_val;
 
-	if (char_start && char_start->is_exit_status)
-		return(ft_itoa(mini->exit_status));
-	str = get_char_from_tokens(char_start, char_end);
-	if (!str)
-		return (NULL);
-	env_val = get_env_value(mini->env_struct, str);
-	free(str);
-	str = NULL;
+	if (char_start && char_start->is_exit_status) {
+		env_val = ft_itoa(mini->exit_status); // todo ok to set to empty string thwn not found?
+	}
+	else {
+		str = get_char_from_tokens(char_start, char_end);
+		if (!str)
+			return (NULL);
+		env_val = get_env_value(mini->env_struct, str);
+		free(str);
+		str = NULL;
+	}
+	if (!env_val)
+		env_val = ft_strdup("");
 	return (env_val);
 }
 
-
 /* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded
- * Do not free env_val when returned from expand_var_exp as it uses get_env_var which points to still in use pointer in env_struct
+ * Do not free env_val when returned from lookup_var as it uses get_env_var which points to still in use pointer in env_struct
  */
 int expand_vars(t_mini *mini, t_token **tokens) {
 	t_token *start;
@@ -297,16 +213,16 @@ int expand_vars(t_mini *mini, t_token **tokens) {
 	char *env_val;
 
 	start = *tokens;
+	env_val = NULL;
 	if (find_next_var_exp(&start, &end, &char_start, &char_end) != 0)
 		return (1);
-	env_val = expand_var_exp(mini, char_start, char_end);
-	if (env_val)
-		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
-	else{
-		env_val = ft_strdup("");
-		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
-		free(env_val);
-	}
+	env_val = lookup_var(mini, char_start, char_end);
+	if (!env_val)
+		return (-1);
+	*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
+	free(env_val);
+	if (!*tokens)
+		return (-1);
 	return (0);
 }
 

@@ -208,6 +208,9 @@ void	set_double_redir_flags(t_token	**current);
 void	print_tokens(t_token *tokens);
 void	free_tokens(t_token **tokens);
 int		create_basic_tokens(char *line, t_token **tokens);
+void	token_lst_add_back(t_token **lst, t_token *new);
+char *get_char_from_tokens(t_token *start, t_token *end);
+int get_token_lst_size(t_token *start, t_token *end);
 
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);
@@ -263,6 +266,8 @@ typedef struct s_command {
 } t_command;
 
 t_command*	parse_tokens(t_mini *mini, t_token* token);
+
+//mini_cmd_utils
 void	free_cmds(t_command *args);
 
 #endif
