@@ -77,22 +77,32 @@ Bash treats the first word after << (up to the next unquoted whitespace) as the 
 it can include quotes only if there's no unquoted space between parts.
  */
 
-void	free_cmds(t_command **args)
+void	free_cmds(t_command *args)
 {
+	/*
 	int	i;
 
-	i = 0;
+	i = 0;*/
+
+	t_command	*tmp;
+
 	if (!args)
 		return ;
-	while (args[i])
+	while (args)
+	{
+		if (args->argv)
+			free_args(args->argv);
+		tmp = args->next;
+		free(args);
+		args = tmp;
+	}
+	/*while (args[i])
 	{
 		if (args[i]->argv)
 			free_args(args[i]->argv);
 		free(args[i]);
 		i++;
-	}
-	free(args);
-	args = NULL;
+	}*/
 }
 
 /* returns arg length minus quote marks*/
@@ -294,7 +304,6 @@ int expand_vars(t_mini *mini, t_token **tokens) {
 		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
 	else{
 		env_val = ft_strdup("");
-		printf("Env val: %s\n", env_val);
 		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
 		free(env_val);
 	}
@@ -332,45 +341,46 @@ int get_next_cmd(t_mini *mini, t_command *cmd, t_token **cur_token) {
 	cmd->argv = ft_split_on_ifs(&current, cmd_end);
 	if (!cmd->argv || !cmd->argv[0])
 		return (-1);
-	print_array(cmd->argv);
 	*cur_token = cmd_end;
 	return (0);
 }
 
-t_command**	parse_tokens(t_mini *mini, t_token ** tokens)
+t_command*	parse_tokens(t_mini *mini, t_token* token)
 {
 	t_command	*cmd;
-	t_command	**cmds;
+	t_command	*prev;
+	t_command	*cmd_head;
 	int			i;
-	t_token* cur_token;
 
-	cmds = malloc((mini->n_cmds + 1) * sizeof(t_command *));
-	if (!cmds)
-		return (NULL);
-	ft_memset(cmds, 0, (mini->n_cmds + 1) * sizeof(t_command *));
 	i = 0;
-	cur_token = tokens[0];
+	prev = NULL;
+	cmd_head = NULL;
 	while (i < mini->n_cmds) {
 		cmd = malloc(sizeof(t_command));
-		if (!cmd) {
-			free_cmds(cmds);
+		if (!cmd)
+		{
+			free_cmds(cmd_head);
 			return (NULL);
 		}
 		ft_memset(cmd, 0, sizeof(t_command));
-		cmds[i] = cmd;
-		if (i > 0)
-			cmds[i - 1]->next = cmd;
-		if (get_next_cmd(mini, cmd, &cur_token)== -1) {
-			free_cmds(cmds);
+		if (i == 0)
+			cmd_head = cmd;
+		else
+			prev->next = cmd;
+		if (get_next_cmd(mini, cmd, &token) == -1)
+		{
+			free(cmd);
+			free_cmds(cmd_head);
 			return (NULL);
 		}
-		if (cur_token && cur_token->is_pipe) {
-			cur_token = cur_token->next;
-		}
+		prev = cmd;
+		if (token && token->is_pipe)
+			token = token->next;
 		i++;
 	}
-	cmds[i] = NULL;
-	return (cmds);
+	if (cmd)
+		cmd->next = NULL;
+	return (cmd_head);
 }
 
 //todo look for quoted argument

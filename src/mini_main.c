@@ -15,19 +15,23 @@
 
 void test_parsing(char* line, t_mini* mini) {
 	t_token **tokens;
-	t_command**	cmds;
+	t_command*	cmds;
+	t_command*	cmd_head;
 
-	printf("\nInput tokens\n----\n");
+	//printf("\nInput tokens\n----\n");
 	tokens = tokenize(line, mini);
 	if (!tokens)
 		return ;
-	cmds = parse_tokens(mini, tokens);
-	/*if (*cmds && (*cmds)->argv)
-			print_array((*cmds)->argv);*/
-	printf("----\n");
+	cmds = parse_tokens(mini, *tokens);
+	cmd_head = cmds;
+	while (cmds && cmds->argv){
+		print_array(cmds->argv);
+		cmds=cmds->next;
+	}
+	//printf("----\n");
 	fflush(stdout);
 	free_tokens(tokens);
-	free_cmds(cmds);
+	free_cmds(cmd_head);
 }
 
 void	ft_mini_loop(t_mini *mini)

@@ -107,7 +107,6 @@ void	unset_all_flags(t_token **tokens)
 t_token	**tokenize(char *line, t_mini *mini)
 {
 	t_token	**tokens;
-	t_token	*tmp;
 	int n_pipes;
 
 	if (!line || !mini)
@@ -122,11 +121,7 @@ t_token	**tokenize(char *line, t_mini *mini)
 		set_quote_flags(tokens);
 		mark_comment(tokens);
 		set_var_expansion_flags(tokens);
-		printf("pre var exp :\n ");  // todo delete DEBUG
-		print_tokens(*tokens);
-		while (expand_vars(mini, &tmp)== 0) {
-			free_tokens(tokens);
-			*tokens = tmp;
+		while (expand_vars(mini, tokens)== 0) {
 			unset_all_flags(tokens);
 			set_quote_flags(tokens);
 			mark_comment(tokens);
@@ -136,8 +131,8 @@ t_token	**tokenize(char *line, t_mini *mini)
 		set_redirection_flags(tokens);
 		set_is_redirection_flag(tokens);
 		set_ifs_flags(mini, tokens);
-		printf("all var exp finished:\n ");  // todo delete DEBUG
-		print_tokens(*tokens);
+		/*printf("all var exp finished:\n");  // todo delete DEBUG
+		print_tokens(*tokens);*/
 	}
 	mini->n_cmds = n_pipes + 1;
 	return (tokens);
