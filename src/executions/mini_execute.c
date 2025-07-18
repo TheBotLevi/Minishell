@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/10 13:41:03 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/18 17:52:51 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,12 +99,13 @@ static int	handle_parent_process(pid_t pid, char **envp)
 			status = WEXITSTATUS(status);
 	}
 	free_args(envp);
+	envp = NULL;
 	return (status);
 }
 
 static void	handle_external_command(t_mini *mini)
 {
-	ft_putstr_fd("minishell: ", STDERR_FILENO);
+	ft_putstr_fd("mariashell: ", STDERR_FILENO);
 	ft_putstr_fd(mini->args[0], STDERR_FILENO);
 	ft_putendl_fd(": command not found", STDERR_FILENO);
 	exit(127);
@@ -117,26 +118,40 @@ int	execute_external_cmd(t_mini *mini)
 	char	**paths;
 	char	*exec_path;
 
-	envp = env_list_to_array(mini->env_struct);
 	pid = fork();
 	if (pid == 0)
 	{
 		setup_child_signals();
 		if (execute_redirections(mini) != 0)
+		{
+			cleanup_redir(mini);
+			free_args(envp);
 			exit(1);
+		}
+		envp = env_list_to_array(mini->env_struct);
+		if (!envp)
+		{
+			cleanup_redir(mini);
+			exit(1);
+		}
 		paths = get_paths_from_list(mini->env_struct);
 		exec_path = find_exec(mini->args[0], paths);
 		if (paths)
 			free_args(paths);
-		if (exec_path)
+		if (!exec_path)
 		{
-			execve(exec_path, mini->args, envp);
-			free(exec_path);
+			cleanup_redir(mini);
+			free_args(envp);
+			handle_external_command(mini);
 		}
-		handle_external_command(mini);
+		execve(exec_path, mini->args, envp);
+		perror("mariashell: execve");
+		cleanup_redir(mini);
+		free(exec_path);
+		free_args(envp);
+		exit(126);
 	}
 	signal(SIGINT, SIG_IGN);
-//	signal(SIGQUIT, SIG_IGN);
 	return (handle_parent_process(pid, envp));
 }
 

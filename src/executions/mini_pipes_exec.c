@@ -6,11 +6,58 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/10 16:20:11 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/16 13:22:53 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
+/*
+static int	create_pipes(t_mini *pipeline)
+{
+    int	i;
+
+    if (pipeline->cmd_count <= 1)
+        return (0);
+    pipeline->pipes = malloc(sizeof(int *) * (pipeline->cmd_count - 1));
+    if (!pipeline->pipes)
+        return (1);
+    i = 0;
+    while (i < pipeline->cmd_count - 1)
+    {
+        pipeline->pipes[i] = malloc(sizeof(int) * 2);
+        if (!pipeline->pipes[i])
+        {
+            // Clean up previously allocated pipes
+            while (--i >= 0)
+            {
+                close(pipeline->pipes[i][0]);
+                close(pipeline->pipes[i][1]);
+                free(pipeline->pipes[i]);
+            }
+            free(pipeline->pipes);
+            pipeline->pipes = NULL;
+            return (1);
+        }
+        if (pipe(pipeline->pipes[i]) == -1)
+        {
+            perror("minishell: pipe");
+            // Clean up on pipe failure
+            free(pipeline->pipes[i]);
+            while (--i >= 0)
+            {
+                close(pipeline->pipes[i][0]);
+                close(pipeline->pipes[i][1]);
+                free(pipeline->pipes[i]);
+            }
+            free(pipeline->pipes);
+            pipeline->pipes = NULL;
+            return (1);
+        }
+        i++;
+    }
+    return (0);
+}
+*/
 
 static int	create_pipes(t_mini *pipeline)
 {
@@ -94,7 +141,7 @@ static void	execute_single_cmd(t_mini *mini, t_mini *pipeline,
 	}
 	else
 	{
-		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd("mariashell: ", STDERR_FILENO);
 		ft_putstr_fd(mini->args[0], STDERR_FILENO);
 		ft_putendl_fd(": command not found", STDERR_FILENO);
 	}

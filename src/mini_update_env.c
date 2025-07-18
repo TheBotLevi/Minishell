@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:00:11 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 15:16:19 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/14 15:38:14 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,8 @@ int	add_new_env_var(t_env **env, char *key, char *value)
 	new_node->value = value;
 	new_node->next = *env;
 	*env = new_node;
+//	free(key);
+//	free(value);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:05:09 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/11 15:01:40 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/18 11:18:56 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,16 @@ t_env	*create_env_list(char **env)
 		{
 			new_node->key = ft_substr(env[i], 0, equals_pos - env[i]);
 			new_node->value = ft_strdup(equals_pos + 1);
+			if (!new_node->key || !new_node->value)
+			{
+				if (new_node->key)
+					free(new_node->key);
+				if (new_node->value)
+					free(new_node->value);
+				free(new_node);
+				free_env_list(env_list);
+				return (NULL);
+			}
 			new_node->next = env_list;
 			env_list = new_node;
 		}

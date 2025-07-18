@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 10:08:25 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/06/30 10:57:12 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/14 16:30:21 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,14 @@ static char	*get_cd_path(t_mini *mini)
 
 static int	handle_cd_errors(t_mini *mini, char *path)
 {
-	ft_putstr_fd("minishell: cd ", STDERR_FILENO);
+	ft_putstr_fd("mariashell: cd: ", STDERR_FILENO);
 	if (!path && !mini->args[1])
 		ft_putendl_fd("HOME not set", STDERR_FILENO);
 	else
-		ft_putendl_fd("No such file or directory", STDERR_FILENO);
-	free(mini->old_path);
+	{
+		ft_putstr_fd(mini->args[1], STDERR_FILENO);
+		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+	}
 	return (1);
 }
 
@@ -71,6 +73,8 @@ int	mini_cd(t_mini *mini)
 
 	if (getcwd(current_dir, BUFFER_SIZE) == NULL)
 		return (1);
+	if (mini->old_path)
+		free(mini->old_path);
 	mini->old_path = ft_strdup(current_dir);
 	if (!mini->old_path)
 		return (1);
@@ -78,6 +82,5 @@ int	mini_cd(t_mini *mini)
 	if ((!path && !mini->args[1]) || (path && chdir(path) == -1))
 		return (handle_cd_errors(mini, path));
 	update_pwd_vars(mini);
-//	free(mini->old_path);
 	return (0);
 }

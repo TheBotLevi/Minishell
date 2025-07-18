@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/18 14:40:46 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/09 16:59:03 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/18 13:04:12 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ static char	**fill_clean_args(t_mini *mini, char **new_args)
 			i += 2;
 		else
 		{
-			new_args[j] = ft_strdup(mini->args[i]);
+			new_args[j] = mini->args[i];
 			j++;
 			i++;
 		}
@@ -156,10 +156,12 @@ int	execute_redirections(t_mini *mini)
 {
 	int	i;
 	char	**clean_args;
+	char	**original_args;
 	int	rt;
 
 	if (!mini->args)
 		return (0);
+	original_args = mini->args;
 	i = 0;
 	while (mini->args[i])
 	{
@@ -175,8 +177,9 @@ int	execute_redirections(t_mini *mini)
 	clean_args = remove_redirections(mini);
 	if (clean_args)
 	{
-		free_args(mini->args);
+//		free_args(mini->args);
 		mini->args = clean_args;
+		mini->original_args = original_args;
 	}
 	return (0);
 }

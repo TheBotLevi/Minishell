@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/11 14:40:28 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/18 13:13:38 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ typedef struct s_mini
 	int			saved_stdin;
 	int			saved_stdout;
 	int			redir_flag;
+	char			**original_args;
 	pid_t			*pids;
 	t_env		*env_struct;
 //	t_pipeline	*pipes;
@@ -157,6 +158,7 @@ void				free_env_list(t_env *env);
 void	free_command_list(t_mini *cmds);
 void	free_everything(t_mini *mini);
 void	free_env_array(char **array, int count);
+void	cleanup_redir(t_mini *mini);
 
 // execute
 int					execute_external_cmd(t_mini *mini);

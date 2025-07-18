@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/03 18:45:50 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/11 14:43:04 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/18 13:13:01 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,10 +121,20 @@ void	free_everything(t_mini *mini)
 {
 	if (!mini)
 	return ;
-//	free_args(mini->args);
+	free_args(mini->args);
 	free(mini->old_path);
 	if (mini->pipes)
 		free_pipeline(mini);
 	free_env_list(mini->env_struct);
 	free(mini);
+}
+
+void	cleanup_redir(t_mini *mini)
+{
+	if (mini->args && mini->original_args && mini->args != mini->original_args)
+	{
+		free(mini->args);
+		mini->args = mini->original_args;
+		mini->original_args = NULL;
+	}
 }

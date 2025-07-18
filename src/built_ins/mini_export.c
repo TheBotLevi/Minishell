@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 11:27:49 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 16:05:37 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/14 16:12:17 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ static int	handle_export_arg(char *arg, t_env **env)
 
 	if (!is_valid_export(arg))
 	{
-		ft_putstr_fd("minishell: export: `", STDERR_FILENO);
+		ft_putstr_fd("mariashell: export: `", STDERR_FILENO);
 		ft_putstr_fd(arg, STDERR_FILENO);
 		ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 		return (1);

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/11 12:15:33 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/18 13:27:20 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		test_parsing(line, mini);
+//		test_parsing(line, mini);
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{
@@ -88,7 +88,7 @@ int	main(int ac, char **av, char **envp)
 	(void)	av;
 
 	if (ac != 1) {
-		ft_putendl_fd("minishell: too many arguments", STDERR_FILENO);
+		ft_putendl_fd("mariashell: too many arguments", STDERR_FILENO);
 		return (1);
 	};
 	mini = mini_init(envp);

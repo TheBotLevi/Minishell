@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/01 16:30:42 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/07/14 16:08:25 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	is_numeric(char *str)
 
 static void	handle_invalid_args(t_mini *mini)
 {
-	ft_putstr_fd("minishell: exit ", STDERR_FILENO);
+	ft_putstr_fd("mariashell: exit ", STDERR_FILENO);
 	ft_putstr_fd(mini->args[1], STDERR_FILENO);
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 }
@@ -52,7 +52,7 @@ int	mini_exit(t_mini *mini)
 	}
 	else if (arg_count > 2)
 	{
-		ft_putendl_fd("minishell: exit: too many arguments", STDERR_FILENO);
+		ft_putendl_fd("mariashell: exit: too many arguments", STDERR_FILENO);
 		return (1);
 	}
 	else
