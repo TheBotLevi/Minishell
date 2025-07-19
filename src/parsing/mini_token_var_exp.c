@@ -15,27 +15,25 @@
 t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
 {
 	t_token *tmp;
-	t_token *after_end = end ? end->next : NULL;
+	t_token *after_end;
+	t_token *next;
 
-	// Disconnect old region
-	if (start && start->prev)
+	after_end =NULL;
+	if (end)
+		after_end = end->next;
+	if (start && start->prev) // Disconnect old region
 		start->prev->next = *new_tokens;
 	else if (!start->prev)
 		*head = *new_tokens;
-
-	// Attach after_end to last of new_tokens
-	token_lst_add_back(new_tokens, after_end);
-
-	// ⚠️ Detach old list pointers
+	token_lst_add_back(new_tokens, after_end); // Attach after_end to last of new_tokens
+	// Detach old list pointers
 	if (start)
 		start->prev = NULL;
 	if (end)
 		end->next = NULL;
-
-	// Free only from start to end (inclusive)
 	tmp = start;
-	while (tmp) {
-		t_token *next = tmp->next;
+	while (tmp) { // Free only from start to end (inclusive)
+		next = tmp->next;
 		free(tmp);
 		if (tmp == end)
 			break;
@@ -43,48 +41,6 @@ t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *
 	}
 	return (*head);
 }
-
-/*static t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
-{
-	t_token *tmp;
-
-	if (!end->next && start->prev) { // starts in the middle and ends on last elem of the list
-		start->prev->next = *new_tokens;
-		while (start){ //free from start to end
-			tmp = start;
-			start = start->next;
-			free(tmp);
-		}
-	}
-	else if (end->next && !start->prev && start == *head) //start is head and end is in middle
-	{
-		while (*head && *head != end){ //free from head to end-1
-			tmp = *head;
-			head = &(*head)->next;
-			free(tmp);
-		}
-		token_lst_add_back(new_tokens, end->next); // last new token->next becomes end->next
-		*head = *new_tokens;
-		free(end);
-	}
-	else if (end->next && start->prev) //starts in the middle and end is in middle
-	{
-		token_lst_add_back(new_tokens, end->next); // append old tokens to new list
-		start->prev->next = *new_tokens; // point from start-1 to new list
-		while (start && start != end){ //free from start to end
-			tmp = start;
-			start = start->next;
-			free(tmp);
-		}
-		free(end);
-	}
-	else if (!start->prev && !end->next) {
-		// Entire list is replaced by new tokens
-		free_tokens(head); // free old tokens (from start to end)
-		*head = *new_tokens;
-	}
-	return (*head);
-}*/
 
 static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
 	t_token **new_tokens;

@@ -110,6 +110,7 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 	return (NULL);
 }
 
+
 /* Split that accepts a string instead char as splitting param c,
 	to treat the IFS string*/
 char	**ft_split_on_ifs(t_token **tokens, t_token *end)

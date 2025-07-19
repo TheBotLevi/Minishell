@@ -99,18 +99,27 @@ int count_redirs(t_token *start_redir, t_token *end_redir) {
 	return (count);
 }
 
+// inclusive of next redir token
 int find_next_redir( t_token **start_redir, t_token **end_redir) {
 	t_token *start_redir_tmp;
-	//t_token *end_redir_tmp;
+	int start_set;
 
+	start_set = 0;
 	start_redir_tmp = *start_redir;
 	while (start_redir_tmp && start_redir_tmp != *end_redir) {
+		if (start_redir_tmp->is_redirection && !start_set) {
+			*start_redir = start_redir_tmp;
+			start_set = 1;
+			if (start_redir_tmp->is_redir_heredoc || start_redir_tmp->is_redir_output_append) //skip double redir signage
+				start_redir_tmp = start_redir_tmp->next;
+		}
+		if (start_redir_tmp->is_redirection && start_set) {
+			*end_redir = start_redir_tmp;
+			return (0);
+		}
 		start_redir_tmp = start_redir_tmp->next;
 	}
-	//if none found: return 1
 	return (1);
-
-	return (0);
 }
 
 int get_redir_type(t_token redir_token) {
@@ -124,33 +133,89 @@ int get_redir_type(t_token redir_token) {
 		return (REDIR_APPEND);
 	return (0);
 }
+/* todo see if skip or remove
+t_token* elim_redir_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
+{
+	t_token *tmp;
+	t_token *after_end;
+	t_token *next;
+
+	after_end =NULL;
+	if (end)
+		after_end = end->next;
+	if (start && start->prev) // Disconnect old region
+		start->prev->next = *new_tokens;
+	else if (!start->prev)
+		*head = *new_tokens;
+	token_lst_add_back(new_tokens, after_end); // Attach after_end to last of new_tokens
+	// Detach old list pointers
+	if (start)
+		start->prev = NULL;
+	if (end)
+		end->next = NULL;
+	tmp = start;
+	while (tmp) { // Free only from start to end (inclusive)
+		next = tmp->next;
+		free(tmp);
+		if (tmp == end)
+			break;
+		tmp = next;
+	}
+	return (*head);
+}*/
+
+int get_array_size(char **array)
+{
+	int size;
+
+	size = 0;
+	while (array[size])
+		size++;
+	return (size);
+}
+
 char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_redir) {
 	char *filename;
-	char *arg;
+	//char *arg;
+	(void)parser;
+	char **args;
 
-	arg = get_char_from_tokens(start_redir, end_redir);
+	if (!start_redir || !end_redir)
+		return (NULL);
+	if (start_redir->is_redirection) { //skip redirection symbols
+		if (start_redir->is_redir_heredoc || start_redir->is_redir_output_append)
+			start_redir = start_redir->next;
+		start_redir = start_redir->next;
+	}
+	if (end_redir->is_redirection) { //skip redirection symbols
+		end_redir = end_redir->prev;
+	}
+	/*arg = get_char_from_tokens(start_redir, end_redir);
 	if (!arg)
 		return (NULL);
 	ft_strtrim(arg, parser->ifs);
-	filename = ft_strdup(arg);
 	free(arg);
+	*/
+	args = ft_split_on_ifs(&start_redir, end_redir);
+	if (!args || get_array_size(args) != 1) //todo should fail here?
+		return (NULL);
+	filename = ft_strdup(args[0]);
+	free_args(args);
 	return (filename);
 }
 
-int parse_next_redir_tokens(t_parsing *parser, t_redirect** redir, t_token **start_redir, t_token **end_redir) {
+int parse_next_redir_tokens(t_parsing *parser, t_redirect** redir, t_token **start_redir, t_token *end_redir) {
 
-	t_redirect *redir_tmp;
 	t_token *start_redir_tmp;
 	t_token *end_redir_tmp;
 
-	redir_tmp = *redir;
-	end_redir_tmp = *end_redir;
+	start_redir_tmp = *start_redir;
+	end_redir_tmp = end_redir;
+	(*redir)->type = get_redir_type(*start_redir_tmp);
 	find_next_redir(&start_redir_tmp, &end_redir_tmp);
-	redir_tmp->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp);
-	if (!redir_tmp->filename)
+	(*redir)->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp);
+	if (!(*redir)->filename)
 		return (1);
-	redir_tmp->type = get_redir_type(*start_redir_tmp);
-	*redir = redir_tmp;
 	*start_redir = end_redir_tmp;// set new starting point to old end point
 	return(0);
 }
@@ -181,12 +246,17 @@ int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redir) {
 		}
 		else
 			prev->next = redir;
-		if (parse_next_redir_tokens(parser, &redir, &start_redir, &end_redir))
+		if (parse_next_redir_tokens(parser, &redir, &start_redir, end_redir))
 			return(1);
-		if (!redir || !end_redir)
+		if (start_redir == end_redir) // all redirections parsed
+			return (0);
+		if (!redir || !start_redir)
 			break;
-		if (end_redir->is_redirection) //todo check  if reset to start, then check start instead
-			end_redir = end_redir->next;
+		if (start_redir->is_redirection) {
+			if (start_redir->is_redir_heredoc || start_redir->is_redir_output_append)
+				start_redir = start_redir->next;
+			start_redir = start_redir->next;
+		}
 		prev = redir;
 		i++;
 	}
