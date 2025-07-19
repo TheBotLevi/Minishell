@@ -66,48 +66,9 @@ typedef struct s_mini
 	t_env		*env_struct;
 //	t_pipeline	*pipes;
 //	t_list		*list;
-	int				n_cmds;
 	struct s_mini	*next;
 }					t_mini;
 
-
-
-typedef struct s_token {
-	char c;
-	int is_quote;
-	int is_single_quote;
-	int is_double_quote;
-	int is_start_quote;
-	int is_end_quote;
-	//int is_cmd_sep;
-	int is_pipe;
-	int is_ifs;
-	int is_dollar;
-	int is_var;
-	int is_braced_var;
-	int is_exit_status;
-	//int is_eof; // signals ctrl+D
-	int is_comment_start;
-	int is_comment;
-	int is_redir_heredoc;
-	int is_redir_heredoc_delimiter;
-	//int is_heredoc_end;
-	int is_redirection;
-	//int is_redirection_end;
-	int is_redir_input;
-	int is_redir_output;
-	int is_redir_output_append;
-	struct s_token *prev;
-	struct s_token *next;
-} t_token;
-
-typedef struct s_quote_state {
-	int in_single_quote;
-	int in_double_quote;
-	int within_quote;
-	int is_start_quote;
-	int is_end_quote;
-} t_quote_state;
 
 //global variable
 extern volatile sig_atomic_t	g_exit;
@@ -192,39 +153,43 @@ int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 
 //### parsing files
-//mini_tokenize
-void	mark_exit_status(t_token **current, t_token **next);
-void	mark_braced_var(t_token **current, t_token *next);
-void	mark_unbraced_var(t_token **current, t_token **next);
-void	set_var_expansion_flags(t_token **tokens);
-t_token	**tokenize(char *line, t_mini *mini);
 
-//mini_token_flags_ifs_redir_pipe
-void	set_ifs_flags(t_mini *mini, t_token **tokens);
-void	set_redirection_flags(t_token **tokens);
-void	set_is_redirection_flag(t_token **head);
-int		set_pipe_flags(t_token **tokens);
-void	set_double_redir_flags(t_token	**current);
+typedef struct s_token {
+	char c;
+	int is_quote;
+	int is_single_quote;
+	int is_double_quote;
+	int is_start_quote;
+	int is_end_quote;
+	int is_pipe;
+	int is_ifs;
+	int is_dollar;
+	int is_var;
+	int is_braced_var;
+	int is_exit_status;
+	//int is_eof; // signals ctrl+D
+	int is_comment_start;
+	int is_comment;
+	int is_redir_heredoc;
+	int is_redir_heredoc_delimiter;
+	//int is_heredoc_end;
+	int is_redirection;
+	//int is_redirection_end;
+	int is_redir_input;
+	int is_redir_output;
+	int is_redir_output_append;
+	struct s_token *prev;
+	struct s_token *next;
+} t_token;
 
-// mini_token_utils
-void	print_tokens(t_token *tokens);
-void	free_tokens(t_token **tokens);
-int		create_basic_tokens(char *line, t_token **tokens);
-void	token_lst_add_back(t_token **lst, t_token *new);
-char *get_char_from_tokens(t_token *start, t_token *end);
-int get_token_lst_size(t_token *start, t_token *end);
+typedef struct s_quote_state {
+	int in_single_quote;
+	int in_double_quote;
+	int within_quote;
+	int is_start_quote;
+	int is_end_quote;
+} t_quote_state;
 
-//mini_quotes
-int is_within_quote_token(const char c, t_quote_state *state);
-void cancel_unfinished_quote_token(t_token *token);
-void mark_comment(t_token **tokens);
-int set_quote_flags(t_token **tokens);
-
-//mini_split //todo to be modified and cleaned up
-char	**ft_split_on_ifs(t_token **tokens, t_token *end);
-t_token** split_line(char *line, t_mini *mini);
-
-//mini_syntax
 #define REDIR_INPUT 1
 #define REDIR_OUTPUT 2
 #define REDIR_APPEND 3
@@ -251,12 +216,62 @@ typedef struct s_command {
 	struct s_command *next;
 } t_command;
 
-t_command*	parse_tokens(t_mini *mini, t_token* token);
+typedef struct s_parsing {
+	char	*ifs; //no need to free (either stack alloc or malloc in env)
+	int		exit_status;
+	t_env	*env_struct;
+	int		n_cmds;
+	t_token ** tokens_head;
+	t_token * current_tok_start;
+	t_token * current_tok_end;
+	t_command ** cmd_head;
+	t_command * current_cmd;
+} t_parsing;
+
+//mini_tokenize
+void	mark_exit_status(t_token **current, t_token **next);
+void	mark_braced_var(t_token **current, t_token *next);
+void	mark_unbraced_var(t_token **current, t_token **next);
+void	set_var_expansion_flags(t_token **tokens);
+t_token	**tokenize(char *line, t_parsing *parser);
+
+//mini_token_flags_ifs_redir_pipe
+char* set_ifs(t_mini *mini);
+void	set_ifs_flags(t_parsing *parser, t_token **tokens);
+void	set_redirection_flags(t_token **tokens);
+void	set_is_redirection_flag(t_token **head);
+int		set_pipe_flags(t_token **tokens);
+void	set_double_redir_flags(t_token	**current);
+
+
+// mini_token_utils
+void	print_tokens(t_token *tokens);
+void	free_tokens(t_token **tokens);
+int		create_basic_tokens(char *line, t_token **tokens);
+void	token_lst_add_back(t_token **lst, t_token *new);
+char *get_char_from_tokens(t_token *start, t_token *end);
+int get_token_lst_size(t_token *start, t_token *end);
+
+//mini_quotes
+int is_within_quote_token(const char c, t_quote_state *state);
+void cancel_unfinished_quote_token(t_token *token);
+void mark_comment(t_token **tokens);
+int set_quote_flags(t_token **tokens);
+
+//mini_split //todo to be modified and cleaned up
+char	**ft_split_on_ifs(t_token **tokens, t_token *end);
+t_token** split_line(char *line, t_parsing *parser);
+
+//mini_syntax
+t_command*	parse_tokens(t_parsing *parser, t_token* token);
 
 //mini_token_var_exp
-int expand_vars(t_mini *mini, t_token **tokens);
+int expand_vars(t_parsing *parser, t_token **tokens);
 
 //mini_cmd_utils
 void	free_cmds(t_command *cmd);
+
+//mini_syntax_redir
+int detect_redir(t_parsing *parser, t_token **cur_token, t_token **start_redir, t_token **end_cmd);
 
 #endif

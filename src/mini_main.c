@@ -14,15 +14,23 @@
 
 
 void test_parsing(char* line, t_mini* mini) {
+	t_parsing *parser;
 	t_token **tokens;
 	t_command*	cmds;
 	t_command*	cmd_head;
 
+	parser = malloc(sizeof(t_parsing));
+	if (!parser)
+		return ;
+	memset(parser, 0, sizeof(t_parsing));
+	parser->ifs = set_ifs(mini);
+	parser->env_struct = mini->env_struct;
+	parser->exit_status = mini->exit_status;
 	//printf("\nInput tokens\n----\n");
-	tokens = tokenize(line, mini);
+	tokens = tokenize(line, parser);
 	if (!tokens)
 		return ;
-	cmds = parse_tokens(mini, *tokens);
+	cmds = parse_tokens(parser, *tokens);
 	cmd_head = cmds;
 	while (cmds && cmds->argv){
 		print_array(cmds->argv);

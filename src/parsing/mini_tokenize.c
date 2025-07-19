@@ -42,6 +42,10 @@ void	mark_braced_var(t_token **current, t_token *next)
 					next->is_braced_var = 1;
 					next->is_var = 1;
 					next = next->prev;
+					if (next == start) {
+						next->is_braced_var = 1;
+						next->is_var = 1;
+					}
 				}
 			}
 		}
@@ -104,12 +108,12 @@ void	unset_all_flags(t_token **tokens)
 	}
 }
 
-t_token	**tokenize(char *line, t_mini *mini)
+t_token	**tokenize(char *line, t_parsing *parser)
 {
 	t_token	**tokens;
 	int n_pipes;
 
-	if (!line || !mini)
+	if (!line || !parser)
 		return (NULL);
 	tokens = (t_token **)malloc(sizeof(t_token *));
 	if (!tokens)
@@ -121,7 +125,7 @@ t_token	**tokenize(char *line, t_mini *mini)
 		set_quote_flags(tokens);
 		mark_comment(tokens);
 		set_var_expansion_flags(tokens);
-		while (expand_vars(mini, tokens)== 0) {
+		while (expand_vars(parser, tokens)== 0) {
 			unset_all_flags(tokens);
 			set_quote_flags(tokens);
 			mark_comment(tokens);
@@ -130,10 +134,10 @@ t_token	**tokenize(char *line, t_mini *mini)
 		n_pipes = set_pipe_flags(tokens);
 		set_redirection_flags(tokens);
 		set_is_redirection_flag(tokens);
-		set_ifs_flags(mini, tokens);
+		set_ifs_flags(parser, tokens);
 		/*printf("all var exp finished:\n");  // todo delete DEBUG
 		print_tokens(*tokens);*/
 	}
-	mini->n_cmds = n_pipes + 1;
+	parser->n_cmds = n_pipes + 1;
 	return (tokens);
 }

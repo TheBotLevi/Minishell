@@ -12,9 +12,7 @@
 
 #include "../../inc/minishell.h"
 
-void	set_ifs_flags(t_mini *mini, t_token **tokens)
-{
-	t_token		*current;
+char* set_ifs(t_mini *mini) {
 	char		*ifs;
 	static char	default_ifs[4];
 
@@ -25,10 +23,17 @@ void	set_ifs_flags(t_mini *mini, t_token **tokens)
 	ifs = default_ifs;
 	if (mini && mini->env_struct && get_env_value(mini->env_struct, "IFS"))
 		ifs = get_env_value(mini->env_struct, "IFS");
+	return (ifs);
+}
+
+void	set_ifs_flags(t_parsing *parser, t_token **tokens)
+{
+	t_token		*current;
+
 	current = *tokens;
 	while (current && !current->is_comment)
 	{
-		if (is_in_set(current->c, ifs) && !current->is_quote)
+		if (is_in_set(current->c, parser->ifs) && !current->is_quote)
 			current->is_ifs = 1;
 		current = current->next;
 	}
