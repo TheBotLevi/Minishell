@@ -30,6 +30,7 @@ void test_parsing(char* line, t_mini* mini) {
 	tokens = tokenize(line, parser);
 	if (!tokens)
 		return ;
+	print_tokens(*tokens);
 	cmds = parse_tokens(parser, *tokens);
 	cmd_head = cmds;
 	while (cmds && cmds->argv){
@@ -72,7 +73,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-//		test_parsing(line, mini);
+		//test_parsing(line, mini);
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{

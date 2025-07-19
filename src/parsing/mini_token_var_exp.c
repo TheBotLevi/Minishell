@@ -12,7 +12,39 @@
 
 #include "../../inc/minishell.h"
 
-static t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
+t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
+{
+	t_token *tmp;
+	t_token *after_end = end ? end->next : NULL;
+
+	// Disconnect old region
+	if (start && start->prev)
+		start->prev->next = *new_tokens;
+	else if (!start->prev)
+		*head = *new_tokens;
+
+	// Attach after_end to last of new_tokens
+	token_lst_add_back(new_tokens, after_end);
+
+	// ⚠️ Detach old list pointers
+	if (start)
+		start->prev = NULL;
+	if (end)
+		end->next = NULL;
+
+	// Free only from start to end (inclusive)
+	tmp = start;
+	while (tmp) {
+		t_token *next = tmp->next;
+		free(tmp);
+		if (tmp == end)
+			break;
+		tmp = next;
+	}
+	return (*head);
+}
+
+/*static t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
 {
 	t_token *tmp;
 
@@ -46,8 +78,13 @@ static t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_
 		}
 		free(end);
 	}
+	else if (!start->prev && !end->next) {
+		// Entire list is replaced by new tokens
+		free_tokens(head); // free old tokens (from start to end)
+		*head = *new_tokens;
+	}
 	return (*head);
-}
+}*/
 
 static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
 	t_token **new_tokens;
@@ -109,7 +146,7 @@ static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_en
 		str = get_char_from_tokens(char_start, char_end);
 		if (!str)
 			return (NULL);
-		env_val = get_env_value(parser->env_struct, str);
+		env_val = ft_strdup(get_env_value(parser->env_struct, str));
 		free(str);
 		str = NULL;
 	}
@@ -135,6 +172,9 @@ int expand_vars(t_parsing *parser, t_token **tokens) {
 	env_val = lookup_var(parser, char_start, char_end);
 	if (!env_val)
 		return (-1);
+	printf("Expanding from: '%c' to '%c'\n", start->c, end->c);
+	if (!start->prev && !end->next)
+		printf("Full token list will be replaced\n");
 	*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
 	free(env_val);
 	if (!*tokens)
