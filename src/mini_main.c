@@ -35,12 +35,17 @@ void test_parsing(char* line, t_mini* mini) {
 	cmd_head = cmds;
 	while (cmds && cmds->argv){
 		print_array(cmds->argv);
+		while (cmds->redirections) {
+			printf("filename: %s, type: %d\n", cmds->redirections->filename, cmds->redirections->type);
+			cmds->redirections = cmds->redirections->next;
+		}
 		cmds=cmds->next;
 	}
 	//printf("----\n");
 	fflush(stdout);
 	free_tokens(tokens);
 	free_cmds(cmd_head);
+	free(parser);
 }
 
 void	ft_mini_loop(t_mini *mini)
