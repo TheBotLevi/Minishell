@@ -119,6 +119,7 @@ int	execute_external_cmd(t_mini *mini)
 	char	*exec_path;
 
 	pid = fork();
+	envp = NULL;
 	if (pid == 0)
 	{
 		setup_child_signals();
