@@ -199,7 +199,6 @@ The semantics of input file redirection after the first stage, or output before 
 ls | grep -v "html" > foo.txt | wc -l
 grep "d" < in.txt | grep -v "html" < a.txt | wc -l
 
-
 Possible combinations
 
 You can combine these with file descriptors or use them multiple times, for example:

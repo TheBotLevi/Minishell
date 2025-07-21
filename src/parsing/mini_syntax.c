@@ -12,60 +12,71 @@
 
 #include "../../inc/minishell.h"
 
-
-/*returns -1 when end of tokens*/
-int get_next_cmd(t_parsing *parser, t_token **cur_token) {
-	t_command *cmd;
-	t_token *current;
+/*returns 1 when end of tokens
+ * updates **cmd start to new cmd start in the end
+ */
+int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	t_token *cmd_end;
 	t_token *start_redir;
+	int has_redir;
 
-	cmd = parser->current_cmd;
 	start_redir = NULL;
-	cmd_end = NULL;
-	if (detect_redir(parser, cur_token, &start_redir, &cmd_end))
+	cmd_end = get_cmd_end(*cmd_start); //todo what if cmd_end == start?
+	if (cmd_end)
+		printf("end cmd: %c", cmd_end->c);
+	has_redir = detect_redir(parser, *cmd_start, &start_redir, cmd_end);
+	if (start_redir)
+		printf("start redir: %c", start_redir->c);
+	if (has_redir > 0) {
+		if (create_redirs(parser, start_redir, cmd_end)) //todo have to update start_pointer in here?
+			return (1);
+	}
+	else return (1); //todo what to do on  has_redir == -1?
+	parser->current_cmd->argv = ft_split_on_ifs(*cmd_start, start_redir);
+	*cmd_start = cmd_end; //set new cmd start
+	if (*cmd_start && (*cmd_start)->is_pipe)
+		*cmd_start = (*cmd_start)->next;
+	if (!parser->current_cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]
 		return (1);
-	current = *cur_token;
-	cmd->argv = ft_split_on_ifs(&current, start_redir);
-	if (!cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]
-		return (-1);
-	*cur_token = cmd_end;
 	return (0);
 }
 
-t_command*	parse_tokens(t_parsing *parser, t_token* token)
+int parse_tokens(t_parsing *parser)
 {
 	t_command	*prev;
+	t_token	*cmd_start;
 	int			i;
 
 	i = 0;
 	prev = NULL;
+	cmd_start = parser->tokens_head;
 	while (i < parser->n_cmds) {
 		parser->current_cmd = malloc(sizeof(t_command));
 		if (!parser->current_cmd)
 		{
-			free_cmds(*(parser->cmd_head));
-			return (NULL);
+			free_cmds(parser->cmd_head);
+			return (1);
 		}
 		ft_memset(parser->current_cmd, 0, sizeof(t_command));
 		if (i == 0)
-			parser->cmd_head = &parser->current_cmd;
+			parser->cmd_head = parser->current_cmd;
 		else
 			prev->next = parser->current_cmd;
-		if (get_next_cmd(parser, &token) == -1) //todo  add option of ending early withuot freeing when commands are invalid//empty
+		if (get_next_cmd(parser, &cmd_start)) //todo add option of ending early without freeing when commands are invalid//empty
 		{
 			free(parser->current_cmd);
-			free_cmds(*(parser->cmd_head));
-			return (NULL);
+			free_cmds(parser->cmd_head);
+			return (1);
 		}
+		if (cmd_start)
+			printf("cur token, new start: %c", cmd_start->c);
 		prev = parser->current_cmd;
-		if (token && token->is_pipe)
-			token = token->next;
+
 		i++;
 	}
 	if (parser->current_cmd)
 		parser->current_cmd->next = NULL;
-	return (*(parser->cmd_head));
+	return (0);
 }
 
 

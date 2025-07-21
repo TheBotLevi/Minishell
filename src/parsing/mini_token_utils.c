@@ -12,19 +12,18 @@
 
 #include "../../inc/minishell.h"
 
-void	free_tokens(t_token **tokens)
+void	free_tokens(t_token *tokens)
 {
 	t_token	*current;
 	t_token	*next;
 
-	current = *tokens;
+	current = tokens;
 	while (current)
 	{
 		next = current->next;
 		free(current);
 		current = next;
 	}
-	free(tokens);
 }
 
 void	print_tokens(t_token *tokens)
@@ -73,7 +72,7 @@ int	create_basic_tokens(char *line, t_token **tokens)
 		token = (t_token *)malloc(sizeof(t_token));
 		if (!token)
 		{
-			free_tokens(tokens);
+			free_tokens(*tokens);
 			return (1);
 		}
 		ft_memset(token, 0, sizeof(t_token));

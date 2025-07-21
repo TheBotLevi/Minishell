@@ -15,9 +15,7 @@
 
 void test_parsing(char* line, t_mini* mini) {
 	t_parsing *parser;
-	t_token **tokens;
 	t_command*	cmds;
-	t_command*	cmd_head;
 
 	parser = malloc(sizeof(t_parsing));
 	if (!parser)
@@ -27,12 +25,20 @@ void test_parsing(char* line, t_mini* mini) {
 	parser->env_struct = mini->env_struct;
 	parser->exit_status = mini->exit_status;
 	//printf("\nInput tokens\n----\n");
-	tokens = tokenize(line, parser);
-	if (!tokens)
+	parser->tokens_head = tokenize(line, parser);
+	if (!parser->tokens_head) {
+		printf("Error tokenizing\n");
 		return ;
-	print_tokens(*tokens);
-	cmds = parse_tokens(parser, *tokens);
-	cmd_head = cmds;
+	}
+	print_tokens(parser->tokens_head);
+	if (parse_tokens(parser) > 0) {
+		printf("Error parsing commands\n");
+		free_tokens(parser->tokens_head);
+		free_cmds(parser->cmd_head);
+		free(parser);
+		return ;
+	}
+	cmds = parser->cmd_head;
 	while (cmds && cmds->argv){
 		print_array(cmds->argv);
 		while (cmds->redirections) {
@@ -43,8 +49,8 @@ void test_parsing(char* line, t_mini* mini) {
 	}
 	//printf("----\n");
 	fflush(stdout);
-	free_tokens(tokens);
-	free_cmds(cmd_head);
+	free_tokens(parser->tokens_head);
+	free_cmds(parser->cmd_head);
 	free(parser);
 }
 

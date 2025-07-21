@@ -113,14 +113,14 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 
 /* Split that accepts a string instead char as splitting param c,
 	to treat the IFS string*/
-char	**ft_split_on_ifs(t_token **tokens, t_token *end)
+char	**ft_split_on_ifs(t_token *start, t_token *end)
 {
 	t_token	*curr;
 	char	**ar;
 	size_t	i;
 	size_t	ndelims;
 
-	curr = *tokens;
+	curr = start;
 	ar = ft_is_valid_input(curr, end);
 	if (ar)
 		return (ar);
@@ -140,6 +140,5 @@ char	**ft_split_on_ifs(t_token **tokens, t_token *end)
 		i++;
 	}
 	ar[i] = NULL;
-	*tokens = curr;
 	return (ar);
 }

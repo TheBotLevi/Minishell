@@ -43,26 +43,19 @@ t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *
 }
 
 static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_token *end, char *env_val) {
-	t_token **new_tokens;
+	t_token *new_tokens;
 
 	if (!start || !end || !env_val) {
-		free_tokens(head);
+		free_tokens(*head);
 		return (NULL);
 	}
-	new_tokens = (t_token **)malloc(sizeof(t_token *));
-	if (!new_tokens){
-		free_tokens(head);
-		return (NULL);
-	}
-	*new_tokens = NULL;
-	if (create_basic_tokens(env_val, new_tokens)) {
+	new_tokens = NULL;
+	if (create_basic_tokens(env_val, &new_tokens)) {
 		free(env_val);
-		free_tokens(head);
-		free(new_tokens);
+		free_tokens(*head);
 		return (NULL);
 	}
-	*head = replace_expanded_tokens(head, new_tokens, start, end);
-	free(new_tokens);
+	*head = replace_expanded_tokens(head, &new_tokens, start, end);
 	return (*head);
 }
 

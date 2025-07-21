@@ -221,10 +221,10 @@ typedef struct s_parsing {
 	int		exit_status;
 	t_env	*env_struct;
 	int		n_cmds;
-	t_token ** tokens_head;
+	t_token * tokens_head;
 	t_token * current_tok_start;
 	t_token * current_tok_end;
-	t_command ** cmd_head;
+	t_command * cmd_head;
 	t_command * current_cmd;
 } t_parsing;
 
@@ -233,7 +233,7 @@ void	mark_exit_status(t_token **current, t_token **next);
 void	mark_braced_var(t_token **current, t_token *next);
 void	mark_unbraced_var(t_token **current, t_token **next);
 void	set_var_expansion_flags(t_token **tokens);
-t_token	**tokenize(char *line, t_parsing *parser);
+t_token	*tokenize(char *line, t_parsing *parser);
 
 //mini_token_flags_ifs_redir_pipe
 char* set_ifs(t_mini *mini);
@@ -246,7 +246,7 @@ void	set_double_redir_flags(t_token	**current);
 
 // mini_token_utils
 void	print_tokens(t_token *tokens);
-void	free_tokens(t_token **tokens);
+void	free_tokens(t_token *tokens);
 int		create_basic_tokens(char *line, t_token **tokens);
 void	token_lst_add_back(t_token **lst, t_token *new);
 char *get_char_from_tokens(t_token *start, t_token *end);
@@ -259,19 +259,21 @@ void mark_comment(t_token **tokens);
 int set_quote_flags(t_token **tokens);
 
 //mini_split //todo to be modified and cleaned up
-char	**ft_split_on_ifs(t_token **tokens, t_token *end);
+char	**ft_split_on_ifs(t_token *tokens, t_token *end);
 t_token** split_line(char *line, t_parsing *parser);
 
 //mini_syntax
-t_command*	parse_tokens(t_parsing *parser, t_token* token);
+int	parse_tokens(t_parsing *parser);
 
 //mini_token_var_exp
 int expand_vars(t_parsing *parser, t_token **tokens);
 
 //mini_cmd_utils
 void	free_cmds(t_command *cmd);
+t_token* get_cmd_end (t_token *cmd_start);
 
 //mini_syntax_redir
-int detect_redir(t_parsing *parser, t_token **cur_token, t_token **start_redir, t_token **end_cmd);
+int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, t_token *end_cmd);
+int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs);
 
 #endif
