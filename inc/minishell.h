@@ -156,6 +156,7 @@ int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
 
 typedef struct s_token {
 	char c;
+	int idx;
 	int is_quote;
 	int is_single_quote;
 	int is_double_quote;
@@ -242,7 +243,6 @@ void	set_redirection_flags(t_token **tokens);
 void	set_is_redirection_flag(t_token **head);
 int		set_pipe_flags(t_token **tokens);
 void	set_double_redir_flags(t_token	**current);
-
 
 // mini_token_utils
 void	print_tokens(t_token *tokens);

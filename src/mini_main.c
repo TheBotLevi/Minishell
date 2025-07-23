@@ -34,7 +34,8 @@ void test_parsing(char* line, t_mini* mini) {
 	if (parse_tokens(parser) > 0) {
 		printf("Error parsing commands\n");
 		free_tokens(parser->tokens_head);
-		free_cmds(parser->cmd_head);
+		if (parser->cmd_head)
+			free_cmds(parser->cmd_head);
 		free(parser);
 		return ;
 	}

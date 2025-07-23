@@ -100,24 +100,31 @@ int count_redirs(t_token *start_redir, t_token *end_redir) {
 }
 
 // inclusive of next redir token
-int find_next_redir( t_token **start_redir, t_token **end_redir) {
+static int find_next_redir( t_token **start_redir, t_token **end_redir, t_token *end_cmd) {
 	t_token *start_redir_tmp;
 	int start_set;
 
 	start_set = 0;
+	if (!*start_redir)
+		return (1);
 	start_redir_tmp = *start_redir;
-	while (start_redir_tmp && start_redir_tmp != *end_redir) {
+	while (start_redir_tmp && start_redir_tmp != end_cmd) {
 		if (start_redir_tmp->is_redirection && !start_set) {
 			*start_redir = start_redir_tmp;
 			start_set = 1;
 			if (start_redir_tmp->is_redir_heredoc || start_redir_tmp->is_redir_output_append) //skip double redir signage
 				*start_redir = start_redir_tmp->next;
 		}
-		if (start_redir_tmp->is_redirection && start_set) {
+		else if (start_redir_tmp->is_redirection && start_set) {
 			*end_redir = start_redir_tmp;
 			return (0);
 		}
 		start_redir_tmp = start_redir_tmp->next;
+	}
+	if (!start_redir_tmp) {
+		// in case redir goes till EO Command
+		*end_redir = end_cmd;
+		return (0);
 	}
 	return (1);
 }
@@ -180,16 +187,21 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 	(void)parser;
 	char **args;
 
-	if (!start_redir || !end_redir)
+	if (!start_redir) // if last element with !end_redir do anything specific?
 		return (NULL);
-	/*if (start_redir->is_redirection) { //skip redirection symbols --> alreadz handled in get next redir
+	if (start_redir->is_redirection) { //skip redirection symbols --> alreadz handled in get next redir
 		if (start_redir->is_redir_heredoc || start_redir->is_redir_output_append)
 			start_redir = start_redir->next;
 		start_redir = start_redir->next;
-	}*/
-	if (end_redir->is_redirection) { //skip back before redirection symbols if included
-		end_redir = end_redir->prev;
 	}
+	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) { //skip back before redirection symbols if included
+		end_redir = end_redir->prev;
+	}/*
+	else if (!end_redir) { //set to last element
+		end_redir = start_redir;
+		while (end_redir && end_redir->next)
+			end_redir = end_redir->next;
+	}*/
 	/*arg = get_char_from_tokens(start_redir, end_redir);
 	if (!arg)
 		return (NULL);
@@ -197,11 +209,13 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 	free(arg);
 	*/
 	args = ft_split_on_ifs(start_redir, end_redir);
-	if (!args || get_array_size(args) != 1) {
-		//todo should fail here?
-		printf("Multiple redirection arguments: what should happen?");
-		if (args)
-			free_args(args);
+	if (!args) {
+		printf("Syntax error: No redirection arguments: what should happen?\n"); //todo should fail here?
+		return (NULL);
+	}
+	if (get_array_size(args) > 1) {
+		printf("Multiple redirection arguments: what should happen?\n"); //todo should fail here?
+		free_args(args);
 		return (NULL);
 	}
 	filename = ft_strdup(args[0]);
@@ -209,26 +223,27 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 	return (filename);
 }
 
-int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **start_redir, t_token *end_redir) {
+int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **start_redir, t_token *end_cmd) {
 
 	t_token *start_redir_tmp;
 	t_token *end_redir_tmp;
 
 	start_redir_tmp = *start_redir;
-	end_redir_tmp = end_redir;
+	end_redir_tmp = end_cmd;
 	redir->type = get_redir_type(start_redir_tmp);
-	find_next_redir(&start_redir_tmp, &end_redir_tmp);
+	if (find_next_redir(&start_redir_tmp, &end_redir_tmp, end_cmd))
+		return (1);
 	redir->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp);
 	if (!redir->filename)
 		return (1);
-	if (end_redir_tmp && end_redir_tmp->is_redirection) { // skip necessary redir symbols
+	/*if (end_redir_tmp && end_redir_tmp->is_redirection) { // skip necessary redir symbols
 		if ((end_redir_tmp->is_redir_heredoc || end_redir_tmp->is_redir_output_append) &&
 			end_redir_tmp->next)
 			end_redir_tmp = end_redir_tmp->next;
 
 		if (end_redir_tmp && end_redir_tmp->next)
 			end_redir_tmp = end_redir_tmp->next;
-	}
+	}*/
 	*start_redir = end_redir_tmp;// set new starting point to old end point
 	return (0);
 }
@@ -257,13 +272,12 @@ int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs) 
 			prev->next = redir;
 		if (parse_next_redir_tokens(parser, redir, &start_redir, end_redirs))
 			return (1);
+		prev = redir;
 		if (!start_redir)
 			break;
-		prev = redir;
+
 		i++;
 	}
-	if (prev)
-		prev->next = NULL;
 	return (0);
 }
 
@@ -296,5 +310,5 @@ int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, t
 		}
 		current = current->next;
 	}
-	return (0);
+	return (has_redir);
 }

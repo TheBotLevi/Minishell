@@ -33,9 +33,9 @@ void	print_tokens(t_token *tokens)
 	current = tokens;
 	while (current)
 	{
-		printf("%c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, end\":%d,"
+		printf("[%d] %c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, end\":%d,"
 				"#_start:%d, #:%d, |:%d, $:%d, $?:%d, $var:%d, ${}:%d, <:%d,"
-				"<<:%d, <<_del: %d, >:%d, >>:%d \n",
+				"<<:%d, <<_del: %d, >:%d, >>:%d \n", current->idx,
 				current->c,
 				current->is_ifs,
 				current->is_quote,
@@ -77,6 +77,7 @@ int	create_basic_tokens(char *line, t_token **tokens)
 		}
 		ft_memset(token, 0, sizeof(t_token));
 		token->c = line[i];
+		token->idx = i;
 		token->next = NULL;
 		token->prev = prev;
 		if (prev)

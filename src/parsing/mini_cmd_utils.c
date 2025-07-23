@@ -14,10 +14,10 @@
 
 t_token* get_cmd_end (t_token *cmd_start) {
     t_token *current;
-    t_token *cmd_end;
+    //t_token *cmd_end;
 
     current = cmd_start;
-    cmd_end = NULL;
+    //cmd_end = NULL;
     while (current && !current->is_pipe) {
             /*when comment add stop? except heredoc
             if (!parser->current_cmd->is_heredoc && current->is_comment_start){
@@ -28,10 +28,12 @@ t_token* get_cmd_end (t_token *cmd_start) {
                 // return(1);
                 break;
             }*/
-        cmd_end = current;
+       // cmd_end = current;
         current = current->next;
     }
-    return (cmd_end);
+    /*if (!current)
+        return (cmd_end);*/
+    return (current);
 }
 
 void	free_cmds(t_command *cmd)

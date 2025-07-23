@@ -23,18 +23,17 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	start_redir = NULL;
 	cmd_end = get_cmd_end(*cmd_start); //todo what if cmd_end == start?
 	if (cmd_end)
-		printf("end cmd: %c", cmd_end->c);
+		printf("end cmd: %c\n", cmd_end->c);
 	has_redir = detect_redir(parser, *cmd_start, &start_redir, cmd_end);
-	if (start_redir)
-		printf("start redir: %c", start_redir->c);
 	if (has_redir > 0) {
 		if (create_redirs(parser, start_redir, cmd_end)) //todo have to update start_pointer in here?
 			return (1);
 	}
-	else return (1); //todo what to do on  has_redir == -1?
+	else
+		start_redir = cmd_end; //todo what to do on  has_redir == -1?
 	parser->current_cmd->argv = ft_split_on_ifs(*cmd_start, start_redir);
 	*cmd_start = cmd_end; //set new cmd start
-	if (*cmd_start && (*cmd_start)->is_pipe)
+	while (*cmd_start && (*cmd_start)->is_pipe)
 		*cmd_start = (*cmd_start)->next;
 	if (!parser->current_cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]
 		return (1);
@@ -64,14 +63,12 @@ int parse_tokens(t_parsing *parser)
 			prev->next = parser->current_cmd;
 		if (get_next_cmd(parser, &cmd_start)) //todo add option of ending early without freeing when commands are invalid//empty
 		{
-			free(parser->current_cmd);
 			free_cmds(parser->cmd_head);
 			return (1);
 		}
 		if (cmd_start)
-			printf("cur token, new start: %c", cmd_start->c);
+			printf("cur token, new start: %c (%d)\n", cmd_start->c, cmd_start->idx);
 		prev = parser->current_cmd;
-
 		i++;
 	}
 	if (parser->current_cmd)
