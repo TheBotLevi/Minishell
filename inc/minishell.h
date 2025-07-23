@@ -273,7 +273,7 @@ void	free_cmds(t_command *cmd);
 t_token* get_cmd_end (t_token *cmd_start);
 
 //mini_syntax_redir
-int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, t_token *end_cmd);
-int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs);
+int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd);
+int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_redirs);
 
 #endif

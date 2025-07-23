@@ -82,7 +82,7 @@ it can include quotes only if there's no unquoted space between parts.
 delimiter is seen. However, it doesn’t have to update the history!
  */
 
-int count_redirs(t_token *start_redir, t_token *end_redir) {
+int count_redirs(t_token *start_redir, const t_token *end_cmd) {
 	int count;
 
 	count = 0;
@@ -93,14 +93,14 @@ int count_redirs(t_token *start_redir, t_token *end_redir) {
 				count++;
 		}
 		start_redir = start_redir->next;
-		if (start_redir == end_redir)
+		if (start_redir == end_cmd)
 			break;
 	}
 	return (count);
 }
 
 // inclusive of next redir token
-static int find_next_redir( t_token **start_redir, t_token **end_redir, t_token *end_cmd) {
+static int find_next_redir( t_token **start_redir, t_token **end_redir, const t_token *end_cmd) {
 	t_token *start_redir_tmp;
 	int start_set;
 
@@ -121,9 +121,9 @@ static int find_next_redir( t_token **start_redir, t_token **end_redir, t_token 
 		}
 		start_redir_tmp = start_redir_tmp->next;
 	}
-	if (!start_redir_tmp) {
+	if (!start_redir_tmp || ( start_redir_tmp == end_cmd)) {
 		// in case redir goes till EO Command
-		*end_redir = end_cmd;
+		*end_redir = (t_token *)end_cmd;
 		return (0);
 	}
 	return (1);
@@ -223,13 +223,13 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 	return (filename);
 }
 
-int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **start_redir, t_token *end_cmd) {
+int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **start_redir, const t_token *end_cmd) {
 
 	t_token *start_redir_tmp;
 	t_token *end_redir_tmp;
 
 	start_redir_tmp = *start_redir;
-	end_redir_tmp = end_cmd;
+	end_redir_tmp = NULL;
 	redir->type = get_redir_type(start_redir_tmp);
 	if (find_next_redir(&start_redir_tmp, &end_redir_tmp, end_cmd))
 		return (1);
@@ -248,7 +248,7 @@ int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **star
 	return (0);
 }
 
-int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs) {
+int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_cmd) {
 
 	int count_redir;
 	t_redirect *redir;
@@ -260,8 +260,8 @@ int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs) 
 
 	i = 0;
 	prev = NULL;
-	count_redir = count_redirs(start_redir, end_redirs);
-	while ((i < count_redir) && (start_redir != end_redirs)) { //if (start_redir == end_redirs): all redirections parsed
+	count_redir = count_redirs(start_redir, end_cmd);
+	while ((i < count_redir) && (start_redir != end_cmd)) { //if (start_redir == end_redirs): all redirections parsed
 		redir = malloc(sizeof(t_redirect));
 		if (!redir)
 			return (1);
@@ -270,7 +270,7 @@ int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs) 
 			parser->current_cmd->redirections = redir;
 		else
 			prev->next = redir;
-		if (parse_next_redir_tokens(parser, redir, &start_redir, end_redirs))
+		if (parse_next_redir_tokens(parser, redir, &start_redir, end_cmd))
 			return (1);
 		prev = redir;
 		if (!start_redir)
@@ -286,7 +286,7 @@ int create_redirs(t_parsing *parser, t_token *start_redir, t_token *end_redirs) 
 //next->is_comment_start = 0;
 
 /*update end_token to point to after redirection, update tokens and remove the redirection tokens*/
-int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, t_token *end_cmd) {
+int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd) {
 	t_token *current;
 	int has_redir;
 
