@@ -131,10 +131,15 @@ void	free_everything(t_mini *mini)
 
 void	cleanup_redir(t_mini *mini)
 {
+	/* Levi Original
 	if (mini->args && mini->original_args && mini->args != mini->original_args)
 	{
 		free(mini->args);
 		mini->args = mini->original_args;
 		mini->original_args = NULL;
-	}
+	}*/
+	if (mini->args && mini->args != mini->original_args)
+		free_args(mini->args);
+
+	mini->args = NULL;
 }

@@ -191,6 +191,35 @@ int	process_command(char *line, t_mini *mini)
 {
 	if (!line || !*line)
 		return (0);
+
+	if (has_pipes(line))
+		return (handle_pipeline(mini, line));
+	else
+	{
+		mini->args = parse_input(line);
+		mini->original_args = mini->args;  // <-- store original
+
+		if (mini->args && mini->args[0])
+			mini->exit_status = handle_single_command(mini);
+
+		// ✅ Always free original_args (may == args or not)
+		if (mini->original_args)
+		{
+			free_args(mini->original_args);
+			mini->original_args = NULL;
+			mini->args = NULL;
+		}
+		update_exit_status(mini);
+	}
+	return (mini->exit_status);
+}
+
+
+/*Levi original
+int	process_command(char *line, t_mini *mini)
+{
+	if (!line || !*line)
+		return (0);
 	if (has_pipes(line))
 		return (handle_pipeline(mini, line));
 	else
@@ -206,7 +235,7 @@ int	process_command(char *line, t_mini *mini)
 		update_exit_status(mini);
 	}
 	return (mini->exit_status);
-}
+}*/
 
 static int	can_execute(char *cmd)
 {
