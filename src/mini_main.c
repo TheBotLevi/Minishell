@@ -16,6 +16,7 @@
 void test_parsing(char* line, t_mini* mini) {
 	t_parsing *parser;
 	t_command*	cmds;
+	t_redirect*	redir_head;
 
 	parser = malloc(sizeof(t_parsing));
 	if (!parser)
@@ -42,9 +43,10 @@ void test_parsing(char* line, t_mini* mini) {
 	cmds = parser->cmd_head;
 	while (cmds && cmds->argv){
 		print_array(cmds->argv);
-		while (cmds->redirections) {
-			printf("filename: %s, type: %d\n", cmds->redirections->filename, cmds->redirections->type);
-			cmds->redirections = cmds->redirections->next;
+		redir_head = cmds->redirections;
+		while (redir_head) {
+			printf("filename: %s, type: %d\n", redir_head->filename, redir_head->type);
+			redir_head = redir_head->next;
 		}
 		cmds=cmds->next;
 	}

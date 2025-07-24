@@ -36,6 +36,18 @@ t_token* get_cmd_end (t_token *cmd_start) {
     return (current);
 }
 
+void free_redirections(t_redirect* redir) {
+    t_redirect* tmp;
+
+    while (redir) {
+        tmp = redir->next;
+        if (redir->filename)
+            free(redir->filename);
+        free(redir);
+        redir = tmp;
+    }
+}
+
 void	free_cmds(t_command *cmd)
 {
     t_command	*tmp;
@@ -45,6 +57,8 @@ void	free_cmds(t_command *cmd)
     while (cmd)
     {
         tmp = cmd->next;
+        if (cmd->redirections)
+            free_redirections(cmd->redirections);
         if (cmd->argv)
             free_args(cmd->argv);
         free(cmd);
