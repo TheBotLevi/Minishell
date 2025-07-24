@@ -81,13 +81,13 @@ void	cancel_unfinished_quote_token(t_token *token)
 }
 
 /*set comment flag till EOL after encountering first unquoted #*/
-void	mark_comment(t_token **tokens)
+void	mark_comment(t_token *tokens)
 {
 	t_token	*current;
 	int		in_comment;
 
 	in_comment = 0;
-	current = *tokens;
+	current = tokens;
 	while (current)
 	{
 		if (current->is_quote == 0 && current->c == '#')
@@ -112,7 +112,7 @@ void	mark_comment(t_token **tokens)
  * when last token has been reached,
 	it exits without incrementing to check if a quote remains unfinished
 //  */
-int	set_quote_flags(t_token **tokens)
+int	set_quote_flags(t_token *tokens)
 {
 	t_quote_state	state;
 	t_token			*current;
@@ -120,7 +120,7 @@ int	set_quote_flags(t_token **tokens)
 	if (!tokens)
 		return (1);
 	ft_memset(&state, 0, sizeof(t_quote_state));
-	current = *tokens;
+	current = tokens;
 	while (current)
 	{
 		current->is_quote = is_within_quote_token(current->c, &state);

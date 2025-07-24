@@ -255,8 +255,8 @@ int get_token_lst_size(t_token *start, t_token *end);
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);
 void cancel_unfinished_quote_token(t_token *token);
-void mark_comment(t_token **tokens);
-int set_quote_flags(t_token **tokens);
+void mark_comment(t_token *tokens);
+int set_quote_flags(t_token *tokens);
 
 //mini_split //todo to be modified and cleaned up
 char	**ft_split_on_ifs(t_token *tokens, t_token *end);

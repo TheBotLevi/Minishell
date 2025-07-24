@@ -108,6 +108,19 @@ void	unset_all_flags(t_token **tokens)
 	}
 }
 
+void reset_idx(t_token *tokens) {
+	t_token	*current;
+	int	i;
+
+	i = 0;
+	current = tokens;
+	while (current) {
+		current->idx = i;
+		current = current->next;
+		i++;
+	}
+}
+
 t_token	*tokenize(char *line, t_parsing *parser)
 {
 	t_token	*tokens;
@@ -119,15 +132,16 @@ t_token	*tokenize(char *line, t_parsing *parser)
 	n_pipes = 0;
 	if (create_basic_tokens(line, &tokens) == 0)
 	{
-		set_quote_flags(&tokens);
-		mark_comment(&tokens);
+		set_quote_flags(tokens);
+		mark_comment(tokens);
 		set_var_expansion_flags(&tokens);
 		while (expand_vars(parser, &tokens)== 0) {
 			unset_all_flags(&tokens);
-			set_quote_flags(&tokens);
-			mark_comment(&tokens);
+			set_quote_flags(tokens);
+			mark_comment(tokens);
 			set_var_expansion_flags(&tokens);
 		}
+		reset_idx(tokens);
 		n_pipes = set_pipe_flags(&tokens);
 		set_redirection_flags(&tokens);
 		set_is_redirection_flag(&tokens);

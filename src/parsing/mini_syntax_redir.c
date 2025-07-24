@@ -281,10 +281,6 @@ int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_cm
 	return (0);
 }
 
-// HEREDOC complexity todo look for quoted argument
-//next->is_comment = 0; //todo deal with this in syntax parsing
-//next->is_comment_start = 0;
-
 /*update end_token to point to after redirection, update tokens and remove the redirection tokens*/
 int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd) {
 	t_token *current;
@@ -312,3 +308,7 @@ int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, c
 	}
 	return (has_redir);
 }
+
+// HEREDOC complexity todo look for quoted argument
+//next->is_comment = 0; //todo deal with this in syntax parsing
+//next->is_comment_start = 0;
