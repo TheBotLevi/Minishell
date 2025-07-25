@@ -13,14 +13,15 @@
 #include "../inc/minishell.h"
 
 
-void test_parsing(char* line, t_mini* mini) {
+t_command *test_parsing(char* line, t_mini* mini) {
 	t_parsing *parser;
 	t_command*	cmds;
+	t_command*	cmds_return;
 	t_redirect*	redir_head;
 
 	parser = malloc(sizeof(t_parsing));
 	if (!parser)
-		return ;
+		return (NULL);
 	memset(parser, 0, sizeof(t_parsing));
 	parser->ifs = set_ifs(mini);
 	parser->env_struct = mini->env_struct;
@@ -29,7 +30,7 @@ void test_parsing(char* line, t_mini* mini) {
 	parser->tokens_head = tokenize(line, parser);
 	if (!parser->tokens_head) {
 		printf("Error tokenizing\n");
-		return ;
+		return (NULL);
 	}
 	print_tokens(parser->tokens_head);
 	if (parse_tokens(parser) > 0) {
@@ -38,9 +39,10 @@ void test_parsing(char* line, t_mini* mini) {
 		if (parser->cmd_head)
 			free_cmds(parser->cmd_head);
 		free(parser);
-		return ;
+		return (NULL);
 	}
 	cmds = parser->cmd_head;
+	cmds_return = parser->cmd_head;
 	while (cmds && cmds->argv){
 		print_array(cmds->argv);
 		redir_head = cmds->redirections;
@@ -53,14 +55,16 @@ void test_parsing(char* line, t_mini* mini) {
 	//printf("----\n");
 	fflush(stdout);
 	free_tokens(parser->tokens_head);
-	free_cmds(parser->cmd_head);
+	//free_cmds(parser->cmd_head);
 	free(parser);
+	return (cmds_return);
 }
 
 void	ft_mini_loop(t_mini *mini)
 {
 	char	*line;
 	int	status;
+	t_command	*cmds;
 
 	line = NULL;
 	status = 0;
@@ -87,7 +91,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		//test_parsing(line, mini);
+		cmds = test_parsing(line, mini);
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{
@@ -102,6 +106,7 @@ void	ft_mini_loop(t_mini *mini)
 		}
 //		printf("exit status: %d\n", status);
 		free(line);
+		free(cmds);
 	}
 }
 
