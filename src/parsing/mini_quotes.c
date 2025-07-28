@@ -90,14 +90,14 @@ void	mark_comment(t_token *tokens)
 	current = tokens;
 	while (current)
 	{
-		if (current->is_quote == 0 && current->c == '#')
+		if (current->is_quote == 0 && current->is_redir_heredoc_delimiter == 0 && current->c == '#')
 		{
 			current->is_comment_start = 1;
 			in_comment = 1;
 		}
 		if (in_comment)
 			current->is_comment = 1;
-		//todo see if helpful to erase quote info (since overriden by comment)
+		//todo see if helpful to erase quote and heredoc info (since overriden by comment)
 		/* current->is_quote = 0;
             current->is_double_quote = 0;
             current->is_single_quote = 0;
