@@ -59,6 +59,7 @@ static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_t
 	return (*head);
 }
 
+// returns -1 if no var exp found
 static int find_next_var_exp(t_token **start, t_token **end, t_token **char_start, t_token **char_end) {
 	t_token *current;
 

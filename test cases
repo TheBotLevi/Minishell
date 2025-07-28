@@ -426,3 +426,5 @@ Because:
 If any part of the delimiter is unquoted, then:
     Variable expansion, command substitution, and backslash
      interpretation will happen in the here-document body.
+
+--> todo expand vars in heredoc
