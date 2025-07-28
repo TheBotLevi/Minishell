@@ -121,6 +121,34 @@ void reset_idx(t_token *tokens) {
 	}
 }
 
+void	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
+{
+	t_token *current;
+
+	current = tokens;
+	while (current)
+	{
+		if (current->c == '<'
+			&& current->next && current->next->c == '<')
+		{
+			current = current->next->next; // skip over '<<'
+
+			// Skip whitespace
+			while (current && is_in_set(current->c, parser->ifs))
+				current = current->next;
+
+			// Mark the next word (the delimiter)
+			while (current && !is_in_set(current->c,parser->ifs) && current->c != '|')
+			{
+				current->is_redir_heredoc_delimiter = 1;
+				current = current->next;
+			}
+		}
+		else
+			current = current->next;
+	}
+}
+
 t_token	*tokenize(char *line, t_parsing *parser)
 {
 	t_token	*tokens;
@@ -133,11 +161,13 @@ t_token	*tokenize(char *line, t_parsing *parser)
 	if (create_basic_tokens(line, &tokens) == 0)
 	{
 		set_quote_flags(tokens);
+		set_heredoc_delimiter_flags(parser, tokens);
 		mark_comment(tokens);
 		set_var_expansion_flags(&tokens);
 		while (expand_vars(parser, &tokens)== 0) {
 			unset_all_flags(&tokens);
 			set_quote_flags(tokens);
+			set_heredoc_delimiter_flags(parser, tokens);
 			mark_comment(tokens);
 			set_var_expansion_flags(&tokens);
 		}
