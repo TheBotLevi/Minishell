@@ -79,13 +79,13 @@ void	set_is_redirection_flag(t_token **head)
 	}
 }
 
+// marks and advances pointer over 2nd redirection token
 void set_double_redir_flags(t_token	**current) {
 
 	if ((*current)->c == '>')
 	{
 		(*current)->is_redir_output_append = 1;
 		(*current)->next->is_redir_output_append = 1;
-
 	}
 	else if ((*current)->c == '<')
 	{
@@ -95,6 +95,8 @@ void set_double_redir_flags(t_token	**current) {
 	(*current) = (*current)->next;
 }
 
+
+// marks and advances pointer over 1st redirection token
 void	set_redirection_flags(t_token **tokens)
 {
 	t_token	*current;
@@ -104,9 +106,8 @@ void	set_redirection_flags(t_token **tokens)
 	{
 		if (!current->is_quote)
 		{
-			if (current->c == '>' && current->next && current->next->c == '>')
-				set_double_redir_flags(&current);
-			else if (current->c == '<' && current->next && current->next->c == '<')
+			if (current->next && ((current->c == '>' && current->next->c == '>')
+				|| (current->c == '<' && current->next->c == '<')))
 				set_double_redir_flags(&current);
 			else if (current->c == '>')
 				current->is_redir_output = 1;
