@@ -111,6 +111,8 @@ void	mark_comment(t_token *tokens)
 	setting the correspondig token flags.
  * when last token has been reached,
 	it exits without incrementing to check if a quote remains unfinished
+
+	returns 1 if quote is unfinished
 //  */
 int	set_quote_flags(t_token *tokens)
 {
@@ -118,11 +120,13 @@ int	set_quote_flags(t_token *tokens)
 	t_token			*current;
 
 	if (!tokens)
-		return (1);
+		return (0);
 	ft_memset(&state, 0, sizeof(t_quote_state));
 	current = tokens;
 	while (current)
-	{
+	{/*
+		if (current->is_redir_heredoc_delimiter)
+			continue;*/
 		current->is_quote = is_within_quote_token(current->c, &state);
 		current->is_double_quote = state.in_double_quote;
 		current->is_single_quote = state.in_single_quote;
@@ -134,7 +138,7 @@ int	set_quote_flags(t_token *tokens)
 			current->is_single_quote = current->prev->is_single_quote;
 		}
 		if (!current->next && state.within_quote == 1)
-			cancel_unfinished_quote_token(current);
+			return (1); //cancel_unfinished_quote_token(current);
 		current = current->next;
 	}
 	return (0);

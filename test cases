@@ -428,3 +428,12 @@ If any part of the delimiter is unquoted, then:
      interpretation will happen in the here-document body.
 
 --> todo expand vars in heredoc
+
+cat << EOF > file1.log
+cat [stdin from heredoc] > file1.log
+Flow:  parse all redirections (input or output) and apply them accordingly after processing the heredoc delimiter and content.
+stdin  ← heredoc buffer
+stdout → file1.log
+
+https://42born2code.slack.com/archives/C04KYC9QCDQ/p1752526150488059
+The heredoc delimiter doesn't expand variables but the content inside the heredoc expands. And quotes aren't removed inside the heredoc

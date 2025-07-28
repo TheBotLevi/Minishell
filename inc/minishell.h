@@ -239,8 +239,8 @@ t_token	*tokenize(char *line, t_parsing *parser);
 //mini_token_flags_ifs_redir_pipe
 char* set_ifs(t_mini *mini);
 void	set_ifs_flags(t_parsing *parser, t_token **tokens);
-void	set_redirection_flags(t_token **tokens);
-void	set_is_redirection_flag(t_token **head);
+void	set_redirection_flags(t_token *current);
+void	flag_is_redirection(t_token *current);
 int		set_pipe_flags(t_token **tokens);
 void	set_double_redir_flags(t_token	**current);
 

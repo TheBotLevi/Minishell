@@ -29,7 +29,8 @@ t_command *test_parsing(char* line, t_mini* mini) {
 	//printf("\nInput tokens\n----\n");
 	parser->tokens_head = tokenize(line, parser);
 	if (!parser->tokens_head) {
-		printf("Error tokenizing\n");
+		mini->exit_status = 2;
+		//printf("syntax error\n");
 		return (NULL);
 	}
 	print_tokens(parser->tokens_head);
@@ -92,6 +93,11 @@ void	ft_mini_loop(t_mini *mini)
 		}
 		add_history(line);
 		cmds = test_parsing(line, mini);
+		if (!cmds)
+		{
+			free(line);
+			break ;
+		}
 		status = process_command(line, mini);
 		if (status == 130 || g_exit == 130)
 		{
