@@ -140,36 +140,6 @@ int get_redir_type(t_token *redir_token) {
 		return (REDIR_APPEND);
 	return (0);
 }
-/* todo see if skip or remove
-t_token* elim_redir_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
-{
-	t_token *tmp;
-	t_token *after_end;
-	t_token *next;
-
-	after_end =NULL;
-	if (end)
-		after_end = end->next;
-	if (start && start->prev) // Disconnect old region
-		start->prev->next = *new_tokens;
-	else if (!start->prev)
-		*head = *new_tokens;
-	token_lst_add_back(new_tokens, after_end); // Attach after_end to last of new_tokens
-	// Detach old list pointers
-	if (start)
-		start->prev = NULL;
-	if (end)
-		end->next = NULL;
-	tmp = start;
-	while (tmp) { // Free only from start to end (inclusive)
-		next = tmp->next;
-		free(tmp);
-		if (tmp == end)
-			break;
-		tmp = next;
-	}
-	return (*head);
-}*/
 
 int get_array_size(char **array)
 {
@@ -181,9 +151,19 @@ int get_array_size(char **array)
 	return (size);
 }
 
-char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_redir) {
+/*doesnt check last element since impossible to have just one quote token within a redirection*/
+int contains_quote(t_token *start_redir, t_token *end_redir) {
+
+	while (start_redir && start_redir != end_redir) {
+		if (start_redir->is_quote)
+			return (1);
+		start_redir = start_redir->next;
+	}
+	return (0);
+}
+
+char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_redir, int *is_quoted) {
 	char *filename;
-	//char *arg;
 	(void)parser;
 	char **args;
 
@@ -193,21 +173,10 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 		if (start_redir->is_redir_heredoc || start_redir->is_redir_output_append)
 			start_redir = start_redir->next;
 		start_redir = start_redir->next;
-	}
-	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) { //skip back before redirection symbols if included
+	} //todo check for end redir is AFTER start
+	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) //skip back before redirection symbols if included
 		end_redir = end_redir->prev;
-	}/*
-	else if (!end_redir) { //set to last element
-		end_redir = start_redir;
-		while (end_redir && end_redir->next)
-			end_redir = end_redir->next;
-	}*/
-	/*arg = get_char_from_tokens(start_redir, end_redir);
-	if (!arg)
-		return (NULL);
-	ft_strtrim(arg, parser->ifs);
-	free(arg);
-	*/
+	*is_quoted = contains_quote(start_redir, end_redir);
 	args = ft_split_on_ifs(start_redir, end_redir);
 	if (!args) {
 		printf("Syntax error: No redirection arguments: what should happen?\n"); //todo should fail here?
@@ -233,9 +202,10 @@ int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **star
 	redir->type = get_redir_type(start_redir_tmp);
 	if (find_next_redir(&start_redir_tmp, &end_redir_tmp, end_cmd))
 		return (1);
-	redir->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp);
+	redir->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp, &(redir->is_quoted));
 	if (!redir->filename)
 		return (1);
+
 	/*if (end_redir_tmp && end_redir_tmp->is_redirection) { // skip necessary redir symbols
 		if ((end_redir_tmp->is_redir_heredoc || end_redir_tmp->is_redir_output_append) &&
 			end_redir_tmp->next)

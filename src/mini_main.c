@@ -48,7 +48,7 @@ t_command *test_parsing(char* line, t_mini* mini) {
 		print_array(cmds->argv);
 		redir_head = cmds->redirections;
 		while (redir_head) {
-			printf("filename: %s, type: %d\n", redir_head->filename, redir_head->type);
+			printf("filename/ delim: %s, type: %d, quoted: %d\n", redir_head->filename, redir_head->type, redir_head->is_quoted);
 			redir_head = redir_head->next;
 		}
 		cmds=cmds->next;

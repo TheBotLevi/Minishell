@@ -203,6 +203,7 @@ typedef struct s_quote_state {
  *4: HEREDOC */
 typedef struct s_redirect {
 	char *filename;
+	int is_quoted;
 	int type;
 	struct s_redirect *next;
 } t_redirect;
