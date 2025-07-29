@@ -12,25 +12,37 @@
 
 #include "../../inc/minishell.h"
 
+// caller needs to ensure that start and end are not null!
 t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
 {
 	t_token *tmp;
 	t_token *after_end;
 	t_token *next;
 
-	after_end =NULL;
-	if (end)
-		after_end = end->next;
-	if (start && start->prev) // Disconnect old region
-		start->prev->next = *new_tokens;
-	else if (!start->prev)
-		*head = *new_tokens;
-	token_lst_add_back(new_tokens, after_end); // Attach after_end to last of new_tokens
+	after_end = end->next;
+	if (*new_tokens) {
+		if (start->prev) {
+			start->prev->next = *new_tokens;
+			(*new_tokens)->prev = start->prev;
+		} else {
+			*head = *new_tokens;
+			(*new_tokens)->prev = NULL;
+		}
+		token_lst_add_back(new_tokens, after_end);
+		if (after_end)
+			after_end->prev = get_last_token(*new_tokens);
+	} else {
+		// new_tokens is NULL — connect start->prev to after_end
+		if (start->prev)
+			start->prev->next = after_end;
+		else
+			*head = after_end;
+		if (after_end)
+			after_end->prev = start->prev;
+	}
 	// Detach old list pointers
-	if (start)
-		start->prev = NULL;
-	if (end)
-		end->next = NULL;
+	start->prev = NULL;
+	end->next = NULL;
 	tmp = start;
 	while (tmp) { // Free only from start to end (inclusive)
 		next = tmp->next;
@@ -89,6 +101,7 @@ static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_en
 	char *str;
 	char *env_val;
 
+	env_val = NULL;
 	if (char_start && char_start->is_exit_status) {
 		env_val = ft_itoa(parser->exit_status); // todo ok to set to empty string thwn not found?
 	}
@@ -96,7 +109,9 @@ static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_en
 		str = get_char_from_tokens(char_start, char_end);
 		if (!str)
 			return (NULL);
-		env_val = ft_strdup(get_env_value(parser->env_struct, str));
+		env_val = get_env_value(parser->env_struct, str);
+		if (env_val)
+			env_val = ft_strdup(get_env_value(parser->env_struct, str));
 		free(str);
 		str = NULL;
 	}

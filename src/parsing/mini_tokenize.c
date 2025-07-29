@@ -88,14 +88,12 @@ void	set_var_expansion_flags(t_token **tokens)
 	}
 }
 
-void	unset_all_flags(t_token **tokens)
+void	unset_all_flags(t_token *current)
 {
-	t_token	*current;
 	t_token	*next;
 	t_token	*prev;
 	char c;
 
-	current = *tokens;
 	while (current) {
 		prev = current->prev;
 		next = current->next;
@@ -162,9 +160,13 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		set_heredoc_delimiter_flags(parser, tokens);
 		mark_comment(tokens);
 		set_var_expansion_flags(&tokens);
-		while (expand_vars(parser, &tokens)== 0) {
-			unset_all_flags(&tokens);
-			set_quote_flags(tokens);
+		while (expand_vars(parser, &tokens) == 0) {
+			unset_all_flags(tokens);
+			if (set_quote_flags(tokens)){
+				ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
+				free_tokens(tokens);
+				return (NULL);
+			}
 			set_heredoc_delimiter_flags(parser, tokens);
 			mark_comment(tokens);
 			set_var_expansion_flags(&tokens);

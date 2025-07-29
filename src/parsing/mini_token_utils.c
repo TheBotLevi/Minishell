@@ -112,7 +112,7 @@ char *get_char_from_tokens(t_token *start, t_token *end) {
 	size = get_token_lst_size(start, end);
 	str = malloc(size + 1);
 	if (!str)
-		return (0);
+		return (NULL);
 	i = 0;
 	while (start) {
 		str[i++] = start->c;
@@ -124,19 +124,35 @@ char *get_char_from_tokens(t_token *start, t_token *end) {
 	return (str);
 }
 
-void	token_lst_add_back(t_token **lst, t_token *new)
+t_token *get_last_token(t_token *tokens) {
+	if (!tokens)
+		return NULL;
+	while (tokens->next)
+		tokens = tokens->next;
+	return (tokens);
+}
+void token_lst_add_back(t_token **lst, t_token *new)
 {
-	t_token	*last_elem;
+	t_token *last_elem;
+	t_token *tmp;
+	t_token *prev_token;
 
 	if (!lst || !new)
-		return ;
+		return;
 	if (*lst == NULL)
 	{
 		*lst = new;
-		return ;
+		return;
 	}
-	last_elem = *lst;
-	while (last_elem && last_elem->next)
-		last_elem = last_elem->next;
+	last_elem = get_last_token(*lst);
 	last_elem->next = new;
+	// Fix prev pointers of new tokens
+	prev_token = last_elem;
+	tmp = new;
+	while (tmp)
+	{
+		tmp->prev = prev_token;
+		prev_token = tmp;
+		tmp = tmp->next;
+	}
 }

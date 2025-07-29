@@ -251,12 +251,13 @@ int		create_basic_tokens(char *line, t_token **tokens);
 void	token_lst_add_back(t_token **lst, t_token *new);
 char *get_char_from_tokens(t_token *start, t_token *end);
 int get_token_lst_size(t_token *start, t_token *end);
+t_token *get_last_token(t_token *tokens);
 
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);
 void cancel_unfinished_quote_token(t_token *token);
 void mark_comment(t_token *tokens);
-int set_quote_flags(t_token *tokens);
+int set_quote_flags(t_token *current);
 
 //mini_split //todo to be modified and cleaned up
 char	**ft_split_on_ifs(t_token *tokens, t_token *end);
