@@ -273,8 +273,10 @@ int expand_vars(t_parsing *parser, t_token **tokens);
 //mini_cmd_utils
 void	free_cmds(t_command *cmd);
 t_token* get_cmd_end (t_token *cmd_start);
+int get_array_size(char **array);
 
 //mini_syntax_redir
+t_token *parse_redirections(t_parsing *parser, const t_token *start_cmd, const t_token *end_cmd, int *parsing_error);
 int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd);
 int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_redirs);
 

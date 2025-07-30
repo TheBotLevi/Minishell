@@ -119,7 +119,7 @@ void reset_idx(t_token *tokens) {
 	}
 }
 
-void	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
+int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 {
 	t_token *current;
 
@@ -131,6 +131,8 @@ void	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 			current = current->next->next; // skip over '<<'
 			while (current && is_in_set(current->c, parser->ifs)) // Skip whitespace
 				current = current->next;
+			if (current && current->c == '#') // heredoc is commemt
+				return (1);
 			while (current && !is_in_set(current->c,parser->ifs) && !is_in_set(current->c,"|><")) // Mark the next word (the delimiter)
 			{
 				current->is_redir_heredoc_delimiter = 1;
@@ -140,6 +142,7 @@ void	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 		else
 			current = current->next;
 	}
+	return (0);
 }
 
 t_token	*tokenize(char *line, t_parsing *parser)
@@ -157,17 +160,25 @@ t_token	*tokenize(char *line, t_parsing *parser)
 			free_tokens(tokens);
 			return (NULL);
 		}
-		set_heredoc_delimiter_flags(parser, tokens);
+		if (set_heredoc_delimiter_flags(parser, tokens)){
+				ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
+				free_tokens(tokens);
+				return (NULL);
+			}
 		mark_comment(tokens);
 		set_var_expansion_flags(&tokens);
-		while (expand_vars(parser, &tokens) == 0) {
+		while (expand_vars(parser, &tokens) == 0) { //todo never expand heredoc delim
 			unset_all_flags(tokens);
 			if (set_quote_flags(tokens)){
 				ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
 				free_tokens(tokens);
 				return (NULL);
 			}
-			set_heredoc_delimiter_flags(parser, tokens);
+			if (set_heredoc_delimiter_flags(parser, tokens)){
+				ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
+				free_tokens(tokens);
+				return (NULL);
+			}
 			mark_comment(tokens);
 			set_var_expansion_flags(&tokens);
 		}

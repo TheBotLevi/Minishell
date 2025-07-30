@@ -12,13 +12,23 @@
 
 #include "../../inc/minishell.h"
 
+int get_array_size(char **array)
+{
+    int size;
+
+    size = 0;
+    while (array[size])
+        size++;
+    return (size);
+}
+
 t_token* get_cmd_end (t_token *cmd_start) {
     t_token *current;
     //t_token *cmd_end;
 
     current = cmd_start;
     //cmd_end = NULL;
-    while (current && !current->is_pipe) {
+    while (current && !current->is_pipe && !current->is_comment_start) {
             /*when comment add stop? except heredoc
             if (!parser->current_cmd->is_heredoc && current->is_comment_start){
                 //todo do sth -> stop early and end cmd?
