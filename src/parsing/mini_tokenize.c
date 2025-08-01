@@ -88,14 +88,12 @@ void	set_var_expansion_flags(t_token **tokens)
 	}
 }
 
-void	unset_all_flags(t_token **tokens)
+void	unset_all_flags(t_token *current)
 {
-	t_token	*current;
 	t_token	*next;
 	t_token	*prev;
 	char c;
 
-	current = *tokens;
 	while (current) {
 		prev = current->prev;
 		next = current->next;
@@ -121,24 +119,21 @@ void reset_idx(t_token *tokens) {
 	}
 }
 
-void	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
+int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 {
 	t_token *current;
 
 	current = tokens;
 	while (current)
 	{
-		if (current->c == '<'
-			&& current->next && current->next->c == '<')
+		if (!current->is_quote && current->c == '<' && current->next && current->next->c == '<')
 		{
 			current = current->next->next; // skip over '<<'
-
-			// Skip whitespace
-			while (current && is_in_set(current->c, parser->ifs))
+			while (current && is_in_set(current->c, parser->ifs)) // Skip whitespace
 				current = current->next;
-
-			// Mark the next word (the delimiter)
-			while (current && !is_in_set(current->c,parser->ifs) && current->c != '|')
+			if (current && current->c == '#') // heredoc is commemt
+				return (1);
+			while (current && !is_in_set(current->c,parser->ifs) && !is_in_set(current->c,"|><")) // Mark the next word (the delimiter)
 			{
 				current->is_redir_heredoc_delimiter = 1;
 				current = current->next;
@@ -147,6 +142,7 @@ void	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 		else
 			current = current->next;
 	}
+	return (0);
 }
 
 t_token	*tokenize(char *line, t_parsing *parser)
@@ -158,23 +154,38 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		return (NULL);
 	tokens = NULL;
 	n_pipes = 0;
-	if (create_basic_tokens(line, &tokens) == 0)
-	{
-		set_quote_flags(tokens);
-		set_heredoc_delimiter_flags(parser, tokens);
+	if (create_basic_tokens(line, &tokens) == 0) {
+		if (set_quote_flags(tokens)){
+			ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
+			free_tokens(tokens);
+			return (NULL);
+		}
+		if (set_heredoc_delimiter_flags(parser, tokens)){
+				ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
+				free_tokens(tokens);
+				return (NULL);
+			}
 		mark_comment(tokens);
 		set_var_expansion_flags(&tokens);
-		while (expand_vars(parser, &tokens)== 0) {
-			unset_all_flags(&tokens);
-			set_quote_flags(tokens);
-			set_heredoc_delimiter_flags(parser, tokens);
+		while (expand_vars(parser, &tokens) == 0) { //todo never expand heredoc delim
+			unset_all_flags(tokens);
+			if (set_quote_flags(tokens)){
+				ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
+				free_tokens(tokens);
+				return (NULL);
+			}
+			if (set_heredoc_delimiter_flags(parser, tokens)){
+				ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
+				free_tokens(tokens);
+				return (NULL);
+			}
 			mark_comment(tokens);
 			set_var_expansion_flags(&tokens);
 		}
 		reset_idx(tokens);
 		n_pipes = set_pipe_flags(&tokens);
-		set_redirection_flags(&tokens);
-		set_is_redirection_flag(&tokens);
+		set_redirection_flags(tokens);
+		flag_is_redirection(tokens);
 		set_ifs_flags(parser, &tokens);
 		/*printf("all var exp finished:\n");  // todo delete DEBUG
 		print_tokens(*tokens);*/

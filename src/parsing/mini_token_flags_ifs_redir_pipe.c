@@ -64,11 +64,8 @@ int	set_pipe_flags(t_token **tokens)
 << should be given a delimiter, then read the input until a line containing the
 delimiter is seen. However, it doesn’t have to update the history!
  */
-void	set_is_redirection_flag(t_token **head)
+void	flag_is_redirection(t_token *current)
 {
-	t_token	*current;
-
-	current = *head;
 	while (current && !current->is_comment)
 	{
 		if (!current->is_quote && (current->is_redir_output
@@ -79,13 +76,13 @@ void	set_is_redirection_flag(t_token **head)
 	}
 }
 
+// marks and advances pointer over 2nd redirection token
 void set_double_redir_flags(t_token	**current) {
 
 	if ((*current)->c == '>')
 	{
 		(*current)->is_redir_output_append = 1;
 		(*current)->next->is_redir_output_append = 1;
-
 	}
 	else if ((*current)->c == '<')
 	{
@@ -95,18 +92,16 @@ void set_double_redir_flags(t_token	**current) {
 	(*current) = (*current)->next;
 }
 
-void	set_redirection_flags(t_token **tokens)
-{
-	t_token	*current;
 
-	current = *tokens;
+// marks list of tokens with redirection flags
+void	set_redirection_flags(t_token *current)
+{
 	while (current && !current->is_comment)
 	{
-		if (!current->is_quote)
+		if (!current->is_quote && !current->is_redir_heredoc_delimiter)
 		{
-			if (current->c == '>' && current->next && current->next->c == '>')
-				set_double_redir_flags(&current);
-			else if (current->c == '<' && current->next && current->next->c == '<')
+			if (current->next && ((current->c == '>' && current->next->c == '>')
+				|| (current->c == '<' && current->next->c == '<')))
 				set_double_redir_flags(&current);
 			else if (current->c == '>')
 				current->is_redir_output = 1;

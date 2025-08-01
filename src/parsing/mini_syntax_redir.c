@@ -67,8 +67,7 @@ If onlz whitespace(IFS) and then comment (e.g. cat <<    # comment),
 comemnt will be seen as commernt, otherwise parsed as delim str
 
 If any part of the delimiter is unquoted, then:
-    Variable expansion, command substitution, and backslash
-     interpretation will happen in the here-document body.
+Variable expansion, command substitution, and backslash interpretation will happen in the here-document body.
 Bash treats the first word after << (up to the next unquoted whitespace) as the delimiter —
 it can include quotes only if there's no unquoted space between parts.
  */
@@ -82,54 +81,8 @@ it can include quotes only if there's no unquoted space between parts.
 delimiter is seen. However, it doesn’t have to update the history!
  */
 
-int count_redirs(t_token *start_redir, const t_token *end_cmd) {
-	int count;
 
-	count = 0;
-	while (start_redir) {
-		if (start_redir->is_redirection) {
-			if (!start_redir->prev ||
-				(start_redir->prev && !start_redir->prev->is_redirection))
-				count++;
-		}
-		start_redir = start_redir->next;
-		if (start_redir == end_cmd)
-			break;
-	}
-	return (count);
-}
-
-// inclusive of next redir token
-static int find_next_redir( t_token **start_redir, t_token **end_redir, const t_token *end_cmd) {
-	t_token *start_redir_tmp;
-	int start_set;
-
-	start_set = 0;
-	if (!*start_redir)
-		return (1);
-	start_redir_tmp = *start_redir;
-	while (start_redir_tmp && start_redir_tmp != end_cmd) {
-		if (start_redir_tmp->is_redirection && !start_set) {
-			*start_redir = start_redir_tmp;
-			start_set = 1;
-			if (start_redir_tmp->is_redir_heredoc || start_redir_tmp->is_redir_output_append) //skip double redir signage
-				*start_redir = start_redir_tmp->next;
-		}
-		else if (start_redir_tmp->is_redirection && start_set) {
-			*end_redir = start_redir_tmp;
-			return (0);
-		}
-		start_redir_tmp = start_redir_tmp->next;
-	}
-	if (!start_redir_tmp || ( start_redir_tmp == end_cmd)) {
-		// in case redir goes till EO Command
-		*end_redir = (t_token *)end_cmd;
-		return (0);
-	}
-	return (1);
-}
-
-int get_redir_type(t_token *redir_token) {
+int get_redir_type(const t_token *redir_token) {
 	if (redir_token->is_redir_input)
 		return (REDIR_INPUT);
 	if (redir_token->is_redir_output)
@@ -140,51 +93,20 @@ int get_redir_type(t_token *redir_token) {
 		return (REDIR_APPEND);
 	return (0);
 }
-/* todo see if skip or remove
-t_token* elim_redir_tokens(t_token **head, t_token **new_tokens, t_token *start, t_token *end)
-{
-	t_token *tmp;
-	t_token *after_end;
-	t_token *next;
 
-	after_end =NULL;
-	if (end)
-		after_end = end->next;
-	if (start && start->prev) // Disconnect old region
-		start->prev->next = *new_tokens;
-	else if (!start->prev)
-		*head = *new_tokens;
-	token_lst_add_back(new_tokens, after_end); // Attach after_end to last of new_tokens
-	// Detach old list pointers
-	if (start)
-		start->prev = NULL;
-	if (end)
-		end->next = NULL;
-	tmp = start;
-	while (tmp) { // Free only from start to end (inclusive)
-		next = tmp->next;
-		free(tmp);
-		if (tmp == end)
-			break;
-		tmp = next;
+/*doesnt check last element since impossible to have just one quote token within a redirection*/
+int contains_quote(const t_token *start_redir, const t_token *end_redir) {
+
+	while (start_redir && start_redir != end_redir) {
+		if (start_redir->is_quote)
+			return (1);
+		start_redir = start_redir->next;
 	}
-	return (*head);
-}*/
-
-int get_array_size(char **array)
-{
-	int size;
-
-	size = 0;
-	while (array[size])
-		size++;
-	return (size);
+	return (0);
 }
 
-char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_redir) {
+char* get_redir_filename(const t_token *start_redir, const t_token *end_redir, int *is_quoted) {
 	char *filename;
-	//char *arg;
-	(void)parser;
 	char **args;
 
 	if (!start_redir) // if last element with !end_redir do anything specific?
@@ -194,21 +116,10 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 			start_redir = start_redir->next;
 		start_redir = start_redir->next;
 	}
-	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) { //skip back before redirection symbols if included
+	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) //skip back before redirection symbols if included
 		end_redir = end_redir->prev;
-	}/*
-	else if (!end_redir) { //set to last element
-		end_redir = start_redir;
-		while (end_redir && end_redir->next)
-			end_redir = end_redir->next;
-	}*/
-	/*arg = get_char_from_tokens(start_redir, end_redir);
-	if (!arg)
-		return (NULL);
-	ft_strtrim(arg, parser->ifs);
-	free(arg);
-	*/
-	args = ft_split_on_ifs(start_redir, end_redir);
+	*is_quoted = contains_quote(start_redir, end_redir);
+	args = ft_split_on_ifs((t_token*) start_redir,(t_token*)end_redir);
 	if (!args) {
 		printf("Syntax error: No redirection arguments: what should happen?\n"); //todo should fail here?
 		return (NULL);
@@ -223,65 +134,105 @@ char* get_redir_filename(t_parsing *parser, t_token *start_redir, t_token *end_r
 	return (filename);
 }
 
-int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **start_redir, const t_token *end_cmd) {
 
-	t_token *start_redir_tmp;
-	t_token *end_redir_tmp;
+void  redirection_lst_add_back(t_redirect **redir_head, t_redirect *new_redir) {
 
-	start_redir_tmp = *start_redir;
-	end_redir_tmp = NULL;
-	redir->type = get_redir_type(start_redir_tmp);
-	if (find_next_redir(&start_redir_tmp, &end_redir_tmp, end_cmd))
+	t_redirect *last_elem;
+
+	if (!redir_head || !new_redir)
+		return;
+	if (*redir_head == NULL)
+	{
+		*redir_head = new_redir;
+		return;
+	}
+	last_elem = *redir_head;
+	while (last_elem->next)
+		last_elem = last_elem->next;
+	last_elem->next = new_redir;
+}
+
+int create_redirection(t_parsing *parser, const t_token *start_redir, const t_token *end_redir) {
+	t_redirect *redir;
+
+	if (end_redir)
+		printf("creating redirection from: token no %d ('%c') to token no %d ('%c')\n", start_redir->idx, start_redir->c, end_redir->idx, end_redir->c);
+	else
+	printf("creating redirection from: token no %d ('%c') till EOCommand\n", start_redir->idx, start_redir->c);
+	redir = malloc(sizeof(t_redirect));
+	if (!redir)
 		return (1);
-	redir->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp);
+	memset(redir, 0, sizeof(t_redirect));
+	redir->type = get_redir_type(start_redir);
+	redir->filename = get_redir_filename(start_redir, end_redir, &(redir->is_quoted));
 	if (!redir->filename)
 		return (1);
-	/*if (end_redir_tmp && end_redir_tmp->is_redirection) { // skip necessary redir symbols
-		if ((end_redir_tmp->is_redir_heredoc || end_redir_tmp->is_redir_output_append) &&
-			end_redir_tmp->next)
-			end_redir_tmp = end_redir_tmp->next;
-
-		if (end_redir_tmp && end_redir_tmp->next)
-			end_redir_tmp = end_redir_tmp->next;
-	}*/
-	*start_redir = end_redir_tmp;// set new starting point to old end point
-	return (0);
+	redirection_lst_add_back(&(parser->current_cmd->redirections), redir);
+	return(0);
 }
 
-int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_cmd) {
+t_token *parse_redirections(t_parsing *parser, const t_token *start_cmd, const t_token *end_cmd, int *parsing_error) {
 
-	int count_redir;
-	t_redirect *redir;
-	t_redirect *prev;
-	/*t_redirect *last_redir;
-	t_token *current;*/
-	int i;
-	//validate_redirections() todo
+	t_token *start_first_redir;
+	int start_set;
+	const t_token *start_redir_tmp;
+	const t_token *current;
 
-	i = 0;
-	prev = NULL;
-	count_redir = count_redirs(start_redir, end_cmd);
-	while ((i < count_redir) && (start_redir != end_cmd)) { //if (start_redir == end_redirs): all redirections parsed
-		redir = malloc(sizeof(t_redirect));
-		if (!redir)
-			return (1);
-		memset(redir, 0, sizeof(t_redirect));
-		if (i == 0)
-			parser->current_cmd->redirections = redir;
-		else
-			prev->next = redir;
-		if (parse_next_redir_tokens(parser, redir, &start_redir, end_cmd))
-			return (1);
-		prev = redir;
-		if (!start_redir)
-			break;
-
-		i++;
+	if (!start_cmd)
+		return (NULL);
+	start_set = 0;
+	start_first_redir = NULL;
+	start_redir_tmp = NULL;
+	current = start_cmd;
+	while (current && current != end_cmd) {
+		if (current->is_redirection) {
+			if (!start_first_redir)
+				start_first_redir = (t_token*) current;
+			if (!start_set) {
+				start_set = 1;
+				if (current->is_redir_heredoc || current->is_redir_output_append)
+					current = current->next;
+				start_redir_tmp = current;
+			} else { // in case redir is followed by another
+				*parsing_error += create_redirection(parser, start_redir_tmp, current);
+				start_set = 0;
+				continue;
+			}
+		}
+		current = current->next;
 	}
-	return (0);
+	if (start_set) // in case redir goes till EO Command
+		*parsing_error += create_redirection(parser, start_redir_tmp, (t_token *)end_cmd);
+	if (!start_first_redir) // No redirection found
+		return (NULL);
+	return (start_first_redir);
 }
 
-/*update end_token to point to after redirection, update tokens and remove the redirection tokens*/
+// HEREDOC complexity todo look for quoted argument
+//next->is_comment = 0; //todo deal with this in syntax parsing
+//next->is_comment_start = 0;
+
+
+/* UNUSED!!!
+ *
+int count_redirs(t_token *start_redir, const t_token *end_cmd) {
+int count;
+
+count = 0;
+while (start_redir) {
+if (start_redir->is_redirection) {
+if (!start_redir->prev ||
+(start_redir->prev && !start_redir->prev->is_redirection))
+count++;
+}
+start_redir = start_redir->next;
+if (start_redir == end_cmd)
+break;
+}
+return (count);
+}
+
+//update end_token to point to after redirection, update tokens and remove the redirection tokens
 int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd) {
 	t_token *current;
 	int has_redir;
@@ -295,13 +246,13 @@ int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, c
 			if (current->is_redir_heredoc) // todo correct to only take into account if first/only redirection?
 				parser->current_cmd->is_heredoc = 1;
 			//when comment add stop? except heredoc
-		if (!parser->current_cmd->is_heredoc && current->is_comment_start){
-			//todo do sth -> stop early and end cmd?
-			//*end_cmd = current;
-			// if (has_redir)
-			//		*cmd_start = create_redirs(&cmd, start_redir, end_cmd);
-			// return(1);
-			break;
+			if (!parser->current_cmd->is_heredoc && current->is_comment_start){
+				//todo do sth -> stop early and end cmd?
+				// *end_cmd = current;
+				// if (has_redir)
+				//		*cmd_start = create_redirs(&cmd, start_redir, end_cmd);
+				// return(1);
+				break;
 			}
 		}
 		current = current->next;
@@ -309,6 +260,86 @@ int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, c
 	return (has_redir);
 }
 
-// HEREDOC complexity todo look for quoted argument
-//next->is_comment = 0; //todo deal with this in syntax parsing
-//next->is_comment_start = 0;
+int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_cmd) {
+
+	int count_redir;
+	t_redirect *redir;
+	t_redirect *prev;
+	//t_redirect *last_redir;
+	//t_token *current;
+int i;
+//validate_redirections() todo
+
+i = 0;
+prev = NULL;
+count_redir = count_redirs(start_redir, end_cmd);
+while ((i < count_redir) && (start_redir != end_cmd)) { //if (start_redir == end_redirs): all redirections parsed
+	redir = malloc(sizeof(t_redirect));
+	if (!redir)
+		return (1);
+	memset(redir, 0, sizeof(t_redirect));
+	if (i == 0)
+		parser->current_cmd->redirections = redir;
+	else
+		prev->next = redir;
+	if (parse_next_redir_tokens(parser, redir, &start_redir, end_cmd))
+		return (1);
+	prev = redir;
+	if (!start_redir)
+		break;
+	i++;
+}
+return (0);
+}
+
+int parse_next_redir_tokens(t_parsing *parser, t_redirect* redir, t_token **start_redir, const t_token *end_cmd) {
+
+	t_token *start_redir_tmp;
+	t_token *end_redir_tmp;
+
+	start_redir_tmp = *start_redir;
+	end_redir_tmp = NULL;
+	redir->type = get_redir_type(start_redir_tmp);
+	if (find_next_redir(&start_redir_tmp, &end_redir_tmp, end_cmd))
+		return (1);
+	redir->filename = get_redir_filename(parser, start_redir_tmp, end_redir_tmp, &(redir->is_quoted));
+	if (!redir->filename)
+		return (1);
+	*start_redir = end_redir_tmp;// set new starting point to old end point
+	return (0);
+}
+// return (1)if no redirection found or pointers not init
+// return 0 if redirection marked, set end redir to end of command if only start and no second redir found
+// inclusive of next redir token
+
+static int find_next_redir(t_token **start_redir, t_token **end_redir, const t_token *end_cmd) {
+	t_token *start_redir_tmp;
+	int start_set;
+
+	if (!start_redir || !*start_redir || !end_redir) //todo check double pointer for null?
+		return (1);
+	*end_redir = NULL;
+	start_set = 0;
+	start_redir_tmp = *start_redir;
+	while (start_redir_tmp && start_redir_tmp != end_cmd) {
+		if (start_redir_tmp->is_redirection) {
+			if (!start_set) {
+				start_set = 1;
+				if (start_redir_tmp->is_redir_heredoc || start_redir_tmp->is_redir_output_append)
+					start_redir_tmp = start_redir_tmp->next;
+				*start_redir = start_redir_tmp;
+			} else {
+				*end_redir = start_redir_tmp;
+				return (0);
+			}
+		}
+		start_redir_tmp = start_redir_tmp->next;
+	}
+	if (start_set) { // in case redir goes till EO Command
+		*end_redir = (t_token *)end_cmd;
+		return (0);
+	}
+	return (1); // No redirection found
+}
+
+*/
