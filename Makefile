@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -Werror -Wall -Wextra
-//CFLAGS += -I/opt/homebrew/opt/readline/include
-//LDFLAGS += -L/opt/homebrew/opt/readline/lib -lreadline
+#CFLAGS += -I/opt/homebrew/opt/readline/include
+#LDFLAGS += -L/opt/homebrew/opt/readline/lib -lreadline
 INCLUDES = inc/minishell.h
 
 SRC_DIR = src
