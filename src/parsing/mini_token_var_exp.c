@@ -71,7 +71,7 @@ static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_t
 	return (*head);
 }
 
-// returns -1 if no var exp found
+// returns 1 if no var exp found
 static int find_next_var_exp(t_token **start, t_token **end, t_token **char_start, t_token **char_end) {
 	t_token *current;
 
@@ -94,7 +94,7 @@ static int find_next_var_exp(t_token **start, t_token **end, t_token **char_star
 		}
 		current = current->next;
 	}
-	return (-1);
+	return (1);
 }
 
 static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_end) {
@@ -121,7 +121,6 @@ static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_en
 }
 
 /* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded
- * Do not free env_val when returned from lookup_var as it uses get_env_var which points to still in use pointer in env_struct
  */
 int expand_vars(t_parsing *parser, t_token **tokens) {
 	t_token *start;
