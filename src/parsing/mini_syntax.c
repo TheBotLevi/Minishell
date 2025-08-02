@@ -12,6 +12,7 @@
 
 #include "../../inc/minishell.h"
 
+// add new command struct to the end of a cmd list or set as new head if list is empty
 void  command_lst_add_back(t_command **cmd_head, t_command *new_cmd) {
 
 	t_command *last_elem;
@@ -44,15 +45,8 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	cmd_end = get_cmd_end(*cmd_start); //todo what if cmd_end == start?
 	if (cmd_end)
 		printf("end cmd: %c\n", cmd_end->c);
-	/*has_redir = detect_redir(parser, *cmd_start, &start_redir, cmd_end);
-	if (has_redir > 0) {
-		if (create_redirs(parser, start_redir, cmd_end)) //todo have to update start_pointer in here?
-			return (1);
-	}
-	else
-		start_redir = cmd_end; *///todo what to do on  has_redir == -1?
 	parsing_error = 0;
-	start_redir = parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
+	start_redir = parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);  // todo what to do on multiple redirs?
 	if (parsing_error)
 		return (parsing_error);
 	if (!start_redir)
@@ -61,7 +55,7 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	*cmd_start = cmd_end; //set new cmd start
 	while (*cmd_start && (*cmd_start)->is_pipe)
 		*cmd_start = (*cmd_start)->next;
-	if (!parser->current_cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]
+	if (!parser->current_cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]  // case heredoc without prev argument permissible
 		return (1);
 	return (0);
 }
