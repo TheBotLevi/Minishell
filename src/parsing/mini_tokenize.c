@@ -70,7 +70,7 @@ void	set_var_expansion_flags(t_token **tokens)
 	t_token	*next;
 
 	current = *tokens;
-	while (current && !current->is_comment && !current->is_redir_heredoc_delimiter)
+	while (current && !current->is_redir_heredoc_delimiter)
 	{
 		next = current->next;
 		if (current->c == '$' && !current->is_single_quote)
@@ -119,22 +119,26 @@ void reset_idx(t_token *tokens) {
 	}
 }
 
+
+// returns 1 for syntax error if heredoc is present but delimiter is empty
 int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 {
 	t_token *current;
+	int empty_delim;
 
 	current = tokens;
+	empty_delim = 0;
 	while (current)
 	{
 		if (!current->is_quote && current->c == '<' && current->next && current->next->c == '<')
 		{
+			empty_delim = 1;
 			current = current->next->next; // skip over '<<'
 			while (current && is_in_set(current->c, parser->ifs)) // Skip whitespace
 				current = current->next;
-			if (current && current->c == '#') // heredoc is commemt
-				return (1);
 			while (current && !is_in_set(current->c,parser->ifs) && !is_in_set(current->c,"|><")) // Mark the next word (the delimiter)
 			{
+				empty_delim = 0;
 				current->is_redir_heredoc_delimiter = 1;
 				current = current->next;
 			}
@@ -142,7 +146,7 @@ int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 		else
 			current = current->next;
 	}
-	return (0);
+	return (empty_delim);
 }
 
 t_token	*tokenize(char *line, t_parsing *parser)
@@ -165,7 +169,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 				free_tokens(tokens);
 				return (NULL);
 			}
-		mark_comment(tokens);
 		set_var_expansion_flags(&tokens);
 		while (expand_vars(parser, &tokens) == 0) { //todo never expand heredoc delim
 			unset_all_flags(tokens);
@@ -179,7 +182,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 				free_tokens(tokens);
 				return (NULL);
 			}
-			mark_comment(tokens);
 			set_var_expansion_flags(&tokens);
 		}
 		reset_idx(tokens);

@@ -169,8 +169,8 @@ typedef struct s_token {
 	int is_braced_var;
 	int is_exit_status;
 	//int is_eof; // signals ctrl+D
-	int is_comment_start;
-	int is_comment;
+	//int is_comment_start;
+	//int is_comment;
 	int is_redir_heredoc;
 	int is_redir_heredoc_delimiter;
 	//int is_heredoc_end;
@@ -257,7 +257,6 @@ t_token *get_last_token(t_token *tokens);
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);
 void cancel_unfinished_quote_token(t_token *token);
-void mark_comment(t_token *tokens);
 int set_quote_flags(t_token *current);
 
 //mini_split //todo to be modified and cleaned up

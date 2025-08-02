@@ -28,7 +28,7 @@ t_token* get_cmd_end (t_token *cmd_start) {
 
     current = cmd_start;
     //cmd_end = NULL;
-    while (current && !current->is_pipe && !current->is_comment_start) {
+    while (current && !current->is_pipe) {
             /*when comment add stop? except heredoc
             if (!parser->current_cmd->is_heredoc && current->is_comment_start){
                 //todo do sth -> stop early and end cmd?

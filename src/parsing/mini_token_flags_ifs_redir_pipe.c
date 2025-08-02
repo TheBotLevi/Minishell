@@ -31,7 +31,7 @@ void	set_ifs_flags(t_parsing *parser, t_token **tokens)
 	t_token		*current;
 
 	current = *tokens;
-	while (current && !current->is_comment)
+	while (current)
 	{
 		if (is_in_set(current->c, parser->ifs) && !current->is_quote)
 			current->is_ifs = 1;
@@ -46,7 +46,7 @@ int	set_pipe_flags(t_token **tokens)
 
 	n_pipes = 0;
 	current = *tokens;
-	while (current && !current->is_comment)
+	while (current)
 	{
 		if (current->c == '|' && !current->is_quote) {
 			current->is_pipe = 1;
@@ -66,7 +66,7 @@ delimiter is seen. However, it doesn’t have to update the history!
  */
 void	flag_is_redirection(t_token *current)
 {
-	while (current && !current->is_comment)
+	while (current)
 	{
 		if (!current->is_quote && (current->is_redir_output
 				|| current->is_redir_input || current->is_redir_heredoc
@@ -96,7 +96,7 @@ void set_double_redir_flags(t_token	**current) {
 // marks list of tokens with redirection flags
 void	set_redirection_flags(t_token *current)
 {
-	while (current && !current->is_comment)
+	while (current)
 	{
 		if (!current->is_quote && !current->is_redir_heredoc_delimiter)
 		{
