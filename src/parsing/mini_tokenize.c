@@ -70,7 +70,7 @@ void	set_var_expansion_flags(t_token **tokens)
 	t_token	*next;
 
 	current = *tokens;
-	while (current && !current->is_comment)
+	while (current && !current->is_comment && !current->is_redir_heredoc_delimiter)
 	{
 		next = current->next;
 		if (current->c == '$' && !current->is_single_quote)
