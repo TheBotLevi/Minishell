@@ -85,10 +85,7 @@ int parse_tokens(t_parsing *parser)
 		command_lst_add_back(&(parser->cmd_head), parser->current_cmd);
 		printf("cmd start: %d\n", cmd_start->idx);
 		if (get_next_cmd(parser, &cmd_start)) //todo add option of ending early without freeing when commands are invalid//empty
-		{
-			free_cmds(parser->cmd_head);
 			return (1);
-		}
 		if (cmd_start)
 			printf("cur token, new start: %c (%d)\n", cmd_start->c, cmd_start->idx);
 		//prev = parser->current_cmd;

@@ -203,6 +203,7 @@ t_token *parse_redirections(t_parsing *parser, const t_token *start_cmd, const t
 	}
 	if (start_set) // in case redir goes till EO Command
 		*parsing_error += create_redirection(parser, redir_start, (t_token *)end_cmd);
+	*parsing_error += validate_redirections(parser->current_cmd->redirections);
 	return (start_first_redir);
 }
 

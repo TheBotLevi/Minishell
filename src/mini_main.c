@@ -68,6 +68,7 @@ void	ft_mini_loop(t_mini *mini)
 	t_command	*cmds;
 
 	line = NULL;
+	cmds = NULL;
 	status = 0;
 	while (1)
 	{
@@ -112,7 +113,8 @@ void	ft_mini_loop(t_mini *mini)
 		}
 //		printf("exit status: %d\n", status);
 		free(line);
-		free(cmds);
+		if (cmds)
+			free_cmds(cmds);
 	}
 }
 
