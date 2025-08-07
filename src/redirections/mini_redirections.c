@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
-
+/*
 static char	**fill_clean_args(t_mini *mini, char **new_args)
 {
 	int	j;
@@ -59,7 +59,7 @@ static char	**remove_redirections(t_mini *mini)
 		return (NULL);
 	return (fill_clean_args(mini, new_args));
 }
-
+*/
 static int	handle_input_redirection(t_mini *mini)
 {
 	mini->fd = open(mini->filename, O_RDONLY);
@@ -123,6 +123,7 @@ static int	handle_append_redirection(t_mini *mini)
 	return (0);
 }
 
+/*
 int	handle_redirections(t_mini *mini, int i)
 {
 	if (ft_strcmp(mini->args[i], "<") == 0 && mini->args[i + 1])
@@ -150,36 +151,31 @@ int	handle_redirections(t_mini *mini, int i)
 			return (4);
 	}
 	return (0);
-}
+}*/
 
 int	execute_redirections(t_mini *mini)
 {
-	int	i;
-	char	**clean_args;
-	char	**original_args;
-	int	rt;
+	int	error;
+	t_redirect *redir;
 
-	if (!mini->args)
+	if (!mini->cur_cmd->args)
 		return (0);
-	original_args = mini->args;
-	i = 0;
-	while (mini->args[i])
-	{
-		rt = handle_redirections(mini, i);
-		if (rt != 0)
-			return (rt);
-		if (ft_strcmp(mini->args[i], "<") == 0 || ft_strcmp(mini->args[i], ">") == 0
-		|| ft_strcmp(mini->args[i], ">>") == 0 || ft_strcmp(mini->args[i], "<<") == 0)
-			i += 2;
-		else
-			i++;
-	}
-	clean_args = remove_redirections(mini);
-	if (clean_args)
-	{
-//		free_args(mini->args);
-		mini->args = clean_args;
-		mini->original_args = original_args;
+	error = 0;
+	redir = mini->cur_cmd->redirections;
+	while (redir) {
+		mini->filename = redir->filename;
+		if (redir->type == REDIR_INPUT)
+			error = handle_input_redirection(mini);
+		else if (redir->type == REDIR_OUTPUT)
+			error = handle_output_redirection(mini);
+		else if (redir->type == REDIR_APPEND)
+			error = handle_append_redirection(mini);
+		else if (redir->type == REDIR_HEREDOC)
+			error = handle_heredoc_redirection(mini, redir->filename);
+		if (error)
+			return (1);
+		redir = redir->next;
+		return (0);
 	}
 	return (0);
 }

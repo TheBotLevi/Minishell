@@ -29,6 +29,7 @@
 # define BUFFER_SIZE 4096
 
 typedef struct s_mini t_mini;
+typedef struct s_command t_command;
 
 typedef struct s_env
 {
@@ -49,6 +50,8 @@ typedef struct s_env
 typedef struct s_mini
 {
 	char			**args;	//is going to change for parsing (tokenization)
+	t_command		*cmds;
+	t_command		*cur_cmd;
 	char			*old_path;
 	int				input_fd;
 	int				output_fd;
@@ -69,6 +72,38 @@ typedef struct s_mini
 	struct s_mini	*next;
 }					t_mini;
 
+#define REDIR_INPUT 1
+#define REDIR_OUTPUT 2
+#define REDIR_APPEND 3
+#define REDIR_HEREDOC 4
+
+/*Type codes:
+ *1: REDIR_IN
+ *2: REDIR_OUT
+ *3: REDIR_APPEND
+ *4: HEREDOC */
+typedef struct s_redirect {
+	char *filename;
+	int is_quoted;
+	int type;
+	struct s_redirect *next;
+} t_redirect;
+
+typedef struct s_command {
+	char **args;
+	t_redirect *redirections;
+	int				has_heredoc;
+	int has_redir;
+	int				is_builtin;
+	int				has_pipe_in;
+	int				has_pipe_out;
+	int				input_fd;
+	t_env			*env_struct;
+	int				output_fd;
+	int				**pipes;
+	pid_t			*pids;
+	struct s_command *next;
+} t_command;
 
 //global variable
 extern volatile sig_atomic_t	g_exit;
@@ -123,7 +158,8 @@ void	cleanup_redir(t_mini *mini);
 
 // execute
 int					execute_external_cmd(t_mini *mini);
-int	process_command(char *line, t_mini *mini);
+//int	process_command(char *line, t_mini *mini);
+int		process_command( t_mini *mini);
 char	*find_exec(char *cmd, char **paths);
 
 //signals
@@ -191,33 +227,6 @@ typedef struct s_quote_state {
 	int is_end_quote;
 } t_quote_state;
 
-#define REDIR_INPUT 1
-#define REDIR_OUTPUT 2
-#define REDIR_APPEND 3
-#define REDIR_HEREDOC 4
-
-/*Type codes:
- *1: REDIR_IN
- *2: REDIR_OUT
- *3: REDIR_APPEND
- *4: HEREDOC */
-typedef struct s_redirect {
-	char *filename;
-	int is_quoted;
-	int type;
-	struct s_redirect *next;
-} t_redirect;
-
-typedef struct s_command {
-	char **argv;
-	t_redirect *redirections;
-	int has_heredoc;
-	int has_redir;
-	int				is_builtin;
-	int				has_pipe_in;
-	int				has_pipe_out;
-	struct s_command *next;
-} t_command;
 
 typedef struct s_parsing {
 	char	*ifs; //no need to free (either stack alloc or malloc in env)

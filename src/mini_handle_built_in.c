@@ -30,7 +30,7 @@ int	is_builtin(char *cmd)
 
 int	handle_builtin(t_mini *mini)	//is going to change
 {
-	if (!mini->args || !mini->args[0])
+	if (!mini->cmdargs || !mini->args[0])
 		return (1);
 	if (ft_strcmp(mini->args[0], "echo") == 0)
 		return (mini_echo(mini->args));

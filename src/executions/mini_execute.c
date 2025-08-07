@@ -12,21 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-static int	check_redirections(t_mini *mini)
-{
-	int	i;
-
-	i = 0;
-	while(mini->args[i])
-	{
-		if (ft_strcmp(mini->args[i], "<") == 0 || ft_strcmp(mini->args[i], ">") == 0 ||
-		ft_strcmp(mini->args[i], "<<") == 0 || ft_strcmp(mini->args[i], ">>") == 0)
-			return (1);
-		i++;
-	}
-	return (0);
-}
-
 static int	backup_fds(t_mini *mini)
 {
 	mini->saved_stdin = dup(STDIN_FILENO);
@@ -66,7 +51,7 @@ int	execute_builtin_in_parent(t_mini *mini)
 	int	res;
 	int	has_redir;
 
-	has_redir = check_redirections(mini);
+	has_redir = mini->cur_cmd->has_redir;
 	if (has_redir)
 	{
 		if (backup_fds(mini) == -1)
@@ -158,13 +143,13 @@ int	execute_external_cmd(t_mini *mini)
 
 static int	handle_single_command(t_mini *mini)
 {
-	if (is_builtin(mini->args[0]))
+	if (is_builtin(mini->cur_cmd->args[0]))
 		return (execute_builtin_in_parent(mini));
 	else
 		return (execute_external_cmd(mini));
 }
 
-static int	handle_pipeline(t_mini *mini, char *line)
+static int	handle_pipeline(t_mini *mini)
 {
 	t_mini	*pipeline;
 	t_mini	*current;
@@ -187,22 +172,18 @@ static int	handle_pipeline(t_mini *mini, char *line)
 	return (mini->exit_status);
 }
 
-int	process_command(char *line, t_mini *mini)
+int	process_command(t_mini *mini)
 {
-	if (!line || !*line)
+	if (!mini->cmds)
 		return (0);
-	if (has_pipes(line))
-		return (handle_pipeline(mini, line));
+	if (mini->cmd_count > 1)
+		return (handle_pipeline(mini));
 	else
 	{
-		mini->args = parse_input(line);
-		if (mini->args && mini->args[0])
+		if (mini->cur_cmd->args && mini->cur_cmd->args[0])
 			mini->exit_status = handle_single_command(mini);
-		if (mini->args)
-		{
-			free_args(mini->args);
-			mini->args = NULL;
-		}
+		if (mini->cur_cmd->args)
+			free_cmds(mini->cmds);
 		update_exit_status(mini);
 	}
 	return (mini->exit_status);

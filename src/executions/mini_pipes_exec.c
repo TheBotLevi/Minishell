@@ -62,6 +62,7 @@ static int	create_pipes(t_mini *pipeline)
 static int	create_pipes(t_mini *pipeline)
 {
 	int	i;
+	t_command	*command;
 
 	if (pipeline->cmd_count <= 1)
 		return (0);
@@ -107,7 +108,7 @@ static void	close_all_pipes(t_mini *pipeline)
 	}
 }
 
-static void	execute_single_cmd(t_mini *mini, t_mini *pipeline, 
+static void	execute_single_cmd(t_command* cmd, t_mini *pipeline,
 							int cmd_index)
 {
 	char	**envp;
@@ -123,26 +124,26 @@ static void	execute_single_cmd(t_mini *mini, t_mini *pipeline,
 		exit(1);
 	
 	// Handle builtins
-	if (is_builtin(mini->args[0]))
+	if (is_builtin(cmd->args[0]))
 		exit(handle_builtin(mini));
 
 	// Execute external commands
-	envp = env_list_to_array(mini->env_struct);
-	paths = get_paths_from_list(mini->env_struct);
-	exec_path = find_exec(mini->args[0], paths);
+	envp = env_list_to_array(cmd->env_struct);
+	paths = get_paths_from_list(cmd->env_struct);
+	exec_path = find_exec(cmd->args[0], paths);
 
 	if (paths)
 		free_args(paths);
 	if (exec_path)
 	{
-		execve(exec_path, mini->args, envp);
+		execve(exec_path, cmd->args, envp);
 		perror("minishell: execve");
 		free(exec_path);
 	}
 	else
 	{
 		ft_putstr_fd("mariashell: ", STDERR_FILENO);
-		ft_putstr_fd(mini->args[0], STDERR_FILENO);
+		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
 		ft_putendl_fd(": command not found", STDERR_FILENO);
 	}
 	if (envp)
@@ -176,14 +177,15 @@ static int	wait_for_processes(t_mini *pipeline)
 int	create_and_fork_process(t_mini *pipeline)
 {
 	t_mini	*current;
+	t_command	*command;
 	int	cmd_index;
 
 	pipeline->pids = malloc(sizeof(pid_t) * pipeline->cmd_count);
 	if (!pipeline->pids)
 		return (1);
-	current = pipeline->commands;
+	//current = pipeline->commands;
 	cmd_index = pipeline->cmd_count - 1;
-	while (current)
+	while (command)
 	{
 		pipeline->pids[cmd_index] = fork();
 		if (pipeline->pids[cmd_index] == 0)
@@ -193,7 +195,7 @@ int	create_and_fork_process(t_mini *pipeline)
 			perror("minishell: fork");
 			return (1);
 		}
-		current = current->next;
+		command = command->next;
 		cmd_index--;
 	}
 	return (0);

@@ -51,11 +51,11 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 		return (parsing_error);
 	if (!start_redir)
 		start_redir = cmd_end;
-	parser->current_cmd->argv = ft_split_on_ifs(*cmd_start, start_redir);
+	parser->current_cmd->args = ft_split_on_ifs(*cmd_start, start_redir);
 	*cmd_start = cmd_end; //set new cmd start
 	while (*cmd_start && (*cmd_start)->is_pipe)
 		*cmd_start = (*cmd_start)->next;
-	if (!parser->current_cmd->argv) // todo decide what to return wrong or on empty input, i.e. !cmd->argv[0]  // case heredoc without prev argument permissible
+	if (!parser->current_cmd->args) // todo decide what to return wrong or on empty input, i.e. !cmd->args[0]  // case heredoc without prev argument permissible
 		return (1);
 	return (0);
 }
@@ -73,7 +73,7 @@ void set_cmd_flags(t_parsing *parser) {
 		if (current->redirections)
 			current->has_redir = 1;
 		current->has_pipe_out = 1;
-		if (current->argv && is_builtin(current->argv[0]))
+		if (current->args && is_builtin(current->args[0]))
 			current->is_builtin = 1;
 		current = current->next;
 	}
@@ -83,14 +83,17 @@ void set_cmd_flags(t_parsing *parser) {
 		current->has_pipe_in = 1;
 		if (current->next)
 			current->has_pipe_out = 1;
-		if (current->argv && is_builtin(current->argv[0]))
+		if (current->args && is_builtin(current->args[0]))
 			current->is_builtin = 1;
+		current->output_fd = -1;
+		current->input_fd = -1;
+		current->env_struct = parser->env_struct;
 		current = current->next;
 	}
 
 }
 
-int parse_tokens(t_parsing *parser)
+int parse_tokens(t_parsing *parser, t_mini *mini)
 {
 	//t_command	*prev;
 	t_token	*cmd_start;
@@ -99,6 +102,7 @@ int parse_tokens(t_parsing *parser)
 	i = 0;
 	//prev = NULL;
 	cmd_start = parser->tokens_head;
+	mini->cmd_count = parser->n_cmds;
 	printf("n comamnds: %d\n", parser->n_cmds);
 	while (i < parser->n_cmds && cmd_start) {
 		parser->current_cmd = malloc(sizeof(t_command));
@@ -118,41 +122,4 @@ int parse_tokens(t_parsing *parser)
 	}
 	set_cmd_flags(parser);
 	return (0);
-}
-
-
-int	process_command2(char *line, t_mini *mini)
-{
-	t_mini	*pipeline;
-
-	if (!line || !*line)
-		return (0);
-	// Check if command contains pipes
-	if (has_pipes(line))
-	{
-		if (parse_pipeline(line, &pipeline) == 0)
-		{
-			mini->exit_status = execute_pipeline(pipeline);
-			free_pipeline(pipeline);
-		}
-		else
-			mini->exit_status = 1;
-		update_exit_status(mini);
-		return (mini->exit_status);
-	}
-	// Handle single command (no pipes)
-	mini->args = parse_input(line);
-	if (!mini->args || !mini->args[0])
-	{
-		if (mini->args)
-			free_args(mini->args);
-		return (0);
-	}
-	if (is_builtin(mini->args[0]))
-		mini->exit_status = handle_builtin(mini);
-	else
-		mini->exit_status = execute_external_cmd(mini);
-	update_exit_status(mini);
-	free_args(mini->args);
-	return (mini->exit_status);
 }

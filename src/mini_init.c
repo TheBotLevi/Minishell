@@ -42,6 +42,8 @@ static void	mini_init_init(t_mini *mini)
 	mini->exit_status = 0;
 	mini->pipes = NULL;
 	mini->cmd_count = 0;
+	mini->cmds = NULL;
+	mini->cur_cmd = NULL;
 	mini->commands = NULL;
 	mini->fd = -1;
 	mini->filename = NULL;

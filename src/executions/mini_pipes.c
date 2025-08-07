@@ -11,14 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
-
-int	has_pipes(char *line)
-{
-	if (!line)
-		return (0);
-	return (ft_strchr(line, '|') != NULL);
-}
-
+/*
 static t_mini	*create_cmd_node(char **args)
 {
 	t_mini	*mini;
@@ -34,9 +27,10 @@ static t_mini	*create_cmd_node(char **args)
 	return (mini);
 }
 
-int	parse_pipeline(char *line, t_mini **pipeline)
+int	parse_pipeline(t_mini **pipeline)
 {
 	char	**pipe_parts;
+	t_command *cur_cmd
 	t_mini	*mini_list;
 	t_mini	*current;
 	int		i;
@@ -70,6 +64,6 @@ int	parse_pipeline(char *line, t_mini **pipeline)
 	(*pipeline)->pids = NULL;
 	free_args(pipe_parts);
 	return (0);
-}
+}*/
 
 

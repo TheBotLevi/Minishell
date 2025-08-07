@@ -44,8 +44,8 @@ t_command *test_parsing(char* line, t_mini* mini) {
 	}
 	cmds = parser->cmd_head;
 	cmds_return = parser->cmd_head;
-	while (cmds && cmds->argv){
-		print_array(cmds->argv);
+	while (cmds && cmds->args){
+		print_array(cmds->args);
 		redir_head = cmds->redirections;
 		while (redir_head) {
 			printf("filename/ delim: %s, type: %d, quoted: %d\n", redir_head->filename, redir_head->type, redir_head->is_quoted);
@@ -93,13 +93,10 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		cmds = test_parsing(line, mini);
-		if (!cmds)
-		{
-			free(line);
-			break ;
-		}
-		status = process_command(line, mini);
+		mini->cmds = test_parsing(line, mini);
+		mini->cur_cmd = mini->cmds;
+		//status = process_command(line, mini);
+		status = process_command(mini);
 		if (status == 130 || g_exit == 130)
 		{
 			mini->exit_status = 130;
@@ -113,8 +110,6 @@ void	ft_mini_loop(t_mini *mini)
 		}
 //		printf("exit status: %d\n", status);
 		free(line);
-		if (cmds)
-			free_cmds(cmds);
 	}
 }
 
