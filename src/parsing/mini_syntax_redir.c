@@ -164,10 +164,13 @@ int create_redirection(t_parsing *parser, const t_token *start_redir, const t_to
 		return (1);
 	memset(redir, 0, sizeof(t_redirect));
 	redir->type = get_redir_type(start_redir);
+	if (redir->type == REDIR_HEREDOC)
+		parser->current_cmd->has_heredoc = 1;
 	redir->filename = get_redir_filename(start_redir, end_redir, &(redir->is_quoted));
 	if (!redir->filename) //todo: decide if leave null and treat error later...
 		return (1);
 	redirection_lst_add_back(&(parser->current_cmd->redirections), redir);
+
 	return(0);
 }
 

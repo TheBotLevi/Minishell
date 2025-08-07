@@ -60,8 +60,6 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end)
 			str = str->next;
 		}
 	}
-	/*if (ndelims > 0 && str && str->prev && str->prev->is_ifs)
-		ndelims--;*/
 	if (last && last->next && last->next != end && last->next->is_ifs)
 		ndelims--;
 	return (ndelims);

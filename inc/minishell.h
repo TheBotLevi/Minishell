@@ -211,7 +211,8 @@ typedef struct s_redirect {
 typedef struct s_command {
 	char **argv;
 	t_redirect *redirections;
-	int is_heredoc;
+	int has_heredoc;
+	int has_redir;
 	int				is_builtin;
 	int				has_pipe_in;
 	int				has_pipe_out;

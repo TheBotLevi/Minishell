@@ -60,6 +60,34 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	return (0);
 }
 
+// sets all flags except "has heredoc" as this is checked in each redirection (if mu]ltiple) and set if ANY ONE has it
+void set_cmd_flags(t_parsing *parser) {
+
+	t_command *current;
+
+	current = parser->cmd_head;
+	if (!current)
+		return;
+	if (current->next) {
+		current->has_pipe_out = 1;
+		if (current->redirections)
+			current->has_redir = 1;
+		current->has_pipe_out = 1;
+		//todo if () current->is_builtin = 1;
+		current = current->next;
+	}
+	while (current) {
+		if (current->redirections)
+			current->has_redir = 1;
+		current->has_pipe_in = 1;
+		if (current->next)
+			current->has_pipe_out = 1;
+		//todo if () current->is_builtin = 1;
+		current = current->next;
+	}
+
+}
+
 int parse_tokens(t_parsing *parser)
 {
 	//t_command	*prev;
@@ -78,19 +106,15 @@ int parse_tokens(t_parsing *parser)
 			return (1);
 		}
 		ft_memset(parser->current_cmd, 0, sizeof(t_command));
-		/*if (i == 0)
-			parser->cmd_head = parser->current_cmd;
-		else
-			prev->next = parser->current_cmd;*/
 		command_lst_add_back(&(parser->cmd_head), parser->current_cmd);
 		printf("cmd start: %d\n", cmd_start->idx);
 		if (get_next_cmd(parser, &cmd_start)) //todo add option of ending early without freeing when commands are invalid//empty
 			return (1);
 		if (cmd_start)
 			printf("cur token, new start: %c (%d)\n", cmd_start->c, cmd_start->idx);
-		//prev = parser->current_cmd;
 		i++;
 	}
+	set_cmd_flags(parser);
 	return (0);
 }
 
