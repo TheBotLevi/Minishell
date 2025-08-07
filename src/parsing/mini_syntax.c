@@ -73,7 +73,8 @@ void set_cmd_flags(t_parsing *parser) {
 		if (current->redirections)
 			current->has_redir = 1;
 		current->has_pipe_out = 1;
-		//todo if () current->is_builtin = 1;
+		if (current->argv && is_builtin(current->argv[0]))
+			current->is_builtin = 1;
 		current = current->next;
 	}
 	while (current) {
@@ -82,7 +83,8 @@ void set_cmd_flags(t_parsing *parser) {
 		current->has_pipe_in = 1;
 		if (current->next)
 			current->has_pipe_out = 1;
-		//todo if () current->is_builtin = 1;
+		if (current->argv && is_builtin(current->argv[0]))
+			current->is_builtin = 1;
 		current = current->next;
 	}
 
