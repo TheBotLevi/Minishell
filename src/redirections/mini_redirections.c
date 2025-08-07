@@ -175,7 +175,6 @@ int	execute_redirections(t_mini *mini)
 		if (error)
 			return (1);
 		redir = redir->next;
-		return (0);
 	}
 	return (0);
 }

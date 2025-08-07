@@ -120,7 +120,7 @@ static void	execute_single_cmd(t_command* cmd, t_mini *pipeline,
 	close_all_pipes(pipeline);
 	
 	// Handle redirections for this command
-	if (execute_redirections(mini) != 0)
+	if (execute_redirections(cmd) != 0)
 		exit(1);
 	
 	// Handle builtins
@@ -176,16 +176,16 @@ static int	wait_for_processes(t_mini *pipeline)
 
 int	create_and_fork_process(t_mini *pipeline)
 {
-	t_mini	*current;
-	t_command	*command;
+	t_command	*current;
 	int	cmd_index;
 
 	pipeline->pids = malloc(sizeof(pid_t) * pipeline->cmd_count);
 	if (!pipeline->pids)
 		return (1);
 	//current = pipeline->commands;
+	current = pipeline->cmds;
 	cmd_index = pipeline->cmd_count - 1;
-	while (command)
+	while (current)
 	{
 		pipeline->pids[cmd_index] = fork();
 		if (pipeline->pids[cmd_index] == 0)
@@ -195,7 +195,7 @@ int	create_and_fork_process(t_mini *pipeline)
 			perror("minishell: fork");
 			return (1);
 		}
-		command = command->next;
+		current = current->next;
 		cmd_index--;
 	}
 	return (0);
