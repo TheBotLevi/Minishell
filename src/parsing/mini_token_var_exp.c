@@ -63,7 +63,6 @@ static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_t
 	}
 	new_tokens = NULL;
 	if (create_basic_tokens(env_val, &new_tokens)) {
-		free(env_val);
 		free_tokens(*head);
 		return (NULL);
 	}
@@ -77,7 +76,7 @@ static int find_next_var_exp(t_token **start, t_token **end, t_token **char_star
 
 	current = *start;
 	while (current){
-		if (current->is_dollar) { // && !current->is_exit_status todo see if generalizes
+		if (current->is_dollar) {
 			*start = current;
 			current = current->next; //skip dollar
 			if (current && current->is_braced_var)

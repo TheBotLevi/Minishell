@@ -153,6 +153,7 @@ t_token	*tokenize(char *line, t_parsing *parser)
 {
 	t_token	*tokens;
 	int n_pipes;
+	int var_expanded;
 
 	if (!line || !parser)
 		return (NULL);
@@ -170,7 +171,8 @@ t_token	*tokenize(char *line, t_parsing *parser)
 				return (NULL);
 			}
 		set_var_expansion_flags(&tokens);
-		while (expand_vars(parser, &tokens) == 0) { //todo never expand heredoc delim
+		var_expanded = expand_vars(parser, &tokens);
+		if (var_expanded == 0) {
 			unset_all_flags(tokens);
 			if (set_quote_flags(tokens)){
 				ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
@@ -182,7 +184,10 @@ t_token	*tokenize(char *line, t_parsing *parser)
 				free_tokens(tokens);
 				return (NULL);
 			}
-			set_var_expansion_flags(&tokens);
+		}
+		else if (var_expanded == -1){
+			ft_putendl_fd("memory allocation error during variable expansion", STDERR_FILENO);
+			return (NULL);
 		}
 		reset_idx(tokens);
 		n_pipes = set_pipe_flags(&tokens);
