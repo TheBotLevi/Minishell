@@ -67,19 +67,32 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end)
 	return (ndelims);
 }
 
-static void	set_string_from_tokens(char *substr, t_token *start, t_token *stop)
+static void	set_string_from_tokens(char *substr, t_token *start, t_token *stop, int is_fully_quoted)
 {
 	int i;
 
 	i = 0;
-	if (start->is_start_quote)
+	if (is_fully_quoted && start->is_start_quote)
 		start = start->next;
-	while (start && start != stop && !start->is_end_quote) {
+	while (start && start != stop) {
 		substr[i] = start->c;
 		start = start->next;
 		i++;
+		if (start == stop && start && start->is_end_quote && is_fully_quoted)
+			break;
 	}
 	substr[i] = '\0';
+}
+
+int check_for_fully_quoted_str(const t_token *start, const t_token *end) {
+
+	if (!start || !start->is_start_quote)
+		return (0);
+	while (start && start->is_quote && !start->is_end_quote && start != end)
+		start = start->next;
+	if (start == end && start && start->is_quote && start->is_end_quote)
+		return (1);
+	return (0);
 }
 
 static char	*ft_set_next_substr(t_token **start, t_token *end)
@@ -87,6 +100,7 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 	char	*substr;
 	size_t	len_substr;
 	t_token	*stop;
+	int		is_fully_quoted;
 
 	stop = *start;
 	while (stop && stop != end && stop->is_ifs)
@@ -94,16 +108,22 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 	len_substr = 0;
 	*start = stop;
 	while (stop && stop != end && !stop->is_ifs) {
-		if (!stop->is_start_quote || !stop->is_end_quote)
-			len_substr++;
+		len_substr++;
 		stop = stop->next;
 	}
+	is_fully_quoted = check_for_fully_quoted_str(*start, end);
+	if (is_fully_quoted)
+		len_substr = len_substr - 2;
 	if (len_substr > 0)
 	{
 		substr = malloc(len_substr + 1);
 		if (substr == NULL)
 			return (NULL);
-		set_string_from_tokens(substr, *start, stop);
+		set_string_from_tokens(substr, *start, stop, is_fully_quoted);
+		if (stop)
+			printf("substr: %s, *start: %c, stop: %c, is_fully_quoted: %d\n", substr, (*start)->c, stop->c, is_fully_quoted);
+		else
+			printf("substr: %s, *start: %c, stop: NULL EOL, is_fully_quoted: %d\n", substr, (*start)->c, is_fully_quoted);
 		*start = stop;
 		return (substr);
 	}

@@ -440,3 +440,7 @@ The heredoc delimiter doesn't expand variables but the content inside the heredo
 
 
 - multiple heredocs (last one first, keep goinf with seecond, then process)
+
+
+export "test=""echo hello | cat" --> for $test: hello | cat
+export test="echo hello | cat" --> for $test: hello | cat

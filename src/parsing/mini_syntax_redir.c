@@ -94,7 +94,7 @@ int get_redir_type(const t_token *redir_token) {
 }
 
 /*doesnt check last element since impossible to have just one quote token within a redirection*/
-int check_for_fully_quoted_str(const t_token *start_redir, const t_token *end_redir) {
+int check_for_fully_quoted_str_redir(const t_token *start_redir, const t_token *end_redir) {
 
 	while (start_redir && start_redir != end_redir) {
 		if (start_redir->is_quote)
@@ -118,7 +118,7 @@ char* get_redir_filename(const t_token *start_redir, const t_token *end_redir, i
 		return (NULL);
 	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) //skip back before redirection symbols if included
 		end_redir = end_redir->prev;
-	*is_fully_quoted = check_for_fully_quoted_str(start_redir, end_redir);
+	*is_fully_quoted = check_for_fully_quoted_str_redir(start_redir, end_redir);
 	args = ft_split_on_ifs((t_token*) start_redir,(t_token*)end_redir);
 	if (!args) {
 		printf("Syntax error: No redirection arguments: what should happen?\n"); //todo should fail here?
@@ -206,4 +206,3 @@ t_token *parse_redirections(t_parsing *parser, const t_token *start_cmd, const t
 	*parsing_error += validate_redirections(parser->current_cmd->redirections);
 	return (start_first_redir);
 }
-
