@@ -57,7 +57,7 @@ void	print_tokens(t_token *tokens)
 	}
 }
 
-int	create_basic_tokens(char *line, t_token **tokens)
+int	create_basic_tokens(char *line, t_token **tokens, int is_expansion)
 {
 	int		i;
 	t_token	*token;
@@ -75,6 +75,8 @@ int	create_basic_tokens(char *line, t_token **tokens)
 		}
 		ft_memset(token, 0, sizeof(t_token));
 		token->c = line[i];
+		if (is_expansion)
+			token->is_expanded = 1;
 		token->idx = i;
 		token->next = NULL;
 		token->prev = prev;

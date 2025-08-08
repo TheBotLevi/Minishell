@@ -62,7 +62,7 @@ static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_t
 		return (NULL);
 	}
 	new_tokens = NULL;
-	if (create_basic_tokens(env_val, &new_tokens)) {
+	if (create_basic_tokens(env_val, &new_tokens, 1)) {
 		free_tokens(*head);
 		return (NULL);
 	}

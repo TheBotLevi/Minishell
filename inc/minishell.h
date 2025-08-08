@@ -203,6 +203,7 @@ typedef struct s_token {
 	int is_dollar;
 	int is_var;
 	int is_braced_var;
+	int is_expanded;
 	int is_exit_status;
 	//int is_eof; // signals ctrl+D
 	//int is_comment_start;
@@ -258,7 +259,7 @@ void	set_double_redir_flags(t_token	**current);
 // mini_token_utils
 void	print_tokens(t_token *tokens);
 void	free_tokens(t_token *tokens);
-int		create_basic_tokens(char *line, t_token **tokens);
+int		create_basic_tokens(char *line, t_token **tokens, int is_expansion);
 void	token_lst_add_back(t_token **lst, t_token *new);
 char *get_char_from_tokens(t_token *start, t_token *end);
 int get_token_lst_size(t_token *start, t_token *end);

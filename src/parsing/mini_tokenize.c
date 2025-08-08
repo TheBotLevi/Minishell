@@ -158,7 +158,7 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		return (NULL);
 	tokens = NULL;
 	n_pipes = 0;
-	if (create_basic_tokens(line, &tokens) == 0) {
+	if (create_basic_tokens(line, &tokens,0) == 0) {
 		if (set_quote_flags(tokens)){
 			ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
 			free_tokens(tokens);
@@ -173,7 +173,7 @@ t_token	*tokenize(char *line, t_parsing *parser)
 			ft_putendl_fd("memory allocation error during variable expansion", STDERR_FILENO);
 			return (NULL);
 			}
-		unset_all_flags(tokens);
+		//unset_all_flags(tokens);
 		if (set_quote_flags(tokens)){
 			ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
 			free_tokens(tokens);
