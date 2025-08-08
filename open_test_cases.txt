@@ -1,31 +1,39 @@
+TODOS:
+- add minishell: to syntax error
+- rm error multiple file redirs in parsing
+- add expansions/full parsing inside heredoc
+- ?? set str input with ""
+- get rid of all debug prints
+
 open test cases
 
+|                    # Syntax error: single pipe
+ls |                # Syntax error: nothing after pipe
+> output.txt        # Syntax error: no command
+<                   # Syntax error: no file
+
+ls >>> file         # Syntax error: invalid operator
 - cat << EOF > file1.log
     opens and closes heredoc ok, but does not write to file
 - ./nonexistent_command
     produces leaks, also output "command not found" instead of "No such file or directory"
-- echo still executed despite unfound commands/dirs
-    e.g. echo hello | cat echo hello | cat -->
-    hello <-- not printed in bash
-    cat: echo: No such file or directory
-    cat: hello: No such file or directory
 - leaks for: echo hello | cat echo hello | cat
-- waits for input when cat without arg is involved, should fail instead?
-- cat | cat | ls : gives cat command not found
-- echo $NONEXISTENT      # Should print nothing --> check if prints nl
+- working with leaks: cat << EOF    # Then press Ctrl+C during heredoc
+- waits for input when cat without arg is involved, should fail instead? e.g. same in bash: cat | cat | ls  --> prints ls
 - echo $PWD$HOME         # Concatenated variables --> only expands first
+- cat     # Then press Ctrl+C -> exits but concatenates with the next prompt ^Cmariashell >
+./exeNoPermission --> prints minishell: ./EOF: Permission denied
+                             mariashell: ./EOF: command not found (bash does not print this one)
+export ""          # Empty string error for empty string ? --> prduces: Error parsing commands
+only spaces or tabs --> gives back prompt but prints new line, no cmds created
+cat <<EOF 1>>out.log  --> append does not creat the file if it doesnt exist yet
+exit str --> prints correct error but does not exit the shell (mariashell: exit fds: numeric argument required)
+exit 42 --> does not actually exit
+exit without args : exits but with leaks
+
+
+EDGE CASE NOT TO FIX:
 - export TEST=value : subsequent parsing is wrong for quoted arguments
-- ls | grep "a" --> gives ls: command not found and expects more input, after ctrlC, next shell propmt is added without linebreak: ^Cmariashell >
-
--- .. PIPE cases:
-cat file.txt | grep "pattern" | wc -l
-ls | sort | uniq
-echo hello | cat -e
-env | grep TEST --> does not redirect
-echo hello > f1 | cat < f2    # Pipe with redirections, should write to f1 and print f2 content, doesnt print f2 content
-
-...
-
 
 
 
@@ -56,133 +64,31 @@ pwd
 unset TEST
 exit 42
 echo $HOME"test"'$USER'
-
-
------
-
-### 9. Error Cases
-```shell script
-|                    # Syntax error: single pipe
-ls |                # Syntax error: nothing after pipe
-> output.txt        # Syntax error: no command
-<                   # Syntax error: no file
+echo hello > f1 | cat < f2    # Pipe with redirections, should write to f1 and print f2 content,
+env | grep TEST
+echo hello | cat
+cat file.txt | grep "pattern" | wc
+ls | sort | uniq
 "unclosed quote     # Syntax error: unclosed quote
 'unclosed quote     # Syntax error: unclosed quote
-ls >>> file         # Syntax error: invalid operator
-```
-
-
-### 10. Signal Handling
-```shell script
-cat                 # Then press Ctrl+C
-./infinite_loop     # Then press Ctrl+C
-cat << EOF          # Then press Ctrl+C during heredoc
+ls | grep "a"
+echo $NONEXISTENT      # Should print nothing
 cat                 # Then press Ctrl+D
-```
-
-
-### 11. Special Characters
-```shell script
-echo ~              # Home directory expansion
-echo \$PATH         # Escaped special character //todo echo The \# here does not begin a comment.
-echo \\            # Backslash
-echo \|            # Escaped pipe
-```
-
-
-### 12. Multiple Commands
-```shell script
-echo hello; ls      # Not required but good to test
-cd .. && ls        # Not required but good to test
-```
-
-
-### Environment Variable Edge Cases
-```shell script
-export ""          # Empty string
-export a=
+./infinite_loop     # Then press Ctrl+C
+export a=           # sets variable with an emtpy string
 export a="b"=c     # Multiple equal signs
 export 123=456     # Invalid variable name
-```
+empty command --> gives new prompt
+exit with multiple args
 
 
-To properly test these cases:
-1. Create a test script that runs each command and verifies the output
-2. Compare outputs with bash
+UNTESTED:
+
 3. Check exit status ($?) after each command
 4. Verify memory leaks using Valgrind
-5. Test signal handling in various scenarios
-6. Verify proper cleanup of file descriptors
+
 7. Check environment variable modifications persist correctly
 
-Would you like me to elaborate on any of these test cases or
-provide specific expected outputs for any of them?
-
-Comments. Lines beginning with a # (with the exception of #!) are comments and will not be executed.
-
-# This line is a comment.
-
-Comments may also occur following the end of a command.
-
-echo "A comment will follow." # Comment here.
-#                            ^ Note whitespace before #
-
-Comments may also follow whitespace at the beginning of a line.
-
-     # A tab precedes this comment.
-
-Comments may even be embedded within a pipe.
-
-initial=( `cat "$startfile" | sed -e '/#/d' | tr -d '\n' |\
-# Delete lines containing '#' comment character.
-           sed -e 's/\./\. /g' -e 's/_/_ /g'` )
-# Excerpted from life.sh script
-
-The final special character you will need to handle is the pipe ("|"). The idea of a pipe is that one can specify a series of commands, such that the output of the first command is sent as input to the second command, the output of the second to the third, and so on. For example, one might list a directory, search for all file names that include the letter "d" using grep, and then count them using the word count (wc) utility:
-
-ls | grep "d" | wc -l
-
-The shell actually creates three child processes and connects their input and output handles appropriately. For now, your job is simply to parse this pattern correctly; you will implement pipes in Lab 2.
-
-Specifically, the output of parse_line is a two-dimensional array of commands and tokens. A line of input should render one top-level, or command, entry for each step in a "pipeline" as above. For instance, in the example above, if the returned structure is named commands, it should look like:
-
-commands[0] = ["ls", '\0']
-commands[1] = ["grep", "\"d\"", '\0']
-commands[2] = ["wc", "-l", '\0']
-commands[3] = ['\0']
-
-Note: When file redirection and pipelines are combined, you can assume that only the first stage will have input redirection, and only the last stage will have output redirection. For example:
-
-grep "d" < in.txt | grep -v "html" | wc -l > out.txt
-
-The semantics of input file redirection after the first stage, or output before the final stage are not defined and will not be tested. For example, you need not handle cases like:
-
-ls | grep -v "html" > foo.txt | wc -l
-grep "d" < in.txt | grep -v "html" < a.txt | wc -l
-
-Possible combinations
-
-You can combine these with file descriptors or use them multiple times, for example:
-
-    Redirect standard error
-
-command 2>> errors.log
-
-appends stderr to errors.log.
-
-Combine multiple redirects
-
-command >> out.log 2>> errors.log
-
-appends stdout and stderr to different files.
-
-Here-document with a specific file descriptor
-
-cat <<EOF 1>>out.log
-text
-EOF
-
-uses a here-document to cat, but appends cat’s output to out.log.
 
 Here-strings with <<<
 (a variant of <<, note the triple less-than)
@@ -191,73 +97,14 @@ Here-strings with <<<
 
     passes a single string directly to stdin.
 
-Summary table:
-Operator	Meaning
-<<	here-document (multi-line stdin)
+
+Out of scope:
+
 <<<	here-string (single-line stdin)
->>	append stdout to file
 n>>file	append file descriptor n to file
 n<<word	here-document for file descriptor n
 
 
-En makefile
-
-  -L/Users/$(USER)/.brew/opt/readline/lib -I/Users/$(USER)/.brew/opt/readline/include
-
-Comp
-
-  comp -lreadline terminal.c libft.a -L/Users/$USER/.brew/opt/readline/lib -I/Users/$USER/.brew/opt/readline/include && ./a.out
-
-Readline Library
-
-  https://tiswww.case.edu/php/chet/readline/readline.html
-
-Para compilar readline
-
-  -L/Users/$USER/.brew/opt/readline/lib
-  -I/Users/$USER/.brew/opt/readline/include
-
-suprimir leaks readline
-
-  valgrind --suppressions=readline.supp --leak-check=full --show-leak-kinds=all ./minishell
-
-    Compile
-
-    - USE make -n to see if compilation use -Wall -Wextra -Werror if not use invalid compilation flags
-    - minishell Compile without errors if not use flags
-    - makefile must not re-link
-
-Simple Command & global
-
-- Execute a simple command with an absolute path like /bin/ls or any other command without options
-- How many global variables? why? Give a concrete example of why it feels mandatory or logical.
-- Test an empty command.
-- Test only spaces or tabs.
-- if something crashes use the crash flag.
-- if something is not working use the incomplete work flag.
-
-Arguments & history
-
-  - Execute a simple command with an absolute path like /bin/ls or any other command with arguments but without
-    quotes and double quotes
-  - Repeat multiple times with different commands and arguments
-  - if something crashes use the crash flag.
-  - if something is not working use the incomplete work flag.
-
-echo
-
-  - Execute the echo command with or without arguments or -n
-  - Repeat multiple times with different arguments
-  - if something crashes use the crash flag.
-  - if something is not working use the incomplete work flag.
-
-exit
-
-  - Execute exit command with or without arguments
-  - Repeat multiple times with different arguments
-  - Don't forget to relaunch the minishell
-  - if something crashes use the crash flag.
-  - if something is not working use the incomplete work flag
 
 Return value of a process
 
