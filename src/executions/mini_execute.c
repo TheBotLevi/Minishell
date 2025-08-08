@@ -119,7 +119,7 @@ int	execute_external_cmd(t_mini *mini)
 		if (!envp)
 		{
 			//cleanup_redir(mini);
-			free_cmds(mini->cmds);
+			//free_cmds(mini->cmds);
 			exit(1);
 		}
 		paths = get_paths_from_list(mini->env_struct);
@@ -128,14 +128,15 @@ int	execute_external_cmd(t_mini *mini)
 			free_args(paths);
 		if (!exec_path)
 		{
-			free_cmds(mini->cmds);
+			//free_cmds(mini->cmds);
 			//cleanup_redir(mini);
 			free_args(envp);
 			handle_external_command_not_found(mini);
+
 		}
 		execve(exec_path, mini->cur_cmd->args, envp);
 		perror("mariashell: execve");
-		free_cmds(mini->cmds);
+		//free_cmds(mini->cmds);
 		//cleanup_redir(mini);
 		free(exec_path);
 		free_args(envp);
