@@ -130,7 +130,6 @@ static void	execute_single_cmd(t_mini *pipeline,
 	envp = env_list_to_array(pipeline->cur_cmd->env_struct);
 	paths = get_paths_from_list(pipeline->cur_cmd->env_struct);
 	exec_path = find_exec(pipeline->cur_cmd->args[0], paths);
-
 	if (paths)
 		free_args(paths);
 	if (exec_path)
@@ -183,7 +182,8 @@ int	create_and_fork_process(t_mini *pipeline)
 		return (1);
 	//current = pipeline->commands;
 	current = pipeline->cmds;
-	cmd_index = pipeline->cmd_count - 1;
+	//cmd_index = pipeline->cmd_count - 1;
+	cmd_index = 0;
 	while (current)
 	{
 		pipeline->cur_cmd = current;
@@ -196,7 +196,8 @@ int	create_and_fork_process(t_mini *pipeline)
 			return (1);
 		}
 		current = current->next;
-		cmd_index--;
+		//cmd_index--;
+		cmd_index++;
 	}
 	return (0);
 }
