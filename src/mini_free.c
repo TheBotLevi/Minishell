@@ -91,7 +91,7 @@ static void	help_free_pipelines(t_mini *pipeline)
 	}
 	free(pipeline->pipes);
 }
-
+/*
 void	free_pipeline(t_mini *pipeline)
 {
 	t_mini	*current;
@@ -115,20 +115,24 @@ void	free_pipeline(t_mini *pipeline)
 //	if (pipeline->commands)
 //		free(pipeline->commands);
 	free(pipeline);
-}
+}*/
 
 void	free_everything(t_mini *mini)
 {
 	if (!mini)
 	return ;
-	free_args(mini->args);
+	//free_args(mini->args);
+	free_cmds(mini->cmds);
 	free(mini->old_path);
+	if (mini->pids)
+		free(mini->pids);
 	if (mini->pipes)
-		free_pipeline(mini);
+		help_free_pipelines(mini);
+		//free_pipeline(mini);
 	free_env_list(mini->env_struct);
 	free(mini);
 }
-
+/*
 void	cleanup_redir(t_mini *mini)
 {
 	if (mini->args && mini->original_args && mini->args != mini->original_args)
@@ -137,4 +141,4 @@ void	cleanup_redir(t_mini *mini)
 		mini->args = mini->original_args;
 		mini->original_args = NULL;
 	}
-}
+}*/

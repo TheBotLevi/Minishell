@@ -91,6 +91,7 @@ int	is_valid_export(char *str)
 	return (1);
 }
 
+//todo reactivate changing the env? otherwise function redudant
 void	update_exit_status(t_mini *mini)
 {
 	char	*exit_str;

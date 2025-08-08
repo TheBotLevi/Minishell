@@ -27,23 +27,24 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-int	handle_builtin(t_mini *mini)	//is going to change
+//  127 error code indicates “command not found"
+int	handle_builtin(t_mini *mini)
 {
 	if (!mini->cur_cmd->args || !mini->cur_cmd->args[0])
 		return (1);
 	if (ft_strcmp(mini->cur_cmd->args[0], "echo") == 0)
 		return (mini_echo(mini->cur_cmd->args));
-	else if (ft_strcmp(mini->cur_cmd->args[0], "cd") == 0)
+	if (ft_strcmp(mini->cur_cmd->args[0], "cd") == 0)
 		return (mini_cd(mini));
-	else if (ft_strcmp(mini->cur_cmd->args[0], "pwd") == 0)
+	if (ft_strcmp(mini->cur_cmd->args[0], "pwd") == 0)
 		return (mini_pwd());
-	else if (ft_strcmp(mini->cur_cmd->args[0], "export") == 0)
+	if (ft_strcmp(mini->cur_cmd->args[0], "export") == 0)
 		return (mini_export(mini));
-	else if (ft_strcmp(mini->cur_cmd->args[0], "unset")== 0)
+	if (ft_strcmp(mini->cur_cmd->args[0], "unset")== 0)
 		return (mini_unset(mini));
-	else if (ft_strcmp(mini->cur_cmd->args[0], "env") == 0)
+	if (ft_strcmp(mini->cur_cmd->args[0], "env") == 0)
 		return (mini_env(&mini->env_struct));
-	else if (ft_strcmp(mini->cur_cmd->args[0], "exit") == 0)
+	if (ft_strcmp(mini->cur_cmd->args[0], "exit") == 0)
 		return (mini_exit(mini));
 	return (127);
 }

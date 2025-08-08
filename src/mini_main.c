@@ -13,7 +13,7 @@
 #include "../inc/minishell.h"
 
 
-t_command *test_parsing(char* line, t_mini* mini) {
+static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 	t_parsing *parser;
 	t_command*	cmds;
 	t_command*	cmds_return;
@@ -34,7 +34,7 @@ t_command *test_parsing(char* line, t_mini* mini) {
 		return (NULL);
 	}
 	print_tokens(parser->tokens_head);
-	if (parse_tokens(parser) > 0) {
+	if (parse_tokens(parser, mini) > 0) {
 		printf("Error parsing commands\n");
 		free_tokens(parser->tokens_head);
 		if (parser->cmd_head)
@@ -65,10 +65,8 @@ void	ft_mini_loop(t_mini *mini)
 {
 	char	*line;
 	int	status;
-	t_command	*cmds;
 
 	line = NULL;
-	cmds = NULL;
 	status = 0;
 	while (1)
 	{
@@ -93,7 +91,7 @@ void	ft_mini_loop(t_mini *mini)
 			continue ;
 		}
 		add_history(line);
-		mini->cmds = test_parsing(line, mini);
+		mini->cmds = parse_line_to_commands(line, mini);
 		mini->cur_cmd = mini->cmds;
 		//status = process_command(line, mini);
 		status = process_command(mini);

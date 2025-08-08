@@ -62,7 +62,6 @@ static int	create_pipes(t_mini *pipeline)
 static int	create_pipes(t_mini *pipeline)
 {
 	int	i;
-	t_command	*command;
 
 	if (pipeline->cmd_count <= 1)
 		return (0);
@@ -108,7 +107,7 @@ static void	close_all_pipes(t_mini *pipeline)
 	}
 }
 
-static void	execute_single_cmd(t_command* cmd, t_mini *pipeline,
+static void	execute_single_cmd(t_mini *pipeline,
 							int cmd_index)
 {
 	char	**envp;
@@ -120,30 +119,30 @@ static void	execute_single_cmd(t_command* cmd, t_mini *pipeline,
 	close_all_pipes(pipeline);
 	
 	// Handle redirections for this command
-	if (execute_redirections(cmd) != 0)
+	if (execute_redirections(pipeline) != 0)
 		exit(1);
 	
 	// Handle builtins
-	if (is_builtin(cmd->args[0]))
-		exit(handle_builtin(mini));
+	if (is_builtin(pipeline->cur_cmd->args[0]))
+		exit(handle_builtin(pipeline));
 
 	// Execute external commands
-	envp = env_list_to_array(cmd->env_struct);
-	paths = get_paths_from_list(cmd->env_struct);
-	exec_path = find_exec(cmd->args[0], paths);
+	envp = env_list_to_array(pipeline->cur_cmd->env_struct);
+	paths = get_paths_from_list(pipeline->cur_cmd->env_struct);
+	exec_path = find_exec(pipeline->cur_cmd->args[0], paths);
 
 	if (paths)
 		free_args(paths);
 	if (exec_path)
 	{
-		execve(exec_path, cmd->args, envp);
+		execve(exec_path, pipeline->cur_cmd->args, envp);
 		perror("minishell: execve");
 		free(exec_path);
 	}
 	else
 	{
 		ft_putstr_fd("mariashell: ", STDERR_FILENO);
-		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+		ft_putstr_fd(pipeline->cur_cmd->args[0], STDERR_FILENO);
 		ft_putendl_fd(": command not found", STDERR_FILENO);
 	}
 	if (envp)
@@ -187,9 +186,10 @@ int	create_and_fork_process(t_mini *pipeline)
 	cmd_index = pipeline->cmd_count - 1;
 	while (current)
 	{
+		pipeline->cur_cmd = current;
 		pipeline->pids[cmd_index] = fork();
-		if (pipeline->pids[cmd_index] == 0)
-			execute_single_cmd(current, pipeline, cmd_index);
+		if (pipeline->pids[cmd_index] == 0) // --> entering child, pipeline is a copy
+			execute_single_cmd(pipeline, cmd_index);
 		else if (pipeline->pids[cmd_index] < 0)
 		{
 			perror("minishell: fork");

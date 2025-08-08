@@ -38,7 +38,7 @@ t_env	*init_environment(char **env)
 static void	mini_init_init(t_mini *mini)
 {
 	mini->old_path = NULL;
-	mini->args = NULL;
+	//mini->args = NULL;
 	mini->exit_status = 0;
 	mini->pipes = NULL;
 	mini->cmd_count = 0;

@@ -31,7 +31,7 @@ int	is_numeric(char *str)
 static void	handle_invalid_args(t_mini *mini)
 {
 	ft_putstr_fd("mariashell: exit ", STDERR_FILENO);
-	ft_putstr_fd(mini->args[1], STDERR_FILENO);
+	ft_putstr_fd(mini->cur_cmd->args[1], STDERR_FILENO);
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 }
 
@@ -40,12 +40,12 @@ int	mini_exit(t_mini *mini)
 	int	arg_count;
 
 	arg_count = 0;
-	while (mini->args[arg_count])
+	while (mini->cur_cmd->args[arg_count])
 		arg_count++;
 	ft_putendl_fd("exit", STDOUT_FILENO);
 	if (arg_count == 1)
 		mini->exit_status = 1;
-	else if (!is_numeric(mini->args[1]))
+	else if (!is_numeric(mini->cur_cmd->args[1]))
 	{
 		handle_invalid_args(mini);
 		mini->exit_status = 2;
@@ -56,7 +56,7 @@ int	mini_exit(t_mini *mini)
 		return (1);
 	}
 	else
-		mini->exit_status = ft_atoi(mini->args[1]) & 255;
+		mini->exit_status = ft_atoi(mini->cur_cmd->args[1]) & 255;
 //	exit(mini->exit_status);
 	return (mini->exit_status);
 }

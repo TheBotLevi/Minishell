@@ -69,8 +69,8 @@ void	free_cmds(t_command *cmd)
         tmp = cmd->next;
         if (cmd->redirections)
             free_redirections(cmd->redirections);
-        if (cmd->argv)
-            free_args(cmd->argv);
+        if (cmd->args)
+            free_args(cmd->args);
         free(cmd);
         cmd = tmp;
     }

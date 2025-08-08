@@ -49,7 +49,7 @@ typedef struct s_env
 
 typedef struct s_mini
 {
-	char			**args;	//is going to change for parsing (tokenization)
+	//char			**args;	//is going to change for parsing (tokenization)
 	t_command		*cmds;
 	t_command		*cur_cmd;
 	char			*old_path;
@@ -274,7 +274,7 @@ char	**ft_split_on_ifs(t_token *tokens, t_token *end);
 t_token** split_line(char *line, t_parsing *parser);
 
 //mini_syntax
-int	parse_tokens(t_parsing *parser);
+int parse_tokens(t_parsing *parser, t_mini *mini);
 
 //mini_token_var_exp
 int expand_vars(t_parsing *parser, t_token **tokens);

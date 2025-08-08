@@ -40,27 +40,28 @@ static char	*get_cd_path(t_mini *mini)
 {
 	char	*path;
 
-	if (!mini->args[1] || ft_strcmp(mini->args[1], "~") == 0)
+	//if (!mini->args[1] || ft_strcmp(mini->args[1], "~") == 0)
+	if (!mini->cur_cmd->args[1] || ft_strcmp(mini->cur_cmd->args[1], "~") == 0) //todo points to single char or first char in string?
 		path = get_env_value(mini->env_struct, "HOME");
-	else if (ft_strcmp(mini->args[1], "-") == 0)
+	else if (ft_strcmp(mini->cur_cmd->args[1], "-") == 0)
 	{
 		path = get_env_value(mini->env_struct, "OLDPWD");
 		if (path)
 			ft_putendl_fd(path, STDOUT_FILENO);
 	}
 	else
-		path = mini->args[1];
+		path = mini->cur_cmd->args[1];
 	return (path);
 }
 
 static int	handle_cd_errors(t_mini *mini, char *path)
 {
 	ft_putstr_fd("mariashell: cd: ", STDERR_FILENO);
-	if (!path && !mini->args[1])
+	if (!path && !mini->cur_cmd->args[1])
 		ft_putendl_fd("HOME not set", STDERR_FILENO);
 	else
 	{
-		ft_putstr_fd(mini->args[1], STDERR_FILENO);
+		ft_putstr_fd(mini->cur_cmd->args[1], STDERR_FILENO);
 		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
 	}
 	return (1);
@@ -79,7 +80,7 @@ int	mini_cd(t_mini *mini)
 	if (!mini->old_path)
 		return (1);
 	path = get_cd_path(mini);
-	if ((!path && !mini->args[1]) || (path && chdir(path) == -1))
+	if ((!path && !mini->cur_cmd->args[1]) || (path && chdir(path) == -1))
 		return (handle_cd_errors(mini, path));
 	update_pwd_vars(mini);
 	return (0);

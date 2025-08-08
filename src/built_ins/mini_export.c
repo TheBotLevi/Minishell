@@ -110,20 +110,20 @@ int	mini_export(t_mini *mini)
 	int	status;
 
 	status = 0;
-	if (!mini->args[1])
+	if (!mini->cur_cmd->args[1])
 	{
 		display_exported_vars(mini->env_struct);
 		return (0);
 	}
 	i = 1;
-	while (mini->args[i])
+	while (mini->cur_cmd->args[i])
 	{
-		if (ft_strchr(mini->args[i], '=') == NULL)
+		if (ft_strchr(mini->cur_cmd->args[i], '=') == NULL)
 		{
-			if (handle_no_value_var(mini->args[i], &mini->env_struct))
+			if (handle_no_value_var(mini->cur_cmd->args[i], &mini->env_struct))
 				status = 1;
 		}
-		else if (handle_export_arg(mini->args[i], &mini->env_struct))
+		else if (handle_export_arg(mini->cur_cmd->args[i], &mini->env_struct))
 			status = 1;
 		i++;
 	}

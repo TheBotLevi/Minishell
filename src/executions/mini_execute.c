@@ -88,10 +88,10 @@ static int	handle_parent_process(pid_t pid, char **envp)
 	return (status);
 }
 
-static void	handle_external_command(t_mini *mini)
+static void	handle_external_command_not_found(t_mini *mini)
 {
 	ft_putstr_fd("mariashell: ", STDERR_FILENO);
-	ft_putstr_fd(mini->args[0], STDERR_FILENO);
+	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": command not found", STDERR_FILENO);
 	exit(127);
 }
@@ -110,29 +110,33 @@ int	execute_external_cmd(t_mini *mini)
 		setup_child_signals();
 		if (execute_redirections(mini) != 0)
 		{
-			cleanup_redir(mini);
-			free_args(envp);
+			//cleanup_redir(mini);
+			free_cmds(mini->cmds);
 			exit(1);
 		}
+
 		envp = env_list_to_array(mini->env_struct);
 		if (!envp)
 		{
-			cleanup_redir(mini);
+			//cleanup_redir(mini);
+			free_cmds(mini->cmds);
 			exit(1);
 		}
 		paths = get_paths_from_list(mini->env_struct);
-		exec_path = find_exec(mini->args[0], paths);
+		exec_path = find_exec(mini->cur_cmd->args[0], paths);
 		if (paths)
 			free_args(paths);
 		if (!exec_path)
 		{
-			cleanup_redir(mini);
+			free_cmds(mini->cmds);
+			//cleanup_redir(mini);
 			free_args(envp);
-			handle_external_command(mini);
+			handle_external_command_not_found(mini);
 		}
-		execve(exec_path, mini->args, envp);
+		execve(exec_path, mini->cur_cmd->args, envp);
 		perror("mariashell: execve");
-		cleanup_redir(mini);
+		free_cmds(mini->cmds);
+		//cleanup_redir(mini);
 		free(exec_path);
 		free_args(envp);
 		exit(126);
@@ -145,14 +149,15 @@ static int	handle_single_command(t_mini *mini)
 {
 	if (is_builtin(mini->cur_cmd->args[0]))
 		return (execute_builtin_in_parent(mini));
-	else
-		return (execute_external_cmd(mini));
+	return (execute_external_cmd(mini));
 }
 
 static int	handle_pipeline(t_mini *mini)
 {
-	t_mini	*pipeline;
+	/*
+	*t_mini	*pipeline;
 	t_mini	*current;
+
 
 	if (parse_pipeline(line, &pipeline) == 0)
 	{
@@ -167,7 +172,8 @@ static int	handle_pipeline(t_mini *mini)
 		free_pipeline(pipeline);
 	}
 	else
-		mini->exit_status = 1;
+		mini->exit_status = 1;*/
+	mini->exit_status = execute_pipeline(mini); //change to mini itself instead of pipeline with mini list ("commands")
 	update_exit_status(mini);
 	return (mini->exit_status);
 }
@@ -176,16 +182,15 @@ int	process_command(t_mini *mini)
 {
 	if (!mini->cmds)
 		return (0);
+	mini->cur_cmd = mini->cmds;
 	if (mini->cmd_count > 1)
 		return (handle_pipeline(mini));
-	else
-	{
-		if (mini->cur_cmd->args && mini->cur_cmd->args[0])
-			mini->exit_status = handle_single_command(mini);
-		if (mini->cur_cmd->args)
-			free_cmds(mini->cmds);
-		update_exit_status(mini);
-	}
+	if (mini->cur_cmd->args && mini->cur_cmd->args[0])
+		mini->exit_status = handle_single_command(mini);
+	free_cmds(mini->cmds);
+	mini->cmds = NULL;
+	mini->cur_cmd = NULL;
+	update_exit_status(mini); //todo currently not doing anythoing -> see function
 	return (mini->exit_status);
 }
 
