@@ -62,35 +62,27 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 
 // sets all flags except "has heredoc" as this is checked in each redirection (if mu]ltiple) and set if ANY ONE has it
 void set_cmd_flags(t_parsing *parser) {
-
-	t_command *current;
+	t_command	*current;
 
 	current = parser->cmd_head;
 	if (!current)
 		return;
-	if (current->next) {
-		current->has_pipe_out = 1;
-		if (current->redirections)
-			current->has_redir = 1;
-		current->has_pipe_out = 1;
-		if (current->args && is_builtin(current->args[0]))
-			current->is_builtin = 1;
-		current = current->next;
-	}
-	while (current) {
-		if (current->redirections)
-			current->has_redir = 1;
-		current->has_pipe_in = 1;
+
+	while (current)
+	{
 		if (current->next)
 			current->has_pipe_out = 1;
+		if (current != parser->cmd_head)
+			current->has_pipe_in = 1;
+		if (current->redirections)
+			current->has_redir = 1;
 		if (current->args && is_builtin(current->args[0]))
 			current->is_builtin = 1;
-		current->output_fd = -1;
 		current->input_fd = -1;
+		current->output_fd = -1;
 		current->env_struct = parser->env_struct;
 		current = current->next;
 	}
-
 }
 
 int parse_tokens(t_parsing *parser, t_mini *mini)
