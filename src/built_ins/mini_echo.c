@@ -26,12 +26,14 @@ static int	only_n(char *str)
 	return (1);
 }
 
-int	mini_echo(char **cmds)	//Change: parsing
+int	mini_echo(char **cmds)
 {
 	int	i;
 	int	new_line;
+	int	printed;
 
 	i = 1;
+	printed = 0;
 	new_line = 1;
 	while (cmds[i] && cmds[i][0] == '-' && cmds[i][1] == 'n' && only_n(&cmds[i][1]))
 	{
@@ -44,8 +46,9 @@ int	mini_echo(char **cmds)	//Change: parsing
 		if (cmds[i + 1])
 			ft_putchar_fd(' ', STDOUT_FILENO);
 		i++;
+		printed = 1;
 	}
-	if (new_line)
+	if (new_line && printed)
 		ft_putchar_fd('\n', STDOUT_FILENO);
 	return (0);
 }
