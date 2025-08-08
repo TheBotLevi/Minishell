@@ -58,10 +58,7 @@ exit 42
 echo $HOME"test"'$USER'
 
 
-
-
-
-
+-----
 
 ### 9. Error Cases
 ```shell script

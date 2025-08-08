@@ -102,7 +102,7 @@ static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_en
 
 	env_val = NULL;
 	if (char_start && char_start->is_exit_status) {
-		env_val = ft_itoa(parser->exit_status); // todo ok to set to empty string thwn not found?
+		env_val = ft_itoa(parser->exit_status);
 	}
 	else {
 		str = get_char_from_tokens(char_start, char_end);

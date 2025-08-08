@@ -189,8 +189,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		set_redirection_flags(tokens);
 		flag_is_redirection(tokens);
 		set_ifs_flags(parser, &tokens);
-		/*printf("all var exp finished:\n");  // todo delete DEBUG
-		print_tokens(*tokens);*/
 	}
 	parser->n_cmds = n_pipes + 1;
 	return (tokens);
