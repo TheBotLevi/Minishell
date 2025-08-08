@@ -153,7 +153,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 {
 	t_token	*tokens;
 	int n_pipes;
-	int var_expanded;
 
 	if (!line || !parser)
 		return (NULL);
@@ -170,23 +169,19 @@ t_token	*tokenize(char *line, t_parsing *parser)
 				free_tokens(tokens);
 				return (NULL);
 			}
-		set_var_expansion_flags(&tokens);
-		var_expanded = expand_vars(parser, &tokens);
-		if (var_expanded == 0) {
-			unset_all_flags(tokens);
-			if (set_quote_flags(tokens)){
-				ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
-				free_tokens(tokens);
-				return (NULL);
-			}
-			if (set_heredoc_delimiter_flags(parser, tokens)){
-				ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
-				free_tokens(tokens);
-				return (NULL);
-			}
-		}
-		else if (var_expanded == -1){
+		if (expand_vars(parser, &tokens) == -1){
 			ft_putendl_fd("memory allocation error during variable expansion", STDERR_FILENO);
+			return (NULL);
+			}
+		unset_all_flags(tokens);
+		if (set_quote_flags(tokens)){
+			ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
+			free_tokens(tokens);
+			return (NULL);
+		}
+		if (set_heredoc_delimiter_flags(parser, tokens)){
+			ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
+			free_tokens(tokens);
 			return (NULL);
 		}
 		reset_idx(tokens);

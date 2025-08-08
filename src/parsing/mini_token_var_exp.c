@@ -119,28 +119,31 @@ static char* lookup_var(t_parsing *parser, t_token *char_start, t_token *char_en
 	return (env_val);
 }
 
-/* returns 0 if a var has been expanded, -1 on error, 1 on no vars expanded
+/* returns 0 if no expansions or if all vars has been successfully expanded, -1 on error
  */
-int expand_vars(t_parsing *parser, t_token **tokens) {
+int expand_vars(t_parsing *parser, t_token **tokens)
+{
 	t_token *start;
 	t_token *end;
 	t_token *char_start;
 	t_token *char_end;
 	char *env_val;
 
+	set_var_expansion_flags(tokens);
 	start = *tokens;
 	env_val = NULL;
-	if (find_next_var_exp(&start, &end, &char_start, &char_end) != 0)
-		return (1);
-	env_val = lookup_var(parser, char_start, char_end);
-	if (!env_val)
-		return (-1);
-	printf("Expanding from: '%c' to '%c'\n", start->c, end->c);
-	if (!start->prev && !end->next)
-		printf("Full token list will be replaced\n");
-	*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
-	free(env_val);
-	if (!*tokens)
-		return (-1);
+	while (find_next_var_exp(&start, &end, &char_start, &char_end) == 0){
+		env_val = lookup_var(parser, char_start, char_end);
+		if (!env_val)
+			return (1);
+		printf("Expanding from: '%c' to '%c'\n", start->c, end->c);
+		if (!start->prev && !end->next)
+			printf("Full token list will be replaced\n");
+		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
+		free(env_val);
+		if (!*tokens)
+			return (1);
+		start = *tokens;
+	}
 	return (0);
 }
