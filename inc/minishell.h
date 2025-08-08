@@ -118,7 +118,6 @@ char				*get_env_value(t_env *env, char *key);
 char				**parse_input(char *line);
 void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
-void	update_exit_status(t_mini *mini);
 int	add_new_env_var(t_env **env, char *key, char *value);
 void print_array(char** ar);
 

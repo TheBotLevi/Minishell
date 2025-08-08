@@ -174,7 +174,6 @@ static int	handle_pipeline(t_mini *mini)
 	else
 		mini->exit_status = 1;*/
 	mini->exit_status = execute_pipeline(mini); //change to mini itself instead of pipeline with mini list ("commands")
-	update_exit_status(mini);
 	return (mini->exit_status);
 }
 
@@ -190,7 +189,6 @@ int	process_command(t_mini *mini)
 	free_cmds(mini->cmds);
 	mini->cmds = NULL;
 	mini->cur_cmd = NULL;
-	update_exit_status(mini); //todo currently not doing anythoing -> see function
 	return (mini->exit_status);
 }
 

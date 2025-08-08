@@ -91,19 +91,6 @@ int	is_valid_export(char *str)
 	return (1);
 }
 
-//todo reactivate changing the env? otherwise function redudant
-void	update_exit_status(t_mini *mini)
-{
-	char	*exit_str;
-
-	exit_str = ft_itoa(mini->exit_status);
-	if (exit_str)
-	{
-//		update_env_value(&mini->env_struct, "?", exit_str);
-		free(exit_str);
-	}
-}
-
 void print_array(char** ar) {
 	int i;
 

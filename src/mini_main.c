@@ -100,7 +100,6 @@ void	ft_mini_loop(t_mini *mini)
 			mini->exit_status = 130;
 			g_exit = 0;
 		}
-		update_exit_status(mini);
 		if (ft_strcmp(line, "exit") == 0)
 		{
 			free(line);
