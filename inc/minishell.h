@@ -268,7 +268,7 @@ void cancel_unfinished_quote_token(t_token *token);
 int set_quote_flags(t_token *current);
 
 //mini_split //todo to be modified and cleaned up
-char	**ft_split_on_ifs(t_token *tokens, t_token *end);
+char	**ft_split_on_ifs(t_token *tokens, t_token *end, int ignore_redirections);
 t_token** split_line(char *line, t_parsing *parser);
 
 //mini_syntax
