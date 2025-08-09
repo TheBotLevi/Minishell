@@ -12,8 +12,9 @@
 
 #include "../../inc/minishell.h"
 
-// if str is not just delimiter, return null, else return empty array
-static char	**ft_is_valid_input(t_token *str, t_token *end)
+// Returns empty argv if only IFS and optionally redirs are present
+// Otherwise NULL if there's any real non-redir, non-IFS token
+static char	**ft_is_valid_input(t_token *str, t_token *end, int ignore_redirections)
 {
 	char	**ar;
 
@@ -26,9 +27,16 @@ static char	**ft_is_valid_input(t_token *str, t_token *end)
 	}
 	while (str && str != end)
 	{
-		if (!str->is_ifs)
-			return (NULL);
-		str = str->next;
+		if (str->is_ifs) {
+			str = str->next;
+			continue;
+		}
+		if (ignore_redirections && (str->is_redirection || str->is_redir_filename)){
+			str = str->next;
+			continue;
+		}
+		// Found something that is not IFS and not an allowed redirection → not "empty"
+		return (NULL);
 	}
 	ar = (char **)malloc(sizeof(char *));
 	if (ar)
@@ -36,7 +44,7 @@ static char	**ft_is_valid_input(t_token *str, t_token *end)
 	return (ar);
 }
 
-static size_t	ft_get_ndelims(t_token *str, t_token *end)
+static size_t	ft_get_ndelims(t_token *str, t_token *end, int ignore_redirections)
 {
 	size_t	ndelims;
 	t_token	*last;
@@ -44,18 +52,20 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end)
 	last = NULL;
 	ndelims = 0;
 	if (!str)
-		return (ndelims);
-	while (str && str != end && str->is_ifs)
+		return 0;
+	while (str && str != end && (str->is_ifs ||
+		   (ignore_redirections && (str->is_redirection || str->is_redir_filename))))
 		str = str->next;
 	while (str && str != end)
 	{
-		if (str->is_ifs)
-		{
+		if (str->is_ifs) {
 			ndelims++;
 			while (str && str != end && str->is_ifs)
 				str = str->next;
-		}
-		else {
+			while (ignore_redirections && str && str != end &&
+				   (str->is_redirection || str->is_redir_filename))
+				str = str->next;
+		} else {
 			last = str;
 			str = str->next;
 		}
@@ -92,38 +102,39 @@ int count_quote_chars(const t_token *start, const t_token *end) {
 	return (count);
 }
 
-static char	*ft_set_next_substr(t_token **start, t_token *end)
+static char	*ft_set_next_substr(t_token **start, t_token *end, int ignore_redirections)
 {
 	char	*substr;
 	size_t	len_substr;
 	t_token	*stop;
 
+	// skip leading IFS and redir tokens
+	while (*start && *start != end &&
+		  ((*start)->is_ifs ||
+		  (ignore_redirections && ((*start)->is_redirection || (*start)->is_redir_filename))))
+		*start = (*start)->next;
 	stop = *start;
-	while (stop && stop != end && stop->is_ifs)
-		stop = stop->next;
 	len_substr = 0;
-	*start = stop;
-	while (stop && stop != end && !stop->is_ifs) {
+	while (stop && stop != end &&
+		  !(stop->is_ifs || (ignore_redirections &&
+			(stop->is_redirection || stop->is_redir_filename))))
+	{
 		len_substr++;
 		stop = stop->next;
 	}
-	len_substr = len_substr - count_quote_chars(*start, stop);
+	len_substr -= count_quote_chars(*start, stop);
 	substr = malloc(len_substr + 1);
 	if (!substr)
-		return (NULL);
+		return NULL;
 	set_string_from_tokens(substr, *start, stop);
-	if (stop)
-		printf("substr: %s, *start: %c, stop: %c, n_quote_chars: %d\n", substr, (*start)->c, stop->c, count_quote_chars(*start, stop));
-	else
-		printf("substr: %s, *start: %c, stop: NULL EOL, n_quote_chars: %d\n", substr, (*start)->c, count_quote_chars(*start, stop));
 	*start = stop;
-	return (substr);
+	return substr;
 }
 
 
 /* Split that accepts a string instead char as splitting param c,
 	to treat the IFS string*/
-char	**ft_split_on_ifs(t_token *start, t_token *end)
+char	**ft_split_on_ifs(t_token *start, t_token *end, int ignore_redirections)
 {
 	t_token	*curr;
 	char	**ar;
@@ -131,17 +142,17 @@ char	**ft_split_on_ifs(t_token *start, t_token *end)
 	size_t	ndelims;
 
 	curr = start;
-	ar = ft_is_valid_input(curr, end);
+	ar = ft_is_valid_input(curr, end, ignore_redirections);
 	if (ar)
 		return (ar);
-	ndelims = ft_get_ndelims(curr, end);
+	ndelims = ft_get_ndelims(curr, end, ignore_redirections);
 	ar = (char **)malloc((ndelims + 2) * sizeof(char *));
 	if (ar == NULL)
 		return (NULL);
 	i = 0;
 	while (i < (ndelims + 1))
 	{
-		ar[i] = ft_set_next_substr(&curr, end);
+		ar[i] = ft_set_next_substr(&curr, end, ignore_redirections);
 		if (ar[i] == NULL)
 		{
 			free_n_array(ar, i);

@@ -2,7 +2,6 @@ TODOS:
 - add minishell: to syntax error
 - rm error multiple file redirs in parsing
 - add expansions/full parsing inside heredoc
-- ?? set str input with ""
 - get rid of all debug prints
 - ctrl-C not direct
 
@@ -31,7 +30,8 @@ exit str --> prints correct error but does not exit the shell (mariashell: exit 
 exit 42 --> does not actually exit
 exit without args : exits but with leaks
 exit multple args -> no error
-
+mariashell > echo dfsf >"" --> minishell: : Permission denied instead of inexistent file
+??? on input not yet entered, when pressing ctrl-C, its not printed in teh prompt -> bash:    sh-5.2$ cat dfsd ^C
 
 EDGE CASE NOT TO FIX:
 - export TEST=value : subsequent parsing is wrong for quoted arguments

@@ -35,23 +35,25 @@ void  command_lst_add_back(t_command **cmd_head, t_command *new_cmd) {
  */
 int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	t_token *cmd_end;
-	t_token *start_redir;
+	//t_token *start_redir;
 	//int has_redir;
 	int parsing_error;
 
 	if (*cmd_start == NULL)
 		return (0);
-	start_redir = NULL;
+	//start_redir = NULL;
 	cmd_end = get_cmd_end(*cmd_start); //todo what if cmd_end == start?
 	if (cmd_end)
 		printf("end cmd: %c\n", cmd_end->c);
 	parsing_error = 0;
-	start_redir = parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
+	//start_redir =parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
+	parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
 	/*if (parsing_error)
 		return (parsing_error);*/
-	if (!start_redir)
-		start_redir = cmd_end;
-	parser->current_cmd->args = ft_split_on_ifs(*cmd_start, start_redir);
+	/*if (!start_redir)
+		start_redir = cmd_end;*/
+	//start_redir = cmd_end;
+	parser->current_cmd->args = ft_split_on_ifs(*cmd_start, cmd_end, 1);
 	*cmd_start = cmd_end; //set new cmd start
 	while (*cmd_start && (*cmd_start)->is_pipe)
 		*cmd_start = (*cmd_start)->next;

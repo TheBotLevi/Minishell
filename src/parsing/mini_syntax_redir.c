@@ -98,7 +98,7 @@ char* get_redir_filename(const t_token *start_redir, const t_token *end_redir, i
 	if (end_redir && (end_redir->is_redirection || end_redir->is_pipe)) //skip back before redirection symbols if included
 		end_redir = end_redir->prev;
 	*is_fully_quoted = check_for_fully_quoted_str_redir(start_redir, end_redir);
-	args = ft_split_on_ifs((t_token*) start_redir,(t_token*)end_redir);
+	args = ft_split_on_ifs((t_token*) start_redir,(t_token*)end_redir, 0);
 	if (!args) {
 		if (end_redir && end_redir->next)
 			print_unexpected_token_error(end_redir->next);
