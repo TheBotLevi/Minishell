@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/18 13:13:38 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/09 15:44:28 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ void	cleanup_redir(t_mini *mini);
 int					execute_external_cmd(t_mini *mini);
 //int	process_command(char *line, t_mini *mini);
 int		process_command( t_mini *mini);
-char	*find_exec(char *cmd, char **paths);
+char	*find_exec(char *cmd, char **paths, t_mini* mini);
 
 //signals
 void	setup_signals(void);

@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/18 17:52:51 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/09 15:48:10 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,14 @@ static void	handle_external_command_not_found(t_mini *mini)
 	exit(127);
 }
 
+static void	handle_external_command_not_found2(t_mini *mini)
+{
+	ft_putstr_fd("mariashell: ", STDERR_FILENO);
+	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
+	ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+	exit(127);
+}
+
 int	execute_external_cmd(t_mini *mini)
 {
 	pid_t	pid;
@@ -123,7 +131,7 @@ int	execute_external_cmd(t_mini *mini)
 			exit(1);
 		}
 		paths = get_paths_from_list(mini->env_struct);
-		exec_path = find_exec(mini->cur_cmd->args[0], paths);
+		exec_path = find_exec(mini->cur_cmd->args[0], paths, mini);
 		if (paths)
 			free_args(paths);
 		if (!exec_path)
@@ -131,7 +139,7 @@ int	execute_external_cmd(t_mini *mini)
 			//free_cmds(mini->cmds);
 			//cleanup_redir(mini);
 			free_args(envp);
-			handle_external_command_not_found(mini);
+//			handle_external_command_not_found(mini);
 
 		}
 		execve(exec_path, mini->cur_cmd->args, envp);
@@ -219,7 +227,7 @@ static int	can_execute(char *cmd)
 	return (0);
 }
 
-char	*find_exec(char *cmd, char **paths)
+char	*find_exec(char *cmd, char **paths, t_mini *mini)
 {
 	char	*path;
 	char	*full_path;
@@ -229,6 +237,8 @@ char	*find_exec(char *cmd, char **paths)
 	{
 		if (can_execute(cmd))
 			return (ft_strdup(cmd));
+		else
+			handle_external_command_not_found2(mini);
 		return (NULL);
 	}
 	if (!paths)
@@ -244,5 +254,6 @@ char	*find_exec(char *cmd, char **paths)
 		free(full_path);
 		i++;
 	}
+	handle_external_command_not_found(mini);
 	return (NULL);
 }

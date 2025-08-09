@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 18:00:00 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/07/16 13:22:53 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/09 15:45:52 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ static void	execute_single_cmd(t_mini *pipeline,
 	// Execute external commands
 	envp = env_list_to_array(pipeline->cur_cmd->env_struct);
 	paths = get_paths_from_list(pipeline->cur_cmd->env_struct);
-	exec_path = find_exec(pipeline->cur_cmd->args[0], paths);
+	exec_path = find_exec(pipeline->cur_cmd->args[0], paths, pipeline);
 	if (paths)
 		free_args(paths);
 	if (exec_path)
@@ -142,7 +142,7 @@ static void	execute_single_cmd(t_mini *pipeline,
 	{
 		ft_putstr_fd("mariashell: ", STDERR_FILENO);
 		ft_putstr_fd(pipeline->cur_cmd->args[0], STDERR_FILENO);
-		ft_putendl_fd(": command not found", STDERR_FILENO);
+		ft_putendl_fd(": command not found-b", STDERR_FILENO);
 	}
 	if (envp)
 		free_args(envp);
