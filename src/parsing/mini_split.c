@@ -70,7 +70,8 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end, int ignore_redirections
 			str = str->next;
 		}
 	}
-	if (last && last->next && last->next != end && last->next->is_ifs)
+	if (last && last->next && last->next != end && (last->next->is_ifs || (ignore_redirections &&
+				   (last->next->is_redirection || last->next->is_redir_filename))))
 		ndelims--;
 	return (ndelims);
 }
@@ -107,8 +108,8 @@ static char	*ft_set_next_substr(t_token **start, t_token *end, int ignore_redire
 	char	*substr;
 	size_t	len_substr;
 	t_token	*stop;
+	int n_quote_chars;
 
-	// skip leading IFS and redir tokens
 	while (*start && *start != end &&
 		  ((*start)->is_ifs ||
 		  (ignore_redirections && ((*start)->is_redirection || (*start)->is_redir_filename))))
@@ -122,7 +123,10 @@ static char	*ft_set_next_substr(t_token **start, t_token *end, int ignore_redire
 		len_substr++;
 		stop = stop->next;
 	}
-	len_substr -= count_quote_chars(*start, stop);
+	n_quote_chars = count_quote_chars(*start, end);
+	len_substr = len_substr - n_quote_chars;
+	if (len_substr == 0 && n_quote_chars == 0)
+		return (NULL);
 	substr = malloc(len_substr + 1);
 	if (!substr)
 		return NULL;

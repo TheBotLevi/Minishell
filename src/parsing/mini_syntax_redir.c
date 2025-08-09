@@ -106,11 +106,6 @@ char* get_redir_filename(const t_token *start_redir, const t_token *end_redir, i
 			print_unexpected_token_error(end_redir);
 		return (NULL);
 	}
-	if (get_array_size(args) > 1) {
-		printf("Multiple redirection arguments: what should happen?\n"); //todo should fail here?
-		free_args(args);
-		return (NULL);
-	}
 	filename = ft_strdup(args[0]);
 	free_args(args);
 	return (filename);
