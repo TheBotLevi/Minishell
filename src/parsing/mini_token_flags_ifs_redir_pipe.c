@@ -33,7 +33,7 @@ void	set_ifs_flags(t_parsing *parser, t_token **tokens)
 	current = *tokens;
 	while (current)
 	{
-		if (is_in_set(current->c, parser->ifs) && !current->is_quote&& !current->is_expanded)
+		if (is_in_set(current->c, parser->ifs) && !current->is_quote)
 			current->is_ifs = 1;
 		current = current->next;
 	}

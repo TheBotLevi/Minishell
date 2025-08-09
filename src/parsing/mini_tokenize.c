@@ -19,6 +19,7 @@ void	mark_exit_status(t_token **current, t_token **next)
 	(*next)->is_var = 1;
 }
 
+/*
 void	mark_braced_var(t_token **current, t_token *next)
 {
 	t_token	*start;
@@ -50,18 +51,22 @@ void	mark_braced_var(t_token **current, t_token *next)
 			}
 		}
 	}
-}
+}*/
 
 void	mark_unbraced_var(t_token **current, t_token **next)
 {
+	t_token	*last_var_char;
+
+	last_var_char = *next;
 	(*next)->is_var = 1;
 	*next = (*next)->next;
 	while (*next && (ft_isalnum((*next)->c) || (*next)->c == '_'))
 	{
 		(*next)->is_var = 1;
+		last_var_char = *next;
 		*next = (*next)->next;
 	}
-	*current = *next; // skip to after var name
+	*current = last_var_char; // skip to last element of var name
 }
 
 void	set_var_expansion_flags(t_token **tokens)
@@ -81,7 +86,7 @@ void	set_var_expansion_flags(t_token **tokens)
 			else if (next && (ft_isalpha(next->c) || next->c == '_'))
 				mark_unbraced_var(&current, &next);
 			else
-				mark_braced_var(&current, next);
+				current->is_dollar = 0;
 		}
 		if (current)
 			current = current->next;
@@ -158,38 +163,38 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		return (NULL);
 	tokens = NULL;
 	n_pipes = 0;
-	if (create_basic_tokens(line, &tokens,0) == 0) {
-		if (set_quote_flags(tokens)){
-			ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
-			free_tokens(tokens);
-			return (NULL);
-		}
-		if (set_heredoc_delimiter_flags(parser, tokens)){
-				ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
-				free_tokens(tokens);
-				return (NULL);
-			}
-		if (expand_vars(parser, &tokens) == -1){
-			ft_putendl_fd("memory allocation error during variable expansion", STDERR_FILENO);
-			return (NULL);
-			}
-		//unset_all_flags(tokens);
-		if (set_quote_flags(tokens)){
-			ft_putendl_fd("syntax error: unclosed quote", STDERR_FILENO);
-			free_tokens(tokens);
-			return (NULL);
-		}
-		if (set_heredoc_delimiter_flags(parser, tokens)){
-			ft_putendl_fd("syntax error near unexpected token `newline'", STDERR_FILENO);
-			free_tokens(tokens);
-			return (NULL);
-		}
-		reset_idx(tokens);
-		n_pipes = set_pipe_flags(&tokens);
-		set_redirection_flags(tokens);
-		flag_is_redirection(tokens);
-		set_ifs_flags(parser, &tokens);
+	if (create_basic_tokens(line, &tokens) != 0)
+		return (NULL);
+	if (set_quote_flags(tokens)){
+		ft_putendl_fd("mariashell: syntax error: unclosed quote", STDERR_FILENO);
+		free_tokens(tokens);
+		return (NULL);
 	}
+	if (set_heredoc_delimiter_flags(parser, tokens)){
+			ft_putendl_fd("mariashell: syntax error near unexpected token `newline'", STDERR_FILENO);
+			free_tokens(tokens);
+			return (NULL);
+		}
+	if (expand_vars(parser, &tokens) == -1){
+		ft_putendl_fd("mariashell: memory allocation error during variable expansion", STDERR_FILENO);
+		return (NULL);
+		}
+	unset_all_flags(tokens);
+	if (set_quote_flags(tokens)){
+		ft_putendl_fd("mariashell: syntax error: unclosed quote", STDERR_FILENO);
+		free_tokens(tokens);
+		return (NULL);
+	}
+	if (set_heredoc_delimiter_flags(parser, tokens)){
+		ft_putendl_fd("mariashell: syntax error near unexpected token `newline'", STDERR_FILENO);
+		free_tokens(tokens);
+		return (NULL);
+	}
+	reset_idx(tokens);
+	n_pipes = set_pipe_flags(&tokens);
+	set_redirection_flags(tokens);
+	flag_is_redirection(tokens);
+	set_ifs_flags(parser, &tokens);
 	parser->n_cmds = n_pipes + 1;
 	return (tokens);
 }
