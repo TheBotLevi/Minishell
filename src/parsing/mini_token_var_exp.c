@@ -76,17 +76,13 @@ static int find_next_var_exp(t_token **start, t_token **end, t_token **char_star
 	while (current){
 		if (current->is_dollar) {
 			*start = current;
-			current = current->next; //skip dollar
-			if (current && current->is_braced_var)
-				current = current->next; //skip brace
+			current = current->next;
 			*char_start = current;
 			while (current && current->is_var) {
 				*char_end = current;
 				current = current->next;
 			}
 			*end = *char_end;
-			if ((*char_end)->is_braced_var)
-				*char_end = (*end)->prev;
 			return(0);
 		}
 		current = current->next;

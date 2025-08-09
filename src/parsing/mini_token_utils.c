@@ -34,7 +34,7 @@ void	print_tokens(t_token *tokens)
 	while (current)
 	{
 		printf("[%d] %c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, end\":%d,"
-				" |:%d, $:%d, $?:%d, $var:%d, ${}:%d, <:%d,"
+				" |:%d, $:%d, $?:%d, $var:%d, <:%d,"
 				" <<:%d, <<_del: %d, >:%d, >>:%d \n", current->idx,
 				current->c,
 				current->is_ifs,
@@ -47,7 +47,6 @@ void	print_tokens(t_token *tokens)
 				current->is_dollar,
 				current->is_exit_status,
 				current->is_var,
-				current->is_braced_var,
 				current->is_redir_input,
 				current->is_redir_heredoc,
 				current->is_redir_heredoc_delimiter,

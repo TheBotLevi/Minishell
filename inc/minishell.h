@@ -201,7 +201,6 @@ typedef struct s_token {
 	int is_ifs;
 	int is_dollar;
 	int is_var;
-	int is_braced_var;
 	int is_exit_status;
 	//int is_eof; // signals ctrl+D
 	//int is_comment_start;
