@@ -124,7 +124,6 @@ int expand_vars(t_parsing *parser, t_token **tokens)
 	char *env_val;
 
 	set_var_expansion_flags(tokens);
-	print_tokens(*tokens);
 	start = *tokens;
 	env_val = NULL;
 	char_end = NULL;
@@ -141,7 +140,6 @@ int expand_vars(t_parsing *parser, t_token **tokens)
 		env_val = NULL;
 		if (!*tokens)
 			return (1);
-		print_tokens(*tokens);
 		start = *tokens;
 	}
 	return (0);

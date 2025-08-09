@@ -54,7 +54,7 @@ static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 		cmds=cmds->next;
 	}
 	//printf("----\n");
-	fflush(stdout);
+	//fflush(stdout);
 	free_tokens(parser->tokens_head);
 	//free_cmds(parser->cmd_head);
 	free(parser);

@@ -203,10 +203,9 @@ typedef struct s_token {
 	int is_var;
 	int is_exit_status;
 	//int is_eof; // signals ctrl+D
-	//int is_comment_start;
-	//int is_comment;
 	int is_redir_heredoc;
 	int is_redir_heredoc_delimiter;
+	int is_redir_filename;
 	//int is_heredoc_end;
 	int is_redirection;
 	//int is_redirection_end;
@@ -261,6 +260,7 @@ void	token_lst_add_back(t_token **lst, t_token *new);
 char *get_char_from_tokens(t_token *start, t_token *end);
 int get_token_lst_size(t_token *start, t_token *end);
 t_token *get_last_token(t_token *tokens);
+void print_unexpected_token_error(const t_token* token);
 
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);

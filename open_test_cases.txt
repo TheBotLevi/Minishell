@@ -4,6 +4,7 @@ TODOS:
 - add expansions/full parsing inside heredoc
 - ?? set str input with ""
 - get rid of all debug prints
+- ctrl-C not direct
 
 open test cases
 
@@ -19,17 +20,17 @@ ls >>> file         # Syntax error: invalid operator
     produces leaks, also output "command not found" instead of "No such file or directory"
 - leaks for: echo hello | cat echo hello | cat
 - working with leaks: cat << EOF    # Then press Ctrl+C during heredoc
-- waits for input when cat without arg is involved, should fail instead? e.g. same in bash: cat | cat | ls  --> prints ls
-- echo $PWD$HOME         # Concatenated variables --> only expands first
 - cat     # Then press Ctrl+C -> exits but concatenates with the next prompt ^Cmariashell >
 ./exeNoPermission --> prints minishell: ./EOF: Permission denied
                              mariashell: ./EOF: command not found (bash does not print this one)
 export ""          # Empty string error for empty string ? --> prduces: Error parsing commands
 only spaces or tabs --> gives back prompt but prints new line, no cmds created
 cat <<EOF 1>>out.log  --> append does not creat the file if it doesnt exist yet
+
 exit str --> prints correct error but does not exit the shell (mariashell: exit fds: numeric argument required)
 exit 42 --> does not actually exit
 exit without args : exits but with leaks
+exit multple args -> no error
 
 
 EDGE CASE NOT TO FIX:
@@ -80,7 +81,8 @@ export a="b"=c     # Multiple equal signs
 export 123=456     # Invalid variable name
 empty command --> gives new prompt
 exit with multiple args
-
+- echo $PWD$HOME         # Concatenated variables --> only expands first
+- waits for input when cat without arg is involved, should fail instead? e.g. same in bash: cat | cat | ls  --> prints ls OK
 
 UNTESTED:
 
@@ -97,6 +99,7 @@ Here-strings with <<<
 
     passes a single string directly to stdin.
 
+//todo add test case: > cannot be the last symbol in a valid redirection in Bash.
 
 Out of scope:
 

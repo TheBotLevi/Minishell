@@ -26,6 +26,18 @@ void	free_tokens(t_token *tokens)
 	}
 }
 
+void print_unexpected_token_error(const t_token* token)
+{
+	if (token)
+	{
+		ft_putstr_fd("mariashell: syntax error near unexpected token `", token->c);
+		ft_putchar_fd(token->c, STDERR_FILENO);
+		ft_putendl_fd("'", STDERR_FILENO);
+	}
+	else
+		ft_putendl_fd("mariashell: syntax error near unexpected token `newline'",STDERR_FILENO);
+}
+
 void	print_tokens(t_token *tokens)
 {
 	t_token	*current;

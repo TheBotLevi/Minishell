@@ -124,6 +124,41 @@ void reset_idx(t_token *tokens) {
 	}
 }
 
+// returns 1 for syntax error if heredoc is present but delimiter is empty
+int	set_redir_filename_flags(t_token *tokens)
+{
+	t_token *current;
+	int empty_filename;
+
+	current = tokens;
+	empty_filename = 0;
+	while (current)
+	{
+		if (current->is_redirection)
+		{
+			empty_filename = 1;
+			current = current->next; // skip over '<<'
+			if (current->is_redir_heredoc || current->is_redir_output_append)
+				current = current->next; // skip over second delim
+			while (current && current->is_ifs) // Skip whitespace
+				current = current->next;
+			while (current && !current->is_ifs && (!current->is_redirection && !current->is_pipe)) // Mark the next word (the delimiter)
+			{
+				empty_filename = 0;
+				current->is_redir_filename = 1;
+				current = current->next;
+			}
+			if (empty_filename){
+				print_unexpected_token_error(current);
+				return (1);
+			}
+		}
+		else
+			current = current->next;
+	}
+	return (empty_filename);
+}
+
 
 // returns 1 for syntax error if heredoc is present but delimiter is empty
 int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
@@ -146,6 +181,10 @@ int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 				empty_delim = 0;
 				current->is_redir_heredoc_delimiter = 1;
 				current = current->next;
+			}
+			if (empty_delim){
+				print_unexpected_token_error(current);
+				return (1);
 			}
 		}
 		else
@@ -171,7 +210,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		return (NULL);
 	}
 	if (set_heredoc_delimiter_flags(parser, tokens)){
-			ft_putendl_fd("mariashell: syntax error near unexpected token `newline'", STDERR_FILENO);
 			free_tokens(tokens);
 			return (NULL);
 		}
@@ -186,7 +224,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		return (NULL);
 	}
 	if (set_heredoc_delimiter_flags(parser, tokens)){
-		ft_putendl_fd("mariashell: syntax error near unexpected token `newline'", STDERR_FILENO);
 		free_tokens(tokens);
 		return (NULL);
 	}
@@ -195,6 +232,8 @@ t_token	*tokenize(char *line, t_parsing *parser)
 	set_redirection_flags(tokens);
 	flag_is_redirection(tokens);
 	set_ifs_flags(parser, &tokens);
+	if (set_redir_filename_flags(tokens))
+		return (NULL);
 	parser->n_cmds = n_pipes + 1;
 	return (tokens);
 }

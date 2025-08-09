@@ -34,7 +34,7 @@
 // silently allow multiple redirections but only use the last one for each stream:
 //t_redirect *get_last_input_redir(t_redirect *r);
 //t_redirect *get_last_output_redir(t_redirect *r);
-
+/*
 int validate_redirections(t_redirect *redirs) {
 	int seen_stdin = 0;
 	int seen_stdout = 0;
@@ -57,28 +57,7 @@ int validate_redirections(t_redirect *redirs) {
 		redirs = redirs->next;
 	}
 	return (0);
-}
-
-//todo add test case: > cannot be the last symbol in a valid redirection in Bash.
-
-/* Handle delimiter, can be quoted, unquoted or mix
-
-If onlz whitespace(IFS) and then comment (e.g. cat <<    # comment),
-comemnt will be seen as commernt, otherwise parsed as delim str
-
-If any part of the delimiter is unquoted, then:
-Variable expansion, command substitution, and backslash interpretation will happen in the here-document body.
-Bash treats the first word after << (up to the next unquoted whitespace) as the delimiter —
-it can include quotes only if there's no unquoted space between parts.
- */
-
-/*
-< should redirect input
-> should redirect output
->> should redirect output in append mode.
-<< should be given a delimiter, then read the input until a line containing the
-delimiter is seen. However, it doesn’t have to update the history!
- */
+}*/
 
 
 int get_redir_type(const t_token *redir_token) {
@@ -121,7 +100,10 @@ char* get_redir_filename(const t_token *start_redir, const t_token *end_redir, i
 	*is_fully_quoted = check_for_fully_quoted_str_redir(start_redir, end_redir);
 	args = ft_split_on_ifs((t_token*) start_redir,(t_token*)end_redir);
 	if (!args) {
-		printf("Syntax error: No redirection arguments: what should happen?\n"); //todo should fail here?
+		if (end_redir && end_redir->next)
+			print_unexpected_token_error(end_redir->next);
+		else
+			print_unexpected_token_error(end_redir);
 		return (NULL);
 	}
 	if (get_array_size(args) > 1) {
@@ -170,7 +152,6 @@ int create_redirection(t_parsing *parser, const t_token *start_redir, const t_to
 	if (!redir->filename) //todo: decide if leave null and treat error later...
 		return (1);
 	redirection_lst_add_back(&(parser->current_cmd->redirections), redir);
-
 	return(0);
 }
 
@@ -206,6 +187,6 @@ t_token *parse_redirections(t_parsing *parser, const t_token *start_cmd, const t
 	}
 	if (start_set) // in case redir goes till EO Command
 		*parsing_error += create_redirection(parser, redir_start, (t_token *)end_cmd);
-	*parsing_error += validate_redirections(parser->current_cmd->redirections);
+	//*parsing_error += validate_redirections(parser->current_cmd->redirections);
 	return (start_first_redir);
 }

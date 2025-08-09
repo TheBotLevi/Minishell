@@ -55,8 +55,6 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	*cmd_start = cmd_end; //set new cmd start
 	while (*cmd_start && (*cmd_start)->is_pipe)
 		*cmd_start = (*cmd_start)->next;
-	if (!parser->current_cmd->args) // todo decide what to return wrong or on empty input, i.e. !cmd->args[0]  // case heredoc without prev argument permissible
-		return (1);
 	return (0);
 }
 
@@ -108,6 +106,11 @@ int parse_tokens(t_parsing *parser, t_mini *mini)
 		printf("cmd start: %d\n", cmd_start->idx);
 		if (get_next_cmd(parser, &cmd_start)) //todo add option of ending early without freeing when commands are invalid//empty
 			return (1);
+		if (!parser->current_cmd->args || !parser->current_cmd->args[0]) {
+			if (parser->n_cmds > 1)
+				ft_putendl_fd("mariashell: syntax error near unexpected token `|'", 2);
+			return (1);
+		}
 		if (cmd_start)
 			printf("cur token, new start: %c (%d)\n", cmd_start->c, cmd_start->idx);
 		i++;
