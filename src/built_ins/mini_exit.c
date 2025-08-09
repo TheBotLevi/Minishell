@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/08/09 15:44:57 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/09 17:28:54 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ static void	handle_invalid_args(t_mini *mini)
 	ft_putstr_fd("mariashell: exit ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[1], STDERR_FILENO);
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
+	exit(127);
 }
 
 int	mini_exit(t_mini *mini)

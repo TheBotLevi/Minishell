@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/08/09 15:48:10 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/09 17:46:26 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ static int	handle_parent_process(pid_t pid, char **envp)
 		waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			status = WEXITSTATUS(status);
+		write(STDERR_FILENO, "\n", 1);
 	}
 	free_args(envp);
 	envp = NULL;
