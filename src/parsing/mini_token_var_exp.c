@@ -29,8 +29,6 @@ t_token* replace_expanded_tokens(t_token **head, t_token **new_tokens, t_token *
 			(*new_tokens)->prev = NULL;
 		}
 		token_lst_add_back(new_tokens, after_end);
-		if (after_end)
-			after_end->prev = get_last_token(*new_tokens);
 	} else {
 		// new_tokens is NULL — connect start->prev to after_end
 		if (start->prev)
@@ -62,7 +60,7 @@ static t_token *insert_expansion_into_tokens(t_token **head, t_token *start, t_t
 		return (NULL);
 	}
 	new_tokens = NULL;
-	if (create_basic_tokens(env_val, &new_tokens, 1)) {
+	if (create_basic_tokens(env_val, &new_tokens)) {
 		free_tokens(*head);
 		return (NULL);
 	}
@@ -130,8 +128,11 @@ int expand_vars(t_parsing *parser, t_token **tokens)
 	char *env_val;
 
 	set_var_expansion_flags(tokens);
+	print_tokens(*tokens);
 	start = *tokens;
 	env_val = NULL;
+	char_end = NULL;
+	char_start = NULL;
 	while (find_next_var_exp(&start, &end, &char_start, &char_end) == 0){
 		env_val = lookup_var(parser, char_start, char_end);
 		if (!env_val)
@@ -141,8 +142,10 @@ int expand_vars(t_parsing *parser, t_token **tokens)
 			printf("Full token list will be replaced\n");
 		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
 		free(env_val);
+		env_val = NULL;
 		if (!*tokens)
 			return (1);
+		print_tokens(*tokens);
 		start = *tokens;
 	}
 	return (0);
