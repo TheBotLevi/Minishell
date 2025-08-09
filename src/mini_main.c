@@ -115,10 +115,14 @@ int	main(int ac, char **av, char **envp)
 	t_mini	*mini;
 	(void)	av;
 
+	if (!isatty(STDIN_FILENO)) {
+		fprintf(stderr, "Warning: Non-interactive mode detected (input is not a terminal).\n");
+		return (0);
+	}
 	if (ac != 1) {
 		ft_putendl_fd("mariashell: too many arguments", STDERR_FILENO);
 		return (1);
-	};
+	}
 	mini = mini_init(envp);
 	if (!mini)
 		return (1);
