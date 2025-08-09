@@ -138,7 +138,7 @@ int	set_redir_filename_flags(t_token *tokens)
 		{
 			empty_filename = 1;
 			current = current->next; // skip over '<<'
-			if (current->is_redir_heredoc || current->is_redir_output_append)
+			if ( current && (current->is_redir_heredoc || current->is_redir_output_append))
 				current = current->next; // skip over second delim
 			while (current && current->is_ifs) // Skip whitespace
 				current = current->next;

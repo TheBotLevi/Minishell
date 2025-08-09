@@ -30,7 +30,7 @@ void print_unexpected_token_error(const t_token* token)
 {
 	if (token)
 	{
-		ft_putstr_fd("mariashell: syntax error near unexpected token `", token->c);
+		ft_putstr_fd("mariashell: syntax error near unexpected token `", STDERR_FILENO);
 		ft_putchar_fd(token->c, STDERR_FILENO);
 		ft_putendl_fd("'", STDERR_FILENO);
 	}
@@ -47,7 +47,7 @@ void	print_tokens(t_token *tokens)
 	{
 		printf("[%d] %c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, end\":%d,"
 				" |:%d, $:%d, $?:%d, $var:%d, <:%d,"
-				" <<:%d, <<_del: %d, >:%d, >>:%d \n", current->idx,
+				" <<:%d, <<_del: %d, >:%d, >>:%d, filen:%d \n", current->idx,
 				current->c,
 				current->is_ifs,
 				current->is_quote,
@@ -63,7 +63,8 @@ void	print_tokens(t_token *tokens)
 				current->is_redir_heredoc,
 				current->is_redir_heredoc_delimiter,
 				current->is_redir_output,
-				current->is_redir_output_append);
+				current->is_redir_output_append,
+				current->is_redir_filename);
 		current = current->next;
 	}
 }

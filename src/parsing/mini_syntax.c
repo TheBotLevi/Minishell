@@ -46,9 +46,9 @@ int get_next_cmd(t_parsing *parser, t_token **cmd_start) {
 	if (cmd_end)
 		printf("end cmd: %c\n", cmd_end->c);
 	parsing_error = 0;
-	start_redir = parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);  // todo what to do on multiple redirs?
-	if (parsing_error)
-		return (parsing_error);
+	start_redir = parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
+	/*if (parsing_error)
+		return (parsing_error);*/
 	if (!start_redir)
 		start_redir = cmd_end;
 	parser->current_cmd->args = ft_split_on_ifs(*cmd_start, start_redir);
