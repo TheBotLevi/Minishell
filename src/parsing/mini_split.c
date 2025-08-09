@@ -108,20 +108,16 @@ static char	*ft_set_next_substr(t_token **start, t_token *end)
 		stop = stop->next;
 	}
 	len_substr = len_substr - count_quote_chars(*start, stop);
-	if (len_substr > 0)
-	{
-		substr = malloc(len_substr + 1);
-		if (substr == NULL)
-			return (NULL);
-		set_string_from_tokens(substr, *start, stop);
-		if (stop)
-			printf("substr: %s, *start: %c, stop: %c, n_quote_chars: %d\n", substr, (*start)->c, stop->c, count_quote_chars(*start, stop));
-		else
-			printf("substr: %s, *start: %c, stop: NULL EOL, n_quote_chars: %d\n", substr, (*start)->c, count_quote_chars(*start, stop));
-		*start = stop;
-		return (substr);
-	}
-	return (NULL);
+	substr = malloc(len_substr + 1);
+	if (!substr)
+		return (NULL);
+	set_string_from_tokens(substr, *start, stop);
+	if (stop)
+		printf("substr: %s, *start: %c, stop: %c, n_quote_chars: %d\n", substr, (*start)->c, stop->c, count_quote_chars(*start, stop));
+	else
+		printf("substr: %s, *start: %c, stop: NULL EOL, n_quote_chars: %d\n", substr, (*start)->c, count_quote_chars(*start, stop));
+	*start = stop;
+	return (substr);
 }
 
 
