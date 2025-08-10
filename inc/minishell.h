@@ -291,7 +291,7 @@ int get_array_size(char **array);
 int parse_redirections(t_parsing *parser, const t_token *start_cmd,
 		const t_token *end_cmd);
 int	create_redirection(const t_parsing *parser, const t_token *start_redir,
-		const t_token *end_redir);
+		const t_token *end_cmd, t_token **last_redir_token);
 int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd);
 int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_redirs);
 

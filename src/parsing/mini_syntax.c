@@ -42,6 +42,8 @@ int	get_next_cmd(t_parsing *parser, t_token **cmd_start)
 	cmd_end = get_cmd_end(*cmd_start); // todo what if cmd_end == start?
 	if (cmd_end)
 		printf("end cmd: %c\n", cmd_end->c);
+	else
+		printf("end cmd: EOL\n");
 	// start_redir =parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
 	if (parse_redirections(parser, (const t_token *)*cmd_start,
 		(const t_token *)cmd_end)){
@@ -49,7 +51,7 @@ int	get_next_cmd(t_parsing *parser, t_token **cmd_start)
 			"redirection parsing",
 			STDERR_FILENO);
 		return (1);
-}
+	}
 	parser->current_cmd->args = ft_split_on_ifs(*cmd_start, cmd_end, 1);
 	*cmd_start = cmd_end; // set new cmd start
 	while (*cmd_start && (*cmd_start)->is_pipe)
@@ -104,8 +106,9 @@ int	parse_tokens(t_parsing *parser, t_mini *mini)
 		ft_memset(parser->current_cmd, 0, sizeof(t_command));
 		command_lst_add_back(&(parser->cmd_head), parser->current_cmd);
 		printf("cmd start token no: %d (%c)\n", cmd_start->idx, cmd_start->c);
-		if (get_next_cmd(parser, &cmd_start)) // todo add option of ending early without freeing when commands are invalid//empty
-			return (1);
+		get_next_cmd(parser, &cmd_start); // todo add option of ending early without freeing when commands are invalid//empty
+		/*if (get_next_cmd(parser, &cmd_start)) // todo add option of ending early without freeing when commands are invalid//empty
+			return (1);*/
 		if (!parser->current_cmd->args || !parser->current_cmd->args[0])
 		{
 			printf("one empty arg/command");

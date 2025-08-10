@@ -74,10 +74,37 @@ int	get_redir_type(const t_token *redir_token)
 	return (0);
 }
 
+void	find_str_filename_tokens(t_token **start_redir, t_token **end_redir)
+{
+	t_token	*cur;
+	t_token *last_filename;
 
+	cur = *start_redir;
+	last_filename = NULL;
 
-/*doesnt check last element since impossible to have just one quote token
- *within a redirection*/
+	// Find the start of the filename
+	while (cur && cur != *end_redir && !cur->is_redir_filename)
+		cur = cur->next;
+	if (!cur || cur == *end_redir)
+	{
+		*start_redir = NULL;
+		*end_redir = NULL;
+		return;
+	}
+
+	*start_redir = cur;
+
+	// Track the last filename token
+	while (cur && cur != *end_redir && cur->is_redir_filename)
+	{
+		last_filename = cur;
+		cur = cur->next;
+	}
+
+	// Make the end inclusive
+	*end_redir = last_filename;
+}
+/*
 void	find_str_filename_tokens(t_token **start_redir, t_token **end_redir)
 {
 	t_token	*cur;
@@ -98,7 +125,7 @@ void	find_str_filename_tokens(t_token **start_redir, t_token **end_redir)
 		cur = cur->next;
 	}
 
-}
+}*/
 
 int	check_for_fully_quoted_str_redir(const t_token *start_redir,
 		const t_token *end_redir)
@@ -124,7 +151,7 @@ int	check_for_fully_quoted_str_redir(const t_token *start_redir,
 // receives start_redir token that is a redirection and
 // end redir as NULL or the next operator
 char	*get_redir_filename(t_token *start_redir, t_token *end_redir,
-	int *is_fully_quoted)
+	int *is_fully_quoted, t_token **last_redir_token)
 {
 	char	*filename;
 	char	**args;
@@ -132,10 +159,11 @@ char	*get_redir_filename(t_token *start_redir, t_token *end_redir,
 	if (!start_redir || !start_redir->is_redirection)
 		return (NULL);
 	find_str_filename_tokens(&start_redir, &end_redir);
-	if (!start_redir)
+	if (!start_redir || !end_redir)
 		return (NULL);
+	*last_redir_token = end_redir;
 	*is_fully_quoted = check_for_fully_quoted_str_redir(start_redir, end_redir);
-	args = ft_split_on_ifs((t_token *)start_redir, (t_token *)end_redir, 0);
+	args = ft_split_on_ifs(start_redir, end_redir->next, 0);
 	if (!args)
 	{
 		if (end_redir && end_redir->next)
@@ -168,17 +196,17 @@ void	redirection_lst_add_back(t_redirect **redir_head, t_redirect *new_redir)
 
 // returns null on allocation error
 int	create_redirection(const t_parsing *parser, const t_token *start_redir,
-		const t_token *end_redir)
+		const t_token *end_cmd, t_token **last_redir_token)
 {
 	t_redirect	*redir;
 
-	if (end_redir)
+	if (end_cmd)
 		printf("creating redirection from: token no %d ('%c') to token "
 				"no % d('%c')\n ",
 				start_redir->idx,
 				start_redir->c,
-				end_redir->idx,
-				end_redir->c);
+				end_cmd->idx,
+				end_cmd->c);
 	else
 		printf("creating redirection from: token no %d ('%c') till EOCommand\n",
 			start_redir->idx, start_redir->c);
@@ -190,9 +218,11 @@ int	create_redirection(const t_parsing *parser, const t_token *start_redir,
 	if (redir->type == REDIR_HEREDOC)
 		parser->current_cmd->has_heredoc = 1;
 	redir->filename = get_redir_filename((t_token*)start_redir,
-		(t_token*) end_redir, &(redir->is_quoted));
+		(t_token*) end_cmd, &(redir->is_quoted), last_redir_token);
 	if (!redir->filename)
 		return (1);
+	if (*last_redir_token)
+		printf("last redirect token is %c no %d\n", (*last_redir_token)->c,(*last_redir_token)->idx);
 	redirection_lst_add_back(&(parser->current_cmd->redirections), redir);
 	return (0);
 }
@@ -201,15 +231,24 @@ int	create_redirection(const t_parsing *parser, const t_token *start_redir,
 int parse_redirections(t_parsing *parser, const t_token *start_cmd,
 		const t_token *end_cmd)
 {
-	t_token			*start_first_redir;
-	const t_token	*redir_start;
+	//t_token			*start_first_redir;
+	t_token			*end_redir;
+	/*const t_token	*redir_start;
 	int				start_set;
 
 	start_first_redir = NULL;
 	redir_start = NULL;
-	start_set = 0;
-	while (start_cmd && start_cmd != end_cmd)
-	{
+	start_set = 0;*/
+	while (start_cmd && start_cmd != end_cmd) {
+		if (start_cmd->is_redirection) {
+			if (create_redirection(parser, start_cmd, end_cmd, &end_redir))
+				return (1);
+			start_cmd = end_redir->next;
+		}
+		if (start_cmd)
+			start_cmd = start_cmd->next;
+	}
+		/*
 		if (start_cmd->is_redirection)
 		{
 			if (!start_first_redir)
@@ -234,6 +273,6 @@ int parse_redirections(t_parsing *parser, const t_token *start_cmd,
 	}
 	if (start_set)
 		if (create_redirection(parser, redir_start, (t_token *)end_cmd))
-			return (1);
+			return (1);*/
 	return (0);
 }

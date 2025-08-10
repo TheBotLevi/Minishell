@@ -12,7 +12,7 @@ ls |                # Syntax error: nothing after pipe
 > output.txt        # Syntax error: no command
 <                   # Syntax error: no file
 
-ls >>> file         # Syntax error: invalid operator
+
 - cat << EOF > file1.log
     opens and closes heredoc ok, but does not write to file
 - ./nonexistent_command
@@ -26,8 +26,14 @@ only spaces or tabs --> gives back prompt but prints new line, no cmds created
 cat <<EOF 1>>out.log  --> append does not creat the file if it doesnt exist yet
 
 exit 42 --> does not actually exit
-mariashell > echo dfsf >"" --> minishell: : Permission denied instead of inexistent file
+echo dfsf >"" --> minishell: : Permission denied instead of inexistent file
 ??? on input not yet entered, when pressing ctrl-C, its not printed in teh prompt -> bash:    sh-5.2$ cat dfsd ^C
+to fix? nested quote stripping does not work since:
+    Handle ’ (single quote) which should prevent the shell from interpreting the meta-
+    characters in the quoted sequence.
+    • Handle " (double quote) which should prevent the shell from interpreting the meta-
+    characters in the quoted sequence except for $ (dollar sign).
+
 
 EDGE CASE NOT TO FIX:
 - export TEST=value : subsequent parsing is wrong for quoted arguments
@@ -83,6 +89,9 @@ exit with multiple args
 exit str --> prints correct error but does not exit the shell (mariashell: exit fds: numeric argument required)
 exit without args : exits but with leaks
 exit multple args -> no error
+ls >>> file         # Syntax error: invalid operator --> treats as syntax error missing filename
+> cannot be the last symbol in a valid redirection in Bash., e.g. echo "single line of input" > f1 >
+
 
 UNTESTED:
 
@@ -91,22 +100,11 @@ UNTESTED:
 
 7. Check environment variable modifications persist correctly
 
-
-Here-strings with <<<
-(a variant of <<, note the triple less-than)
-
-    cat <<< "single line of input"
-
-    passes a single string directly to stdin.
-
-//todo add test case: > cannot be the last symbol in a valid redirection in Bash.
-
 Out of scope:
 
 <<<	here-string (single-line stdin)
 n>>file	append file descriptor n to file
 n<<word	here-document for file descriptor n
-
 
 
 Return value of a process
@@ -211,28 +209,6 @@ Environment Variables
 - Check that $USER exist or set it.
 - echo "$USER" should print the value of $USER
 
-BONUS
-
-    And, Or
-
-    - Use &&, || and parenthesis with commands and check if it works as bash
-
-WildCard
-
- - Use wildcards in arguments for the local directory.
-
-Surprise (or not...)
-
-- set USER environment variable.
-- Test echo "'$USER'" this should print 'USER_VALUE'
-- Test echo '"$USER"' this should print "$USER"
-
-
-cat <<    # comment
-'EOF'
-Because:
-    Bash sees the # as a comment and ignores the rest of the line.
-    So the << appears to be dangling — and you'll get a syntax error.
 
 If any part of the delimiter is unquoted, then:
     Variable expansion, command substitution, and backslash
@@ -249,9 +225,7 @@ stdout → file1.log
 https://42born2code.slack.com/archives/C04KYC9QCDQ/p1752526150488059
 The heredoc delimiter doesn't expand variables but the content inside the heredoc expands. And quotes aren't removed inside the heredoc
 
-
 - multiple heredocs (last one first, keep goinf with seecond, then process)
-
 
 export "test=""echo hello | cat" --> for $test: hello | cat
 export test="echo hello | cat" --> for $test: hello | cat
