@@ -116,7 +116,7 @@ int	main(int ac, char **av, char **envp)
 	(void)	av;
 
 	if (!isatty(STDIN_FILENO)) {
-		fprintf(stderr, "Warning: Non-interactive mode detected (input is not a terminal).\n");
+		ft_putendl_fd("Warning: Non-interactive mode detected (input is not a terminal).", STDERR_FILENO);
 		return (0);
 	}
 	if (ac != 1) {
