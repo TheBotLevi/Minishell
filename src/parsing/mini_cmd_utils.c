@@ -47,3 +47,20 @@ t_token	*get_cmd_end(t_token *cmd_start)
 		return (cmd_end);*/
 	return (current);
 }
+
+void	redir_lst_add_back(t_redirect **redir_head, t_redirect *new_redir)
+{
+	t_redirect	*last_elem;
+
+	if (!redir_head || !new_redir)
+		return ;
+	if (*redir_head == NULL)
+	{
+		*redir_head = new_redir;
+		return ;
+	}
+	last_elem = *redir_head;
+	while (last_elem->next)
+		last_elem = last_elem->next;
+	last_elem->next = new_redir;
+}

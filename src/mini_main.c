@@ -39,6 +39,7 @@ static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 		return (NULL);
 	}
 	print_tokens(parser->tokens_head);
+	printf("n comamnds: %d\n", parser->n_cmds);
 	if (parse_tokens(parser, mini) > 0) {
 		printf("Error parsing commands\n");
 		free_tokens(parser->tokens_head);

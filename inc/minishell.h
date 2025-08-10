@@ -286,14 +286,11 @@ int expand_vars(t_parsing *parser, t_token **tokens);
 //mini_cmd_utils
 t_token* get_cmd_end (t_token *cmd_start);
 int get_array_size(char **array);
+void	redir_lst_add_back(t_redirect **redir_head, t_redirect *new_redir);
 
 //mini_syntax_redir
 int parse_redirections(t_parsing *parser, const t_token *start_cmd,
 		const t_token *end_cmd);
-int	create_redirection(const t_parsing *parser, const t_token *start_redir,
-		const t_token *end_cmd, t_token **last_redir_token);
-int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd);
-int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_redirs);
 
 //mini_parsing_free
 void	free_middle_tokens_inclusive(t_token *start, t_token *end);
