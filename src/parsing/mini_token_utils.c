@@ -12,30 +12,20 @@
 
 #include "../../inc/minishell.h"
 
-void	free_tokens(t_token *tokens)
-{
-	t_token	*current;
-	t_token	*next;
 
-	current = tokens;
-	while (current)
-	{
-		next = current->next;
-		free(current);
-		current = next;
-	}
-}
 
 void print_unexpected_token_error(const t_token* token)
 {
 	if (token)
 	{
-		ft_putstr_fd("mariashell: syntax error near unexpected token `", STDERR_FILENO);
+		ft_putstr_fd("mariashell: syntax error near unexpected token `",
+			STDERR_FILENO);
 		ft_putchar_fd(token->c, STDERR_FILENO);
 		ft_putendl_fd("'", STDERR_FILENO);
 	}
 	else
-		ft_putendl_fd("mariashell: syntax error near unexpected token `newline'",STDERR_FILENO);
+		ft_putendl_fd("mariashell: syntax error near unexpected token"
+				" `newline'",STDERR_FILENO);
 }
 
 void	print_tokens(t_token *tokens)
@@ -45,7 +35,8 @@ void	print_tokens(t_token *tokens)
 	current = tokens;
 	while (current)
 	{
-		printf("[%d] %c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, end\":%d,"
+		printf("[%d] %c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, "
+		 "end\":%d,"
 				" |:%d, $:%d, $?:%d, $var:%d, <:%d,"
 				" <<:%d, <<_del: %d, >:%d, >>:%d, filen:%d \n", current->idx,
 				current->c,
@@ -157,7 +148,6 @@ void token_lst_add_back(t_token **lst, t_token *new)
 	}
 	last_elem = get_last_token(*lst);
 	last_elem->next = new;
-	// Fix prev pointers of new tokens
 	prev_token = last_elem;
 	tmp = new;
 	while (tmp)

@@ -254,7 +254,6 @@ void	set_double_redir_flags(t_token	**current);
 
 // mini_token_utils
 void	print_tokens(t_token *tokens);
-void	free_tokens(t_token *tokens);
 int		create_basic_tokens(char *line, t_token **tokens);
 void	token_lst_add_back(t_token **lst, t_token *new);
 char *get_char_from_tokens(t_token *start, t_token *end);
@@ -269,7 +268,7 @@ int set_quote_flags(t_token *current);
 
 //mini_split //todo to be modified and cleaned up
 char	**ft_split_on_ifs(t_token *tokens, t_token *end, int ignore_redirections);
-t_token** split_line(char *line, t_parsing *parser);
+//t_token** split_line(char *line, t_parsing *parser);
 
 //mini_syntax
 int parse_tokens(t_parsing *parser, t_mini *mini);
@@ -286,5 +285,10 @@ int get_array_size(char **array);
 t_token *parse_redirections(t_parsing *parser, const t_token *start_cmd, const t_token *end_cmd, int *parsing_error);
 int detect_redir(t_parsing *parser, t_token *cmd_start, t_token **start_redir, const t_token *end_cmd);
 int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_redirs);
+
+//mini_parsing_free
+void	free_middle_tokens_inclusive(t_token *start, t_token *end);
+void	free_cmds(t_command *cmd);
+void	free_tokens(t_token *tokens);
 
 #endif

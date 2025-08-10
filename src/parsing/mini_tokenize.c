@@ -201,7 +201,6 @@ t_token	*tokenize(char *line, t_parsing *parser)
 	if (!line || !parser)
 		return (NULL);
 	tokens = NULL;
-	n_pipes = 0;
 	if (create_basic_tokens(line, &tokens) != 0)
 		return (NULL);
 	if (set_quote_flags(tokens)){
@@ -213,8 +212,9 @@ t_token	*tokenize(char *line, t_parsing *parser)
 			free_tokens(tokens);
 			return (NULL);
 		}
-	if (expand_vars(parser, &tokens) == -1){
+	if (expand_vars(parser, &tokens) == 1){
 		ft_putendl_fd("mariashell: memory allocation error during variable expansion", STDERR_FILENO);
+		free_tokens(tokens);
 		return (NULL);
 		}
 	unset_all_flags(tokens);
