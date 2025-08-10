@@ -36,25 +36,20 @@ void	command_lst_add_back(t_command **cmd_head, t_command *new_cmd)
 int	get_next_cmd(t_parsing *parser, t_token **cmd_start)
 {
 	t_token	*cmd_end;
-	int		parsing_error;
 
-	// t_token *start_redir;
-	// int has_redir;
 	if (*cmd_start == NULL)
 		return (0);
-	// start_redir = NULL;
 	cmd_end = get_cmd_end(*cmd_start); // todo what if cmd_end == start?
 	if (cmd_end)
 		printf("end cmd: %c\n", cmd_end->c);
-	parsing_error = 0;
 	// start_redir =parse_redirections(parser, (const t_token*) *cmd_start, (const t_token*) cmd_end, &parsing_error);
-	parse_redirections(parser, (const t_token *)*cmd_start,
-		(const t_token *)cmd_end, &parsing_error);
-	/*if (parsing_error)
-		return (parsing_error);*/
-	/*if (!start_redir)
-		start_redir = cmd_end;*/
-	// start_redir = cmd_end;
+	if (parse_redirections(parser, (const t_token *)*cmd_start,
+		(const t_token *)cmd_end)){
+		ft_putendl_fd("mariashell: memory allocation error during "
+			"redirection parsing",
+			STDERR_FILENO);
+		return (1);
+}
 	parser->current_cmd->args = ft_split_on_ifs(*cmd_start, cmd_end, 1);
 	*cmd_start = cmd_end; // set new cmd start
 	while (*cmd_start && (*cmd_start)->is_pipe)
@@ -108,12 +103,12 @@ int	parse_tokens(t_parsing *parser, t_mini *mini)
 		}
 		ft_memset(parser->current_cmd, 0, sizeof(t_command));
 		command_lst_add_back(&(parser->cmd_head), parser->current_cmd);
-		printf("cmd start: %d\n", cmd_start->idx);
-		if (get_next_cmd(parser, &cmd_start))
-			// todo add option of ending early without freeing when commands are invalid//empty
+		printf("cmd start token no: %d (%c)\n", cmd_start->idx, cmd_start->c);
+		if (get_next_cmd(parser, &cmd_start)) // todo add option of ending early without freeing when commands are invalid//empty
 			return (1);
 		if (!parser->current_cmd->args || !parser->current_cmd->args[0])
 		{
+			printf("one empty arg/command");
 			if (parser->n_cmds > 1)
 				ft_putendl_fd("mariashell: syntax error near unexpected token `|'",
 					2);

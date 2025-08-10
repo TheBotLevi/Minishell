@@ -34,7 +34,7 @@ SRCS = src/mini_utils.c \
        src/redirections/mini_redirections.c \
        src/redirections/mini_handle_heredoc.c \
        src/parsing/mini_tokenize.c \
-       src/parsing/mini_quotes.c \
+       src/parsing/mini_token_quotes.c \
        src/parsing/mini_split.c \
        src/parsing/mini_syntax.c \
        src/parsing/mini_syntax_redir.c \
