@@ -43,6 +43,9 @@ SRCS = src/mini_utils.c \
        src/parsing/mini_token_utils.c \
        src/parsing/mini_cmd_utils.c \
        src/parsing/mini_parsing_free.c \
+       src/parsing/mini_print.c \
+       src/parsing/mini_token_var_exp_markup.c \
+       src/parsing/mini_token_redirections.c \
        src/mini_main.c \
        #src/mini_test_main.c \
 

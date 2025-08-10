@@ -12,12 +12,9 @@
 
 #include "../inc/minishell.h"
 
-
-static t_command *parse_line_to_commands(char* line, t_mini* mini) {
+static t_parsing *init_parser(t_mini* mini)
+{
 	t_parsing *parser;
-	t_command*	cmds;
-	t_command*	cmds_return;
-	t_redirect*	redir_head;
 
 	parser = malloc(sizeof(t_parsing));
 	if (!parser)
@@ -26,11 +23,19 @@ static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 	parser->ifs = set_ifs(mini);
 	parser->env_struct = mini->env_struct;
 	parser->exit_status = mini->exit_status;
-	//printf("\nInput tokens\n----\n");
+	return (parser);
+}
+
+static t_command *parse_line_to_commands(char* line, t_mini* mini) {
+	t_parsing *parser;
+	t_command*	cmds;
+
+	parser = init_parser(mini);
+	if (!parser || !line)
+		return (NULL);
 	parser->tokens_head = tokenize(line, parser);
 	if (!parser->tokens_head) {
-		mini->exit_status = 2;
-		//printf("syntax error\n");
+		mini->exit_status = 2; //tdo hcheck exit status in main?
 		return (NULL);
 	}
 	print_tokens(parser->tokens_head);
@@ -43,22 +48,10 @@ static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 		return (NULL);
 	}
 	cmds = parser->cmd_head;
-	cmds_return = parser->cmd_head;
-	while (cmds && cmds->args){
-		print_array(cmds->args);
-		redir_head = cmds->redirections;
-		while (redir_head) {
-			printf("filename/ delim: %s, type: %d, quoted: %d\n", redir_head->filename, redir_head->type, redir_head->is_quoted);
-			redir_head = redir_head->next;
-		}
-		cmds=cmds->next;
-	}
-	//printf("----\n");
-	//fflush(stdout);
+	print_commands(cmds);
 	free_tokens(parser->tokens_head);
-	//free_cmds(parser->cmd_head);
 	free(parser);
-	return (cmds_return);
+	return (cmds);
 }
 
 void	ft_mini_loop(t_mini *mini)
@@ -73,7 +66,6 @@ void	ft_mini_loop(t_mini *mini)
 		setup_signals();
 		g_exit = 0;
 		line = readline("mariashell > ");
-//		printf("hello\n");
 		if (line == NULL)
 		{
 			ft_putendl_fd("exit", STDOUT_FILENO);
@@ -92,8 +84,6 @@ void	ft_mini_loop(t_mini *mini)
 		}
 		add_history(line);
 		mini->cmds = parse_line_to_commands(line, mini);
-		mini->cur_cmd = mini->cmds;
-		//status = process_command(line, mini);
 		status = process_command(mini);
 		if (status == 130 || g_exit == 130)
 		{

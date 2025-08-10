@@ -13,23 +13,8 @@
 
 #include "../../inc/minishell.h"
 
-/* state keeps track of already being in a quote and which type (single or double)
- * IF used in a loop and the last element is still marked as "within_quote" it
- * indicates an unfinished quote
- */
-int	is_within_quote_token(const char c, t_quote_state *state)
+int	check_finish_quote(const char c, t_quote_state *state)
 {
-	state->is_end_quote = 0;
-	if (!state->within_quote && is_in_set(c, "\'\""))
-	{
-		state->within_quote = 1;
-		state->is_start_quote = 1;
-		if (c == '\'')
-			state->in_single_quote = 1;
-		if (c == '\"')
-			state->in_double_quote = 1;
-		return (1);
-	}
 	if (c == '\'' && state->in_single_quote)
 	{
 		state->is_start_quote = 0;
@@ -46,6 +31,27 @@ int	is_within_quote_token(const char c, t_quote_state *state)
 		state->in_double_quote = 0;
 		return (1);
 	}
+	return (0);
+}
+
+/* state keeps track of already being in a quote and which type (single or
+ * double) IF used in a loop and the last element is still marked as
+ * "within_quote" it indicates an unfinished quote */
+int	is_within_quote_token(const char c, t_quote_state *state)
+{
+	state->is_end_quote = 0;
+	if (!state->within_quote && is_in_set(c, "\'\""))
+	{
+		state->within_quote = 1;
+		state->is_start_quote = 1;
+		if (c == '\'')
+			state->in_single_quote = 1;
+		if (c == '\"')
+			state->in_double_quote = 1;
+		return (1);
+	}
+	if (check_finish_quote(c, state))
+		return (1);
 	if (state->within_quote)
 	{
 		state->is_start_quote = 0;
@@ -60,8 +66,8 @@ int	is_within_quote_token(const char c, t_quote_state *state)
 	it exits without incrementing to check if a quote remains unfinished
 
 	returns 1 if quote is unfinished
-//  */
-int	set_quote_flags(t_token *current)
+  */
+int	mark_quote_flags(t_token *current)
 {
 	t_quote_state	state;
 
@@ -70,8 +76,6 @@ int	set_quote_flags(t_token *current)
 	ft_memset(&state, 0, sizeof(t_quote_state));
 	while (current)
 	{
-		//if (current->is_redir_heredoc_delimiter)
-		//	continue;
 		current->is_quote = is_within_quote_token(current->c, &state);
 		current->is_double_quote = state.in_double_quote;
 		current->is_single_quote = state.in_single_quote;

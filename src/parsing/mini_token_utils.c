@@ -12,62 +12,12 @@
 
 #include "../../inc/minishell.h"
 
-
-
-void print_unexpected_token_error(const t_token* token)
-{
-	if (token)
-	{
-		ft_putstr_fd("mariashell: syntax error near unexpected token `",
-			STDERR_FILENO);
-		ft_putchar_fd(token->c, STDERR_FILENO);
-		ft_putendl_fd("'", STDERR_FILENO);
-	}
-	else
-		ft_putendl_fd("mariashell: syntax error near unexpected token"
-				" `newline'",STDERR_FILENO);
-}
-
-void	print_tokens(t_token *tokens)
-{
-	t_token	*current;
-
-	current = tokens;
-	while (current)
-	{
-		printf("[%d] %c: ifs:%d, quote:%d, \':%d, \":%d, start\":%d, "
-		 "end\":%d,"
-				" |:%d, $:%d, $?:%d, $var:%d, <:%d,"
-				" <<:%d, <<_del: %d, >:%d, >>:%d, filen:%d \n", current->idx,
-				current->c,
-				current->is_ifs,
-				current->is_quote,
-				current->is_single_quote,
-				current->is_double_quote,
-				current->is_start_quote,
-				current->is_end_quote,
-				current->is_pipe,
-				current->is_dollar,
-				current->is_exit_status,
-				current->is_var,
-				current->is_redir_input,
-				current->is_redir_heredoc,
-				current->is_redir_heredoc_delimiter,
-				current->is_redir_output,
-				current->is_redir_output_append,
-				current->is_redir_filename);
-		current = current->next;
-	}
-}
-
 int	create_basic_tokens(char *line, t_token **tokens)
 {
 	int		i;
 	t_token	*token;
-	t_token	*prev;
 
 	i = 0;
-	prev = NULL;
 	while (line[i])
 	{
 		token = (t_token *)malloc(sizeof(t_token));
@@ -79,72 +29,70 @@ int	create_basic_tokens(char *line, t_token **tokens)
 		ft_memset(token, 0, sizeof(t_token));
 		token->c = line[i];
 		token->idx = i;
-		token->next = NULL;
-		token->prev = prev;
-		if (prev)
-			prev->next = token;
-		if (i == 0)
-			*tokens = token;
-		prev = token;
+		token_lst_add_back(tokens, token);
 		i++;
 	}
 	return (0);
 }
 
-int get_token_lst_size(t_token *start, t_token *end) {
-	int size;
+int	get_token_lst_size(t_token *start, t_token *end)
+{
+	int	size;
 
 	size = 0;
-	while (start) {
+	while (start)
+	{
 		size++;
 		if (start == end)
-			break;
+			break ;
 		start = start->next;
 	}
 	return (size);
 }
 
-char *get_char_from_tokens(t_token *start, t_token *end) {
-
-	char *str;
-	int size;
-	int i;
+char	*get_char_from_tokens(t_token *start, t_token *end)
+{
+	char	*str;
+	int		size;
+	int		i;
 
 	size = get_token_lst_size(start, end);
 	str = malloc(size + 1);
 	if (!str)
 		return (NULL);
 	i = 0;
-	while (start) {
+	while (start)
+	{
 		str[i++] = start->c;
 		if (start == end)
-			break;
+			break ;
 		start = start->next;
 	}
 	str[size] = '\0';
 	return (str);
 }
 
-t_token *get_last_token(t_token *tokens) {
+t_token	*get_last_token(t_token *tokens)
+{
 	if (!tokens)
-		return NULL;
+		return (NULL);
 	while (tokens->next)
 		tokens = tokens->next;
 	return (tokens);
 }
 
-void token_lst_add_back(t_token **lst, t_token *new)
+void	token_lst_add_back(t_token **lst, t_token *new)
 {
-	t_token *last_elem;
-	t_token *tmp;
-	t_token *prev_token;
+	t_token	*last_elem;
+	t_token	*tmp;
+	t_token	*prev_token;
 
 	if (!lst || !new)
-		return;
+		return ;
 	if (*lst == NULL)
 	{
 		*lst = new;
-		return;
+		return ;
 	}
 	last_elem = get_last_token(*lst);
 	last_elem->next = new;

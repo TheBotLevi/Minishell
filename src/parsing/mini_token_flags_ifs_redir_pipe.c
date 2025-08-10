@@ -12,51 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-char* set_ifs(t_mini *mini) {
-	char		*ifs;
-	static char	default_ifs[4];
-
-	default_ifs[0] = ' ';
-	default_ifs[1] = '\t';
-	default_ifs[2] = '\n';
-	default_ifs[3] = '\0';
-	ifs = default_ifs;
-	if (mini && mini->env_struct && get_env_value(mini->env_struct, "IFS"))
-		ifs = get_env_value(mini->env_struct, "IFS");
-	return (ifs);
-}
-
-void	set_ifs_flags(t_parsing *parser, t_token **tokens)
-{
-	t_token		*current;
-
-	current = *tokens;
-	while (current)
-	{
-		if (is_in_set(current->c, parser->ifs) && !current->is_quote)
-			current->is_ifs = 1;
-		current = current->next;
-	}
-}
-
-int	set_pipe_flags(t_token **tokens)
-{
-	t_token	*current;
-	int n_pipes;
-
-	n_pipes = 0;
-	current = *tokens;
-	while (current)
-	{
-		if (current->c == '|' && !current->is_quote) {
-			current->is_pipe = 1;
-			n_pipes++;
-		}
-		current = current->next;
-	}
-	return (n_pipes);
-}
-
 /*
 < should redirect input
 > should redirect output
@@ -76,38 +31,49 @@ void	flag_is_redirection(t_token *current)
 	}
 }
 
-// marks and advances pointer over 2nd redirection token
-void set_double_redir_flags(t_token	**current) {
+char	*set_ifs(t_mini *mini)
+{
+	char		*ifs;
+	static char	default_ifs[4];
 
-	if ((*current)->c == '>')
-	{
-		(*current)->is_redir_output_append = 1;
-		(*current)->next->is_redir_output_append = 1;
-	}
-	else if ((*current)->c == '<')
-	{
-		(*current)->is_redir_heredoc = 1;
-		(*current)->next->is_redir_heredoc = 1;
-	}
-	(*current) = (*current)->next;
+	default_ifs[0] = ' ';
+	default_ifs[1] = '\t';
+	default_ifs[2] = '\n';
+	default_ifs[3] = '\0';
+	ifs = default_ifs;
+	if (mini && mini->env_struct && get_env_value(mini->env_struct, "IFS"))
+		ifs = get_env_value(mini->env_struct, "IFS");
+	return (ifs);
 }
 
-
-// marks list of tokens with redirection flags
-void	set_redirection_flags(t_token *current)
+void	set_ifs_flags(t_parsing *parser, t_token **tokens)
 {
+	t_token	*current;
+
+	current = *tokens;
 	while (current)
 	{
-		if (!current->is_quote && !current->is_redir_heredoc_delimiter)
+		if (is_in_set(current->c, parser->ifs) && !current->is_quote)
+			current->is_ifs = 1;
+		current = current->next;
+	}
+}
+
+void	set_pipe_flags(t_parsing *parser, t_token **tokens)
+{
+	t_token	*current;
+	int		n_pipes;
+
+	n_pipes = 0;
+	current = *tokens;
+	while (current)
+	{
+		if (current->c == '|' && !current->is_quote)
 		{
-			if (current->next && ((current->c == '>' && current->next->c == '>')
-				|| (current->c == '<' && current->next->c == '<')))
-				set_double_redir_flags(&current);
-			else if (current->c == '>')
-				current->is_redir_output = 1;
-			else if (current->c == '<')
-				current->is_redir_input = 1;
+			current->is_pipe = 1;
+			n_pipes++;
 		}
 		current = current->next;
 	}
+	parser->n_cmds = n_pipes + 1;
 }

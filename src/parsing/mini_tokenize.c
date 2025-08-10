@@ -12,94 +12,16 @@
 
 #include "../../inc/minishell.h"
 
-void	mark_exit_status(t_token **current, t_token **next)
-{
-	(*current)->is_exit_status = 1;
-	(*next)->is_exit_status = 1;
-	(*next)->is_var = 1;
-}
-
-/*
-void	mark_braced_var(t_token **current, t_token *next)
-{
-	t_token	*start;
-
-	start = next->prev;
-	if (next && next->c == '{')
-	{
-		next = next->next;
-		if (next && (ft_isalpha(next->c) || next->c == '_'))
-		{
-			next->is_var = 1;
-			next = next->next;
-			while (next && next->c != '}' && (ft_isalnum(next->c)
-					|| next->c == '_'))
-				next = next->next;
-			if (next && next->c == '}')
-			{
-				*current = next;
-				while (next && next != start)
-				{
-					next->is_braced_var = 1;
-					next->is_var = 1;
-					next = next->prev;
-					if (next == start) {
-						next->is_braced_var = 1;
-						next->is_var = 1;
-					}
-				}
-			}
-		}
-	}
-}*/
-
-void	mark_unbraced_var(t_token **current, t_token **next)
-{
-	t_token	*last_var_char;
-
-	last_var_char = *next;
-	(*next)->is_var = 1;
-	*next = (*next)->next;
-	while (*next && (ft_isalnum((*next)->c) || (*next)->c == '_'))
-	{
-		(*next)->is_var = 1;
-		last_var_char = *next;
-		*next = (*next)->next;
-	}
-	*current = last_var_char; // skip to last element of var name
-}
-
-void	set_var_expansion_flags(t_token **tokens)
-{
-	t_token	*current;
-	t_token	*next;
-
-	current = *tokens;
-	while (current && !current->is_redir_heredoc_delimiter)
-	{
-		next = current->next;
-		if (current->c == '$' && !current->is_single_quote)
-		{
-			current->is_dollar = 1;
-			if (next && next->c == '?')
-				mark_exit_status(&current, &next);
-			else if (next && (ft_isalpha(next->c) || next->c == '_'))
-				mark_unbraced_var(&current, &next);
-			else
-				current->is_dollar = 0;
-		}
-		if (current)
-			current = current->next;
-	}
-}
-
-void	unset_all_flags(t_token *current)
+void	reset_flags(t_token *current)
 {
 	t_token	*next;
 	t_token	*prev;
-	char c;
+	char	c;
+	int		i;
 
-	while (current) {
+	i = 0;
+	while (current)
+	{
 		prev = current->prev;
 		next = current->next;
 		c = current->c;
@@ -107,83 +29,60 @@ void	unset_all_flags(t_token *current)
 		current->prev = prev;
 		current->next = next;
 		current->c = c;
+		current->idx = i++;
 		current = next;
 	}
 }
 
-void reset_idx(t_token *tokens) {
-	t_token	*current;
-	int	i;
-
-	i = 0;
-	current = tokens;
-	while (current) {
-		current->idx = i;
-		current = current->next;
-		i++;
-	}
-}
-
-// returns 1 for syntax error if heredoc is present but delimiter is empty
-int	set_redir_filename_flags(t_token *tokens)
+int	set_quotes_and_heredoc(t_parsing *parser, t_token *tokens)
 {
-	t_token *current;
-	int empty_filename;
-
-	current = tokens;
-	empty_filename = 0;
-	while (current)
+	if (mark_quote_flags(tokens))
 	{
-		if (current->is_redirection)
-		{
-			empty_filename = 1;
-			current = current->next; // skip over '<<'
-			if ( current && (current->is_redir_heredoc || current->is_redir_output_append))
-				current = current->next; // skip over second delim
-			while (current && current->is_ifs) // Skip whitespace
-				current = current->next;
-			while (current && !current->is_ifs && (!current->is_redirection && !current->is_pipe)) // Mark the next word (the delimiter)
-			{
-				empty_filename = 0;
-				current->is_redir_filename = 1;
-				current = current->next;
-			}
-			if (empty_filename){
-				print_unexpected_token_error(current);
-				return (1);
-			}
-		}
-		else
-			current = current->next;
+		ft_putendl_fd("mariashell: syntax error: unclosed quote",
+			STDERR_FILENO);
+		free_tokens(tokens);
+		return (1);
 	}
-	return (empty_filename);
+	if (set_heredoc_delimiter_flags(parser, tokens))
+		return (1);
+	return (0);
 }
 
+static t_token	*mark_heredoc_delim(t_token *current, int *empty_delim,
+		t_parsing *parser)
+{
+	current = current->next->next;
+	while (current && is_in_set(current->c, parser->ifs))
+		current = current->next;
+	while (current && !is_in_set(current->c, parser->ifs)
+		&& !is_in_set(current->c, "|><"))
+	{
+		*empty_delim = 0;
+		current->is_redir_heredoc_delimiter = 1;
+		current = current->next;
+	}
+	return (current);
+}
 
 // returns 1 for syntax error if heredoc is present but delimiter is empty
 int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 {
-	t_token *current;
-	int empty_delim;
+	t_token	*current;
+	int		empty_delim;
 
 	current = tokens;
 	empty_delim = 0;
 	while (current)
 	{
-		if (!current->is_quote && current->c == '<' && current->next && current->next->c == '<')
+		if (!current->is_quote && current->c == '<' && current->next
+			&& current->next->c == '<')
 		{
 			empty_delim = 1;
-			current = current->next->next; // skip over '<<'
-			while (current && is_in_set(current->c, parser->ifs)) // Skip whitespace
-				current = current->next;
-			while (current && !is_in_set(current->c,parser->ifs) && !is_in_set(current->c,"|><")) // Mark the next word (the delimiter)
+			current = mark_heredoc_delim(current, &empty_delim, parser);
+			if (empty_delim)
 			{
-				empty_delim = 0;
-				current->is_redir_heredoc_delimiter = 1;
-				current = current->next;
-			}
-			if (empty_delim){
 				print_unexpected_token_error(current);
+				free_tokens(tokens);
 				return (1);
 			}
 		}
@@ -196,44 +95,28 @@ int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 t_token	*tokenize(char *line, t_parsing *parser)
 {
 	t_token	*tokens;
-	int n_pipes;
 
 	if (!line || !parser)
 		return (NULL);
 	tokens = NULL;
-	if (create_basic_tokens(line, &tokens) != 0)
+	if (create_basic_tokens(line, &tokens))
 		return (NULL);
-	if (set_quote_flags(tokens)){
-		ft_putendl_fd("mariashell: syntax error: unclosed quote", STDERR_FILENO);
+	if (set_quotes_and_heredoc(parser, tokens))
+		return (NULL);
+	if (expand_vars(parser, &tokens))
+	{
+		ft_putendl_fd("mariashell: memory allocation error during "
+			"variable expansion",
+			STDERR_FILENO);
 		free_tokens(tokens);
 		return (NULL);
 	}
-	if (set_heredoc_delimiter_flags(parser, tokens)){
-			free_tokens(tokens);
-			return (NULL);
-		}
-	if (expand_vars(parser, &tokens) == 1){
-		ft_putendl_fd("mariashell: memory allocation error during variable expansion", STDERR_FILENO);
-		free_tokens(tokens);
+	reset_flags(tokens);
+	if (set_quotes_and_heredoc(parser, tokens))
 		return (NULL);
-		}
-	unset_all_flags(tokens);
-	if (set_quote_flags(tokens)){
-		ft_putendl_fd("mariashell: syntax error: unclosed quote", STDERR_FILENO);
-		free_tokens(tokens);
-		return (NULL);
-	}
-	if (set_heredoc_delimiter_flags(parser, tokens)){
-		free_tokens(tokens);
-		return (NULL);
-	}
-	reset_idx(tokens);
-	n_pipes = set_pipe_flags(&tokens);
-	set_redirection_flags(tokens);
-	flag_is_redirection(tokens);
+	set_pipe_flags(parser, &tokens);
 	set_ifs_flags(parser, &tokens);
-	if (set_redir_filename_flags(tokens))
+	if (set_redirection_flags(&tokens))
 		return (NULL);
-	parser->n_cmds = n_pipes + 1;
 	return (tokens);
 }

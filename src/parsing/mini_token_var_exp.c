@@ -44,22 +44,26 @@ t_token	*replace_expanded_tokens(t_token **head, t_token **new_tokens,
 }
 
 static t_token	*insert_expansion_into_tokens(t_token **head, t_token *start,
-		t_token *end, char *env_val)
+		t_token *end, char **env_val)
 {
 	t_token	*new_tokens;
 
-	if (!start || !end || !env_val)
+	if (!start || !end || !*env_val)
 	{
 		free_tokens(*head);
 		return (NULL);
 	}
 	new_tokens = NULL;
-	if (create_basic_tokens(env_val, &new_tokens))
+	if (create_basic_tokens(*env_val, &new_tokens))
 	{
 		free_tokens(*head);
+		free(*env_val);
+		*env_val = NULL;
 		return (NULL);
 	}
 	*head = replace_expanded_tokens(head, &new_tokens, start, end);
+	free(*env_val);
+	*env_val = NULL;
 	return (*head);
 }
 
@@ -90,6 +94,7 @@ static int	find_next_var_exp(t_token **start, t_token **end,
 	return (1);
 }
 
+// return value env val is always malloced so must always be freed
 static char	*lookup_var(t_parsing *parser, t_token *char_start,
 		t_token *char_end)
 {
@@ -138,9 +143,7 @@ int	expand_vars(t_parsing *parser, t_token **tokens)
 		if (!env_val)
 			return (1);
 		printf("Expanding from: '%c' to '%c'\n", start->c, end->c); // rm!
-		*tokens = insert_expansion_into_tokens(tokens, start, end, env_val);
-		free(env_val);
-		env_val = NULL;
+		*tokens = insert_expansion_into_tokens(tokens, start, end, &env_val);
 		if (!*tokens)
 			return (1);
 		start = *tokens;

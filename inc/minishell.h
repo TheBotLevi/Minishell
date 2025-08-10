@@ -238,33 +238,40 @@ typedef struct s_parsing {
 } t_parsing;
 
 //mini_tokenize
-void	mark_exit_status(t_token **current, t_token **next);
-void	mark_braced_var(t_token **current, t_token *next);
-void	mark_unbraced_var(t_token **current, t_token **next);
-void	set_var_expansion_flags(t_token **tokens);
+
 t_token	*tokenize(char *line, t_parsing *parser);
+int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens);
+int set_quotes_and_heredoc(t_parsing *parser, t_token *tokens);
 
 //mini_token_flags_ifs_redir_pipe
-char* set_ifs(t_mini *mini);
+char*	set_ifs(t_mini *mini);
 void	set_ifs_flags(t_parsing *parser, t_token **tokens);
-void	set_redirection_flags(t_token *current);
+void	set_pipe_flags(t_parsing *parser, t_token **tokens);
 void	flag_is_redirection(t_token *current);
-int		set_pipe_flags(t_token **tokens);
+
+//mini_token_redirections
+int	set_redirection_flags(t_token **tokens);
 void	set_double_redir_flags(t_token	**current);
+int	set_redir_filename_flags(t_token *tokens);
+
+
+//mini_token_var_exp_markup
+void	mark_exit_status(t_token **current, t_token **next);
+void	mark_braced_var(t_token **current, t_token *next);
+void	set_var_expansion_flags(t_token **tokens);
 
 // mini_token_utils
-void	print_tokens(t_token *tokens);
 int		create_basic_tokens(char *line, t_token **tokens);
 void	token_lst_add_back(t_token **lst, t_token *new);
 char *get_char_from_tokens(t_token *start, t_token *end);
 int get_token_lst_size(t_token *start, t_token *end);
 t_token *get_last_token(t_token *tokens);
-void print_unexpected_token_error(const t_token* token);
 
 //mini_quotes
 int is_within_quote_token(const char c, t_quote_state *state);
 void cancel_unfinished_quote_token(t_token *token);
-int set_quote_flags(t_token *current);
+int mark_quote_flags(t_token *current);
+
 
 //mini_split //todo to be modified and cleaned up
 char	**ft_split_on_ifs(t_token *tokens, t_token *end, int ignore_redirections);
@@ -277,7 +284,6 @@ int parse_tokens(t_parsing *parser, t_mini *mini);
 int expand_vars(t_parsing *parser, t_token **tokens);
 
 //mini_cmd_utils
-void	free_cmds(t_command *cmd);
 t_token* get_cmd_end (t_token *cmd_start);
 int get_array_size(char **array);
 
@@ -290,5 +296,10 @@ int create_redirs(t_parsing *parser, t_token *start_redir, const t_token *end_re
 void	free_middle_tokens_inclusive(t_token *start, t_token *end);
 void	free_cmds(t_command *cmd);
 void	free_tokens(t_token *tokens);
+
+//mini_print
+void print_unexpected_token_error(const t_token* token);
+void	print_tokens(t_token *tokens);
+void print_commands(t_command *commands);
 
 #endif
