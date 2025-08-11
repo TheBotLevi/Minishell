@@ -28,7 +28,6 @@ void	setup_signals(void)
 {
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
-
 }
 
 void	setup_child_signals(void)

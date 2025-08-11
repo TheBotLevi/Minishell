@@ -11,55 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../inc/minishell.h"
-/*
-static char	**fill_clean_args(t_mini *mini, char **new_args)
-{
-	int	j;
-	int	i;
 
-	i = 0;
-	j = 0;
-	while (mini->args[i])
-	{
-		if (ft_strcmp(mini->args[i], "<") == 0 || ft_strcmp(mini->args[i], ">") == 0
-		|| ft_strcmp(mini->args[i], ">>") == 0 || ft_strcmp(mini->args[i], "<<") == 0)
-			i += 2;
-		else
-		{
-			new_args[j] = mini->args[i];
-			j++;
-			i++;
-		}
-	}
-	new_args[j] = NULL;
-	return (new_args);
-}
-
-static char	**remove_redirections(t_mini *mini)
-{
-	char	**new_args;
-	int	count;
-	int	i;
-
-	i = 0;
-	count = 0;
-	while (mini->args[i])
-	{
-		if (ft_strcmp(mini->args[i], "<") == 0 || ft_strcmp(mini->args[i], ">") == 0
-		|| ft_strcmp(mini->args[i], ">>") == 0 || ft_strcmp(mini->args[i], "<<") == 0)
-			i += 2;
-		else
-		{
-			count++;
-			i++;
-		}
-	}
-	new_args = malloc(sizeof(char *) * (count + 1));
-	if (!new_args)
-		return (NULL);
-	return (fill_clean_args(mini, new_args));
-}
-*/
 static int	handle_input_redirection(t_mini *mini)
 {
 	mini->fd = open(mini->filename, O_RDONLY);
@@ -122,36 +74,6 @@ static int	handle_append_redirection(t_mini *mini)
 	close(mini->fd);
 	return (0);
 }
-
-/*
-int	handle_redirections(t_mini *mini, int i)
-{
-	if (ft_strcmp(mini->args[i], "<") == 0 && mini->args[i + 1])
-	{
-		mini->filename = mini->args[i + 1];
-		if (handle_input_redirection(mini) < 0)
-			return (1);
-	}
-	else if (ft_strcmp(mini->args[i], ">") == 0 && mini->args[i + 1])
-	{
-		mini->filename = mini->args[i + 1];
-		if (handle_output_redirection(mini) < 0)
-			return (2);
-	}
-	else if (ft_strcmp(mini->args[i], ">>") == 0 && mini->args[i + 1])
-	{
-		mini->filename = mini->args[i + 1];
-		if (handle_append_redirection(mini) < 0)
-			return (3);
-	}
-	else if (ft_strcmp(mini->args[i], "<<") == 0 && mini->args[i + 1])
-	{
-		mini->filename = mini->args[i + 1];
-		if (handle_heredoc_redirection(mini, mini->args[i + 1]) < 0)
-			return (4);
-	}
-	return (0);
-}*/
 
 int	execute_redirections(t_mini *mini)
 {

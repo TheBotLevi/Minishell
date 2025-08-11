@@ -63,6 +63,7 @@ static int	handle_heredoc_delimiter(int pipefd[2], char *delimiter)
 			free(line);
 			break ;
 		}
+		// add var explansion
 		ft_putstr_fd(line, pipefd[1]);
 		ft_putchar_fd('\n', pipefd[1]);
 		free(line);
