@@ -122,7 +122,8 @@ static char	*lookup_var(int exit_status, t_env *env_struct, t_token *char_start,
 	return (env_val);
 }
 
-/* returns 0: no expansions or if all vars has been successfully expanded,
+/* returns 0: no expansions, full tokens empty on expansion
+ all vars has been successfully expanded,
 	returns 1:  on error*/
 int	expand_vars(int exit_status, t_env *env_struct, t_token **tokens)
 {
@@ -144,7 +145,7 @@ int	expand_vars(int exit_status, t_env *env_struct, t_token **tokens)
 			return (1);
 		*tokens = insert_expansion_into_tokens(tokens, start, end, &env_val);
 		if (!*tokens)
-			return (1);
+			return (0);
 		start = *tokens;
 	}
 	return (0);
