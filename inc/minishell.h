@@ -120,6 +120,7 @@ void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
 int	add_new_env_var(t_env **env, char *key, char *value);
 void print_array(char** ar);
+void print_invalid_export_key_error(char *arg);
 
 // built_in's
 int					mini_echo(char **args);

@@ -11,7 +11,9 @@ ls |                # Syntax error: nothing after pipe
 > output.txt        # Syntax error: no command
 <                   # Syntax error: no file
 
-- cat < input1 < input2 works almost correct, but prints out an NL in the terminal
+- ahndle empty comamnds with redirections
+- cat < input1 < input2 (exitisnt empty files) works almost correct, but prints out an NL in the terminal
+- cat < input1 < input2 (non-existent empty files) works almost correct, but prints out an NL in the terminal
 - cat << EOF > file1.log
     opens and closes heredoc ok, but does not write to file
 - ./nonexistent_command
@@ -26,16 +28,16 @@ cat <<EOF 1>>out.log  --> append does not creat the file if it doesnt exist yet
 
 exit 42 --> does not actually exit
 echo dfsf >"" --> minishell: : Permission denied instead of inexistent file
+
+
+
+EDGE CASE NOT TO FIX:
+- export TEST=value : subsequent parsing is wrong for quoted arguments
 to fix? nested quote stripping does not work since:
     Handle ’ (single quote) which should prevent the shell from interpreting the meta-
     characters in the quoted sequence.
     • Handle " (double quote) which should prevent the shell from interpreting the meta-
     characters in the quoted sequence except for $ (dollar sign).
-
-
-EDGE CASE NOT TO FIX:
-- export TEST=value : subsequent parsing is wrong for quoted arguments
-
 
 WORKING COMMANDS:
 

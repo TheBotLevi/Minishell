@@ -43,11 +43,6 @@ char	*get_env_value(t_env *env, char *key)
 	return (NULL);
 }
 
-char	**parse_input(char *line)
-{
-	return (ft_split(line, ' '));
-}
-
 void	sort_env_vars(t_env **sorted_env, int count)
 {
 	int	i;
@@ -73,6 +68,12 @@ void	sort_env_vars(t_env **sorted_env, int count)
 	}
 }
 
+void print_invalid_export_key_error(char *arg)
+{
+	ft_putstr_fd("mariashell: export: `", STDERR_FILENO);
+	ft_putstr_fd(arg, STDERR_FILENO);
+	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
+}
 int	is_valid_export(char *str)
 {
 	int	i;

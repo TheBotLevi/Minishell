@@ -90,19 +90,11 @@ static int	handle_export_arg(char *arg, t_env **env)
 {
 	char	*equals_pos;
 
-	if (!is_valid_export(arg))
-	{
-		ft_putstr_fd("mariashell: export: `", STDERR_FILENO);
-		ft_putstr_fd(arg, STDERR_FILENO);
-		ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
-		return (1);
-	}
 	equals_pos = ft_strchr(arg, '=');
 	if (!equals_pos)
 		return (handle_no_value_var(arg, env));
 	return (update_env(env, arg));
 }
-
 
 int	mini_export(t_mini *mini)
 {
@@ -118,7 +110,11 @@ int	mini_export(t_mini *mini)
 	i = 1;
 	while (mini->cur_cmd->args[i])
 	{
-		if (ft_strchr(mini->cur_cmd->args[i], '=') == NULL)
+		if (!is_valid_export(mini->cur_cmd->args[i])) {
+			print_invalid_export_key_error(mini->cur_cmd->args[i]);
+			status = 1;
+		}
+		else if (ft_strchr(mini->cur_cmd->args[i], '=') == NULL && mini->cur_cmd->args[i])
 		{
 			if (handle_no_value_var(mini->cur_cmd->args[i], &mini->env_struct))
 				status = 1;

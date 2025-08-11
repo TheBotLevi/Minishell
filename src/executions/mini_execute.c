@@ -82,7 +82,8 @@ static int	handle_parent_process(pid_t pid, char **envp)
 		waitpid(pid, &status, 0);
 		if (WIFEXITED(status))
 			status = WEXITSTATUS(status);
-		write(STDERR_FILENO, "\n", 1);
+		if (status == 2)
+			write(STDERR_FILENO, "\n", 1);
 	}
 	free_args(envp);
 	envp = NULL;

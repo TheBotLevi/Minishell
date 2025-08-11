@@ -48,13 +48,12 @@ t_command*	handle_parsing_result(t_mini *mini, t_parsing *parser, int parse_erro
 	}
 	free_tokens(parser->tokens_head);
 	if (parse_error > 0) {
-		mini->exit_status = 2; //todo when parsing of pipline failed, LEvi set to 1 instead of 2, confirm
+		mini->exit_status = 2;
 		if (parser->cmd_head)
 			free_cmds(parser->cmd_head);
 	}
 	else {
 		cmds = parser->cmd_head;
-		free_tokens(parser->tokens_head);
 		free(parser);
 	}
 	return (cmds);
