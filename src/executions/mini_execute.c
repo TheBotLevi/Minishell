@@ -162,38 +162,15 @@ static int	handle_single_command(t_mini *mini)
 	return (execute_external_cmd(mini));
 }
 
-static int	handle_pipeline(t_mini *mini)
-{
-	/*
-	*t_mini	*pipeline;
-	t_mini	*current;
-
-
-	if (parse_pipeline(line, &pipeline) == 0)
-	{
-		pipeline->env_struct = mini->env_struct;
-		current = pipeline->commands;
-		while (current)
-		{
-			current->env_struct = mini->env_struct;
-			current = current->next;
-		}
-		mini->exit_status = execute_pipeline(pipeline);
-		free_pipeline(pipeline);
-	}
-	else
-		mini->exit_status = 1;*/
-	mini->exit_status = execute_pipeline(mini); //change to mini itself instead of pipeline with mini list ("commands")
-	return (mini->exit_status);
-}
-
 int	process_command(t_mini *mini)
 {
 	if (!mini->cmds)
 		return (0);
 	mini->cur_cmd = mini->cmds;
-	if (mini->cmd_count > 1)
-		return (handle_pipeline(mini));
+	if (mini->cmd_count > 1) {
+		mini->exit_status = execute_pipeline(mini);
+		return (mini->exit_status);
+	}
 	if (mini->cur_cmd->args && mini->cur_cmd->args[0])
 		mini->exit_status = handle_single_command(mini);
 	free_cmds(mini->cmds);
@@ -245,7 +222,7 @@ char	*find_exec(char *cmd, char **paths, t_mini *mini)
 	if (!paths)
 		return (NULL);
 	i = 0;
-	while (paths[i])  // Fixed: was 'path[i]'
+	while (paths[i])
 	{
 		path = ft_strjoin(paths[i], "/");
 		full_path = ft_strjoin(path, cmd);

@@ -26,31 +26,58 @@ static t_parsing *init_parser(t_mini* mini)
 	return (parser);
 }
 
+t_command*	handle_parsing_result(t_mini *mini, t_parsing *parser, int parse_error) {
+
+	t_command*	cmds;
+
+	cmds = NULL;
+	if (parse_error == 1) {
+		ft_putendl_fd("mariashell: memory allocation error during "
+				" parsing", STDERR_FILENO);
+	}
+	if (parse_error == 2) {
+		ft_putendl_fd("mariashell: memory allocation error during "
+				" redirection parsing", STDERR_FILENO);
+	}
+	if (parse_error == 3) {
+		ft_putendl_fd("mariashell: syntax error near unexpected token"
+					" `|'", 2);
+	}
+	if (parse_error == 4) {
+		ft_putendl_fd("WHAT ERROR?", 2); //todo
+	}
+	free_tokens(parser->tokens_head);
+	if (parse_error > 0) {
+		mini->exit_status = 2; //todo when parsing of pipline failed, LEvi set to 1 instead of 2, confirm
+		if (parser->cmd_head)
+			free_cmds(parser->cmd_head);
+	}
+	else {
+		cmds = parser->cmd_head;
+		free_tokens(parser->tokens_head);
+		free(parser);
+	}
+	return (cmds);
+}
+
 static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 	t_parsing *parser;
 	t_command*	cmds;
 
+	cmds = NULL;
 	parser = init_parser(mini);
 	if (!parser || !line)
 		return (NULL);
 	parser->tokens_head = tokenize(line, parser);
 	if (!parser->tokens_head) {
-		mini->exit_status = 2; //tdo hcheck exit status in main?
-		return (NULL);
-	}
-	print_tokens(parser->tokens_head);
-	if (parse_tokens(parser, mini) > 0) {
-		printf("Error parsing commands\n");
-		free_tokens(parser->tokens_head);
-		if (parser->cmd_head)
-			free_cmds(parser->cmd_head);
+		mini->exit_status = 2; //todo hcheck exit status in main?
 		free(parser);
 		return (NULL);
 	}
-	cmds = parser->cmd_head;
+	print_tokens(parser->tokens_head);
+	printf("n comamnds: %d\n", parser->n_cmds);
+	cmds = handle_parsing_result(mini, parser, parse_tokens(parser, mini));
 	print_commands(cmds);
-	free_tokens(parser->tokens_head);
-	free(parser);
 	return (cmds);
 }
 
