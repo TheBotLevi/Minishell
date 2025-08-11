@@ -86,6 +86,7 @@ static int	create_pipes(t_mini *pipeline)
 
 static void	setup_pipe_fds(t_mini *pipeline, int cmd_index)
 {
+	//todo null check for pipeline pointer called from execute_single_cmd
 	if (cmd_index > 0)
 		dup2(pipeline->pipes[cmd_index - 1][0], STDIN_FILENO);
 	if (cmd_index < pipeline->cmd_count - 1)
@@ -142,7 +143,7 @@ static void	execute_single_cmd(t_mini *pipeline,
 	{
 		ft_putstr_fd("mariashell: ", STDERR_FILENO);
 		ft_putstr_fd(pipeline->cur_cmd->args[0], STDERR_FILENO);
-		ft_putendl_fd(": command not found-b", STDERR_FILENO);
+		ft_putendl_fd(": command not found", STDERR_FILENO);
 	}
 	if (envp)
 		free_args(envp);

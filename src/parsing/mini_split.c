@@ -15,7 +15,7 @@
 // Returns empty argv if only IFS and optionally redirs are present
 // Otherwise NULL if there's any real non-redir, non-IFS token
 static char	**ft_is_valid_input(t_token *str, t_token *end,
-		int ignore_redirections)
+	int ignore_redirections)
 {
 	char	**ar;
 
@@ -28,16 +28,11 @@ static char	**ft_is_valid_input(t_token *str, t_token *end,
 	}
 	while (str && str != end)
 	{
-		if (str->is_ifs)
+		if (str->is_ifs || (ignore_redirections && (str->is_redirection
+			|| str->is_redir_filename)))
 		{
 			str = str->next;
-			continue ;
-		}
-		if (ignore_redirections && (str->is_redirection
-				|| str->is_redir_filename))
-		{
-			str = str->next;
-			continue ;
+			continue;
 		}
 		return (NULL);
 	}
@@ -164,40 +159,6 @@ static char *ft_set_next_substr(t_token **start, t_token *end, int ignore_redire
 
 	return (substr);
 }
-/*
-static char	*ft_set_next_substr(t_token **start, t_token *end,
-		int ignore_redirections)
-{
-	char	*substr;
-	size_t	len_substr;
-	t_token	*stop;
-	int		n_quote_chars;
-
-	while (*start && *start != end && ((*start)->is_ifs || (ignore_redirections
-				&& ((*start)->is_redirection || (*start)->is_redir_filename))))
-		*start = (*start)->next;
-	stop = *start;
-	len_substr = 0;
-	while (stop && stop != end &&
-	   !(stop->is_ifs || (ignore_redirections &&
-	   (stop->is_redirection || stop->is_redir_filename))))
-	{
-		len_substr++;
-		stop = stop->next;
-	}
-	n_quote_chars = count_quote_chars(*start, stop);
-	len_substr = len_substr - n_quote_chars;
-	if (len_substr == 0 && n_quote_chars == 0)
-		return (NULL);
-	substr = malloc(len_substr + 1);
-	if (!substr)
-		return (NULL);
-	set_string_from_tokens(substr, *start, stop);
-	*start = stop;
-	if (stop)
-		*start = stop->next;
-	return (substr);
-}*/
 
 /* Split that accepts a string instead char as splitting param c,
 	to treat the IFS string*/

@@ -300,6 +300,6 @@ void	free_tokens(t_token *tokens);
 //mini_print
 void print_unexpected_token_error(const t_token* token);
 void	print_tokens(t_token *tokens);
-void print_commands(t_command *commands);
+void print_commands(t_command *cmds);
 
 #endif

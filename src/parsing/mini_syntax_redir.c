@@ -96,16 +96,15 @@ static char	*get_redir_filename(t_token *start_redir, t_token *end_redir,
 	return (filename);
 }
 
-
 // returns start_first_redir: NULL if no redirection found
-int parse_redirections(t_parsing *parser, const t_token *start_cmd,
+int	parse_redirections(t_parsing *parser, const t_token *start_cmd,
 		const t_token *end_cmd)
 {
 	t_token		*end_redir;
 	t_redirect	*redir;
 
-	while (start_cmd && start_cmd != end_cmd) {
-		if (start_cmd->is_redirection) {
+	while (start_cmd && start_cmd != end_cmd){
+		if (start_cmd->is_redirection){
 			redir = malloc(sizeof(t_redirect));
 			if (!redir)
 				return (1);
@@ -113,8 +112,8 @@ int parse_redirections(t_parsing *parser, const t_token *start_cmd,
 			redir->type = get_redir_type(start_cmd);
 			if (redir->type == REDIR_HEREDOC)
 				parser->current_cmd->has_heredoc = 1;
-			redir->filename = get_redir_filename((t_token*)start_cmd,
-				(t_token*) end_cmd, &(redir->is_quoted), &end_redir);
+			redir->filename = get_redir_filename((t_token *)start_cmd,
+					(t_token*) end_cmd, &(redir->is_quoted), &end_redir);
 			if (!redir->filename)
 				return (1);
 			redir_lst_add_back(&(parser->current_cmd->redirections), redir);

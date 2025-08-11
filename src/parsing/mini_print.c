@@ -52,12 +52,10 @@ void	print_tokens(t_token *tokens)
 	}
 }
 
-void	print_commands(t_command *commands)
+void	print_commands(t_command *cmds)
 {
-	t_command	*cmds;
 	t_redirect	*redir_head;
 
-	cmds = commands;
 	while (cmds && cmds->args)
 	{
 		print_array(cmds->args);
