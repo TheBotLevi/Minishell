@@ -77,14 +77,13 @@ void	set_cmd_flags(t_parsing *parser)
 	}
 }
 
-int	parse_tokens(t_parsing *parser, t_mini *mini)
+int	parse_tokens(t_parsing *parser)
 {
 	t_token	*cmd_start;
 	int		i;
 
 	i = 0;
 	cmd_start = parser->tokens_head;
-	mini->cmd_count = parser->n_cmds;
 	while (i < parser->n_cmds && cmd_start)
 	{
 		parser->current_cmd = malloc(sizeof(t_command));

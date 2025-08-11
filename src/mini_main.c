@@ -74,9 +74,10 @@ static t_command *parse_line_to_commands(char* line, t_mini* mini) {
 		free(parser);
 		return (NULL);
 	}
-	print_tokens(parser->tokens_head);
-	printf("n comamnds: %d\n", parser->n_cmds);
-	cmds = handle_parsing_result(mini, parser, parse_tokens(parser, mini));
+	//print_tokens(parser->tokens_head);
+	//printf("n comamnds: %d\n", parser->n_cmds);
+	mini->cmd_count = parser->n_cmds;
+	cmds = handle_parsing_result(mini, parser, parse_tokens(parser));
 	print_commands(cmds);
 	return (cmds);
 }

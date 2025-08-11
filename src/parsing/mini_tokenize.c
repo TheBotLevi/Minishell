@@ -114,8 +114,9 @@ t_token	*tokenize(char *line, t_parsing *parser)
 	reset_flags(tokens);
 	if (set_quotes_and_heredoc(parser, tokens))
 		return (NULL);
-	set_pipe_flags(parser, &tokens);
 	set_ifs_flags(parser, &tokens);
+	if (set_pipe_flags(parser, &tokens))
+		return (NULL);
 	if (set_redirection_flags(&tokens))
 		return (NULL);
 	return (tokens);

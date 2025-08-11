@@ -98,8 +98,8 @@ typedef struct s_command {
 	int				has_pipe_in;
 	int				has_pipe_out;
 	int				input_fd;
-	t_env			*env_struct;
 	int				output_fd;
+	t_env			*env_struct;
 	int				**pipes;
 	pid_t			*pids;
 	struct s_command *next;
@@ -247,7 +247,7 @@ int set_quotes_and_heredoc(t_parsing *parser, t_token *tokens);
 //mini_token_flags_ifs_redir_pipe
 char*	set_ifs(t_mini *mini);
 void	set_ifs_flags(t_parsing *parser, t_token **tokens);
-void	set_pipe_flags(t_parsing *parser, t_token **tokens);
+int	set_pipe_flags(t_parsing *parser, t_token **tokens);
 void	flag_is_redirection(t_token *current);
 
 //mini_token_redirections
@@ -279,7 +279,7 @@ char	**ft_split_on_ifs(t_token *tokens, t_token *end, int ignore_redirections);
 //t_token** split_line(char *line, t_parsing *parser);
 
 //mini_syntax
-int parse_tokens(t_parsing *parser, t_mini *mini);
+int parse_tokens(t_parsing *parser);
 
 //mini_token_var_exp
 int	expand_vars(int exit_status, t_env	*env_struct, t_token **tokens);

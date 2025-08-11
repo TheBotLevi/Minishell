@@ -59,7 +59,32 @@ void	set_ifs_flags(t_parsing *parser, t_token **tokens)
 	}
 }
 
-void	set_pipe_flags(t_parsing *parser, t_token **tokens)
+static int check_empty_pipes(t_token *tok)
+{
+	t_token	*head;
+
+	head = tok;
+	while (tok)
+	{
+		if (tok->is_pipe)
+		{
+			t_token *next = tok->next;
+			while (next && next->is_ifs)
+				next = next->next;
+
+			if (!next || next->is_pipe) {
+				free_tokens(head);
+				ft_putendl_fd("mariashell: syntax error near unexpected token"
+					" `|'", 2);
+				return (1);
+			}
+		}
+		tok = tok->next;
+	}
+	return (0);
+}
+
+int	set_pipe_flags(t_parsing *parser, t_token **tokens)
 {
 	t_token	*current;
 	int		n_pipes;
@@ -76,4 +101,7 @@ void	set_pipe_flags(t_parsing *parser, t_token **tokens)
 		current = current->next;
 	}
 	parser->n_cmds = n_pipes + 1;
+	if (check_empty_pipes(*tokens))
+		return (1);
+	return (0);
 }
