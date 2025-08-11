@@ -11,7 +11,10 @@ open test cases
 
 > output.txt        # Syntax error: no command
 
-
+- unset builtin should:
+      Not check existence before deciding the exit code.
+      Return 0 as long as all arguments are valid identifiers. --> current returns 1 on value not found
+      Only return non-zero if there’s an invalid identifier or other error.
 - ls ||ls --> somehow skips emptz arg condition and doesnt print  syntax error near unexpected token `|'
 - empty comamnds with redirections
 - cat < input1 < input2 (exitisnt empty files) works almost correct, but prints out an NL in the terminal
