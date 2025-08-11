@@ -22,8 +22,10 @@ int	mini_unset(t_mini *mini)
 	mini->exit_status = 0;
 	while (mini->cur_cmd->args[i])
 	{
-		if (remove_env_var(&mini->env_struct, mini->cur_cmd->args[i]) == 0)
+		if (!is_valid_export(mini->cur_cmd->args[i])) {
 			mini->exit_status = 1;
+		}
+		remove_env_var(&mini->env_struct, mini->cur_cmd->args[i]);
 		i++;
 	}
 	return (mini->exit_status);
