@@ -12,16 +12,22 @@
 
 #include "../../inc/minishell.h"
 
-static int	get_redir_type(const t_token *redir_token)
+static int	set_redir_type(t_parsing *parser, t_redirect *redir,
+		const t_token *redir_token)
 {
 	if (redir_token->is_redir_input)
-		return (REDIR_INPUT);
-	if (redir_token->is_redir_output)
-		return (REDIR_OUTPUT);
-	if (redir_token->is_redir_heredoc)
-		return (REDIR_HEREDOC);
-	if (redir_token->is_redir_output_append)
-		return (REDIR_APPEND);
+		redir->type = REDIR_INPUT;
+	else if (redir_token->is_redir_output)
+		redir->type = REDIR_OUTPUT;
+	else if (redir_token->is_redir_heredoc)
+	{
+		redir->type = REDIR_HEREDOC;
+		parser->current_cmd->has_heredoc = 1;
+	}
+	else if (redir_token->is_redir_output_append)
+		redir->type = REDIR_APPEND;
+	else
+		return (1);
 	return (0);
 }
 
@@ -51,7 +57,7 @@ static int	check_for_fully_quoted_str_redir(const t_token *start_redir,
 {
 	t_token	*cur;
 
-	cur = (t_token *) start_redir;
+	cur = (t_token *)start_redir;
 	if (!cur || cur == end_redir)
 		return (0);
 	if (!(cur->is_start_quote && end_redir->is_end_quote))
@@ -69,19 +75,18 @@ static int	check_for_fully_quoted_str_redir(const t_token *start_redir,
 
 // receives start_redir token that is a redirection and
 // end redir as NULL or the next operator
-static char	*get_redir_filename(t_token *start_redir, t_token *end_redir,
-	int *is_fully_quoted, t_token **last_redir_token)
+static int	get_redir_filename(t_token *start_redir, t_token *end_redir,
+		t_redirect *redir, t_token **last_redir_token)
 {
-	char	*filename;
 	char	**args;
 
 	if (!start_redir || !start_redir->is_redirection)
-		return (NULL);
+		return (1);
 	find_str_filename_tokens(&start_redir, &end_redir);
 	if (!start_redir || !end_redir)
-		return (NULL);
+		return (1);
 	*last_redir_token = end_redir;
-	*is_fully_quoted = check_for_fully_quoted_str_redir(start_redir, end_redir);
+	redir->is_quoted = check_for_fully_quoted_str_redir(start_redir, end_redir);
 	args = ft_split_on_ifs(start_redir, end_redir->next, 0);
 	if (!args)
 	{
@@ -89,33 +94,33 @@ static char	*get_redir_filename(t_token *start_redir, t_token *end_redir,
 			print_unexpected_token_error(end_redir->next);
 		else
 			print_unexpected_token_error(end_redir);
-		return (NULL);
+		return (1);
 	}
-	filename = ft_strdup(args[0]);
+	redir->filename = ft_strdup(args[0]);
 	free_args(args);
-	return (filename);
+	return (0);
 }
 
 // returns start_first_redir: NULL if no redirection found
-int	parse_redirections(t_parsing *parser, const t_token *start_cmd,
-		const t_token *end_cmd)
+int	parse_redirections(t_parsing *parser, t_token *start_cmd, t_token *end_cmd)
 {
 	t_token		*end_redir;
 	t_redirect	*redir;
 
-	while (start_cmd && start_cmd != end_cmd){
-		if (start_cmd->is_redirection){
+	while (start_cmd && start_cmd != end_cmd)
+	{
+		if (start_cmd->is_redirection)
+		{
 			redir = malloc(sizeof(t_redirect));
 			if (!redir)
-				return (1);
+				return (2);
 			memset(redir, 0, sizeof(t_redirect));
-			redir->type = get_redir_type(start_cmd);
-			if (redir->type == REDIR_HEREDOC)
-				parser->current_cmd->has_heredoc = 1;
-			redir->filename = get_redir_filename((t_token *)start_cmd,
-					(t_token*) end_cmd, &(redir->is_quoted), &end_redir);
-			if (!redir->filename)
-				return (1);
+			if (set_redir_type(parser, redir, start_cmd)
+				|| get_redir_filename(start_cmd, end_cmd, redir, &end_redir))
+			{
+				free(redir);
+				return (3);
+			}
 			redir_lst_add_back(&(parser->current_cmd->redirections), redir);
 			start_cmd = end_redir->next;
 		}

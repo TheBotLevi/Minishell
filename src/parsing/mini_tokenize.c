@@ -92,32 +92,27 @@ int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens)
 	return (empty_delim);
 }
 
-t_token	*tokenize(char *line, t_parsing *parser)
+int	tokenize(char *line, t_parsing *parser)
 {
 	t_token	*tokens;
 
 	if (!line || !parser)
-		return (NULL);
+		return (1);
 	tokens = NULL;
 	if (create_basic_tokens(line, &tokens))
-		return (NULL);
+		return (2);
 	if (set_quotes_and_heredoc(parser, tokens))
-		return (NULL);
+		return (1);
 	if (expand_vars(parser->exit_status, parser->env_struct, &tokens))
-	{
-		ft_putendl_fd("mariashell: memory allocation error during "
-			"variable expansion",
-			STDERR_FILENO);
-		free_tokens(tokens);
-		return (NULL);
-	}
+		return (3);
 	reset_flags(tokens);
 	if (set_quotes_and_heredoc(parser, tokens))
-		return (NULL);
+		return (1);
 	set_ifs_flags(parser, &tokens);
 	if (set_pipe_flags(parser, &tokens))
-		return (NULL);
+		return (4);
 	if (set_redirection_flags(&tokens))
-		return (NULL);
-	return (tokens);
+		return (1);
+	parser->tokens_head = tokens;
+	return (0);
 }

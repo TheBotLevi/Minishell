@@ -1,5 +1,5 @@
 TODOS:
-- treat empty arg with redirection case (currently error)
+- treat empty arg with redirection case (currently error) todo ensure allowing empty args when redirection is present no seg fault in execution
 - get rid of all debug prints
 - put mini or mariashell consistently
 - check heredoc delim flag usage

@@ -42,6 +42,8 @@ static char	**ft_is_valid_input(t_token *str, t_token *end,
 	return (ar);
 }
 
+// skip initial skip-tokens
+// adjust if last token is followed by a skip-token
 static size_t	ft_get_ndelims(t_token *str, t_token *end,
 		int ignore_redirections)
 {
@@ -49,32 +51,11 @@ static size_t	ft_get_ndelims(t_token *str, t_token *end,
 	t_token	*last;
 
 	last = NULL;
-	ndelims = 0;
 	if (!str)
 		return (0);
-	while (str && str != end && (str->is_ifs || (ignore_redirections
-				&& (str->is_redirection || str->is_redir_filename))))
-		str = str->next;
-	while (str && str != end)
-	{
-		if ((!ignore_redirections && str->is_ifs) || (ignore_redirections
-				&& !str->is_redirection && !str->is_redir_filename
-				&& str->is_ifs))
-		{
-			ndelims++;
-			while (str && str != end && (str->is_ifs || (ignore_redirections
-						&& (str->is_redirection || str->is_redir_filename))))
-				str = str->next;
-		}
-		else
-		{
-			last = str;
-			str = str->next;
-		}
-	}
-	if (last && last->next && last->next != end && (last->next->is_ifs
-			|| (ignore_redirections && (last->next->is_redirection
-					|| last->next->is_redir_filename))))
+	ndelims = advance_and_count_delims(str, end, &last, ignore_redirections);
+	if (last && last->next && last->next != end && is_skip_token(last->next,
+			ignore_redirections))
 		ndelims--;
 	return (ndelims);
 }
@@ -95,22 +76,8 @@ static void	set_string_from_tokens(char *substr, t_token *start, t_token *stop)
 	substr[i] = '\0';
 }
 
-int	count_quote_chars(const t_token *start, const t_token *end)
-{
-	int	count;
-
-	count = 0;
-	while (start)
-	{
-		if (start->is_start_quote || start->is_end_quote)
-			count++;
-		if (start == end)
-			break ;
-		start = start->next;
-	}
-	return (count);
-}
-
+// Determine inclusive stop token
+// Adjust for quotes
 static char	*ft_set_next_substr(t_token **start, t_token *end,
 		int ignore_redirections)
 {
@@ -120,26 +87,12 @@ static char	*ft_set_next_substr(t_token **start, t_token *end,
 	t_token	*stop_inclusive;
 	int		n_quote_chars;
 
-	// Skip leading IFS and (optionally) redirections
-	while (*start && *start != end && ((*start)->is_ifs || (ignore_redirections
-				&& ((*start)->is_redirection || (*start)->is_redir_filename))))
-		*start = (*start)->next;
-	stop = *start;
-	len_substr = 0;
-	// Collect until IFS or redirection (when ignoring)
-	while (stop && stop != end && !(stop->is_ifs || (ignore_redirections
-				&& (stop->is_redirection || stop->is_redir_filename))))
-	{
-		len_substr++;
-		stop = stop->next;
-	}
-	// Determine inclusive stop token
+	len_substr = set_start_stop(start, &stop, end, ignore_redirections);
 	stop_inclusive = NULL;
 	if (stop)
 		stop_inclusive = stop->prev;
 	else
 		stop_inclusive = end;
-	// Adjust for quotes
 	n_quote_chars = count_quote_chars(*start, stop_inclusive);
 	len_substr = len_substr - n_quote_chars;
 	if (len_substr == 0 && n_quote_chars == 0)
@@ -158,23 +111,21 @@ static char	*ft_set_next_substr(t_token **start, t_token *end,
 	to treat the IFS string*/
 char	**ft_split_on_ifs(t_token *start, t_token *end, int ignore_redirections)
 {
-	t_token	*curr;
 	char	**ar;
 	size_t	i;
 	size_t	ndelims;
 
-	curr = start;
-	ar = ft_is_valid_input(curr, end, ignore_redirections);
+	ar = ft_is_valid_input(start, end, ignore_redirections);
 	if (ar)
 		return (ar);
-	ndelims = ft_get_ndelims(curr, end, ignore_redirections);
+	ndelims = ft_get_ndelims(start, end, ignore_redirections);
 	ar = (char **)malloc((ndelims + 2) * sizeof(char *));
 	if (ar == NULL)
 		return (NULL);
 	i = 0;
 	while (i < (ndelims + 1))
 	{
-		ar[i] = ft_set_next_substr(&curr, end, ignore_redirections);
+		ar[i] = ft_set_next_substr(&start, end, ignore_redirections);
 		if (ar[i] == NULL)
 		{
 			free_n_array(ar, i);

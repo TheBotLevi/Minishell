@@ -240,7 +240,7 @@ typedef struct s_parsing {
 
 //mini_tokenize
 
-t_token	*tokenize(char *line, t_parsing *parser);
+int tokenize(char *line, t_parsing *parser);
 int	set_heredoc_delimiter_flags(t_parsing *parser, t_token *tokens);
 int set_quotes_and_heredoc(t_parsing *parser, t_token *tokens);
 
@@ -276,7 +276,14 @@ int mark_quote_flags(t_token *current);
 
 //mini_split //todo to be modified and cleaned up
 char	**ft_split_on_ifs(t_token *tokens, t_token *end, int ignore_redirections);
-//t_token** split_line(char *line, t_parsing *parser);
+
+//mini_split_helpers
+size_t	advance_and_count_delims(t_token *str, t_token *end,
+		t_token **last, int ignore_redirections);
+int	is_skip_token(t_token *t, int ignore_redirections);
+int	count_quote_chars(const t_token *start, const t_token *end);
+size_t	set_start_stop(t_token **start, t_token **stop, t_token *end,
+		int ignore_redirections);
 
 //mini_syntax
 int parse_tokens(t_parsing *parser);
@@ -286,12 +293,11 @@ int	expand_vars(int exit_status, t_env	*env_struct, t_token **tokens);
 
 //mini_cmd_utils
 t_token* get_cmd_end (t_token *cmd_start);
-int get_array_size(char **array);
 void	redir_lst_add_back(t_redirect **redir_head, t_redirect *new_redir);
+void	command_lst_add_back(t_command **cmd_head, t_command *new_cmd);
 
 //mini_syntax_redir
-int parse_redirections(t_parsing *parser, const t_token *start_cmd,
-		const t_token *end_cmd);
+int	parse_redirections(t_parsing *parser, t_token *start_cmd, t_token *end_cmd);
 
 //mini_parsing_free
 void	free_middle_tokens_inclusive(t_token *start, t_token *end);
