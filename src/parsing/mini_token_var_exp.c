@@ -95,7 +95,7 @@ static int	find_next_var_exp(t_token **start, t_token **end,
 }
 
 // return value env val is always malloced so must always be freed
-static char	*lookup_var(t_parsing *parser, t_token *char_start,
+static char	*lookup_var(int exit_status, t_env	*env_struct, t_token *char_start,
 		t_token *char_end)
 {
 	char	*str;
@@ -104,16 +104,16 @@ static char	*lookup_var(t_parsing *parser, t_token *char_start,
 	env_val = NULL;
 	if (char_start && char_start->is_exit_status)
 	{
-		env_val = ft_itoa(parser->exit_status);
+		env_val = ft_itoa(exit_status);
 	}
 	else
 	{
 		str = get_char_from_tokens(char_start, char_end);
 		if (!str)
 			return (NULL);
-		env_val = get_env_value(parser->env_struct, str);
+		env_val = get_env_value(env_struct, str);
 		if (env_val)
-			env_val = ft_strdup(get_env_value(parser->env_struct, str));
+			env_val = ft_strdup(get_env_value(env_struct, str));
 		free(str);
 		str = NULL;
 	}
@@ -124,7 +124,7 @@ static char	*lookup_var(t_parsing *parser, t_token *char_start,
 
 /* returns 0: no expansions or if all vars has been successfully expanded,
 	returns 1:  on error*/
-int	expand_vars(t_parsing *parser, t_token **tokens)
+int	expand_vars(int exit_status, t_env	*env_struct, t_token **tokens)
 {
 	t_token	*start;
 	t_token	*end;
@@ -139,7 +139,7 @@ int	expand_vars(t_parsing *parser, t_token **tokens)
 	char_start = NULL;
 	while (find_next_var_exp(&start, &end, &char_start, &char_end) == 0)
 	{
-		env_val = lookup_var(parser, char_start, char_end);
+		env_val = lookup_var(exit_status, env_struct, char_start, char_end);
 		if (!env_val)
 			return (1);
 		printf("Expanding from: '%c' to '%c'\n", start->c, end->c); // rm!

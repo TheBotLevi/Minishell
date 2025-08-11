@@ -1,8 +1,8 @@
 TODOS:
-- add minishell: to syntax error
-- rm error multiple file redirs in parsing
+- treat empty arg with redirection case (currently error)
 - add expansions/full parsing inside heredoc
 - get rid of all debug prints
+- put mini or mariashell consistently
 
 open test cases
 
@@ -11,7 +11,8 @@ ls |                # Syntax error: nothing after pipe
 > output.txt        # Syntax error: no command
 <                   # Syntax error: no file
 
-- ahndle empty comamnds with redirections
+- ls ||ls --> somehow skips emptz arg condition and doesnt print  syntax error near unexpected token `|'
+- empty comamnds with redirections
 - cat < input1 < input2 (exitisnt empty files) works almost correct, but prints out an NL in the terminal
 - cat < input1 < input2 (non-existent empty files) works almost correct, but prints out an NL in the terminal
 - cat << EOF > file1.log

@@ -94,11 +94,12 @@ int	parse_tokens(t_parsing *parser, t_mini *mini)
 		command_lst_add_back(&(parser->cmd_head), parser->current_cmd);
 		if (get_next_cmd(parser, &cmd_start))
 			return (2);
-		if (!parser->current_cmd->args || !parser->current_cmd->args[0]) //todo should be permitted if redirection is present?
+		if ((!parser->current_cmd->args || !parser->current_cmd->args[0])
+			&& !parser->current_cmd->has_redir) //todo should be permitted if redirection is present?
 		{
 			if (parser->n_cmds > 1)
 				return (3);
-			return (4); //todo write error message
+			return (4); //todo write error message?
 		}
 		i++;
 	}

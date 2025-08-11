@@ -186,7 +186,7 @@ void	free_pipeline(t_mini *pipeline);
 
 //redirections
 int	execute_redirections(t_mini *mini);
-int	handle_heredoc_redirection(t_mini *mini, char *delimiter);
+int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir);
 
 //### parsing files
 
@@ -282,7 +282,7 @@ char	**ft_split_on_ifs(t_token *tokens, t_token *end, int ignore_redirections);
 int parse_tokens(t_parsing *parser, t_mini *mini);
 
 //mini_token_var_exp
-int expand_vars(t_parsing *parser, t_token **tokens);
+int	expand_vars(int exit_status, t_env	*env_struct, t_token **tokens);
 
 //mini_cmd_utils
 t_token* get_cmd_end (t_token *cmd_start);

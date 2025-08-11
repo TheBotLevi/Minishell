@@ -43,9 +43,10 @@ t_command*	handle_parsing_result(t_mini *mini, t_parsing *parser, int parse_erro
 		ft_putendl_fd("mariashell: syntax error near unexpected token"
 					" `|'", 2);
 	}
+	/*
 	if (parse_error == 4) {
-		ft_putendl_fd("WHAT ERROR?", 2); //todo
-	}
+		//ft_putendl_fd("WHAT ERROR?", 2); //todo
+	}*/
 	free_tokens(parser->tokens_head);
 	if (parse_error > 0) {
 		mini->exit_status = 2;

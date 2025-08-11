@@ -103,7 +103,7 @@ t_token	*tokenize(char *line, t_parsing *parser)
 		return (NULL);
 	if (set_quotes_and_heredoc(parser, tokens))
 		return (NULL);
-	if (expand_vars(parser, &tokens))
+	if (expand_vars(parser->exit_status, parser->env_struct, &tokens))
 	{
 		ft_putendl_fd("mariashell: memory allocation error during "
 			"variable expansion",
