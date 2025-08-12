@@ -74,6 +74,7 @@ static char	*expand_variables(t_mini *mini, t_redirect *redir, char *line)
 		return (ft_strdup(""));
 	}
 	expanded = get_char_from_tokens(tokens, get_last_token(tokens));
+	free_tokens(tokens);
 	if (!expanded)
 		return (ft_strdup(""));
 	return (expanded);
