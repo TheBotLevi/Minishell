@@ -9,7 +9,15 @@ open test cases
 
 
 
+cat <<HERE <<DOC
+oi
+HERE
+time
+DOC
 
+cat <<HERE | ls
+oi
+HERE
 
 - unset builtin should:
       Not check existence before deciding the exit code.

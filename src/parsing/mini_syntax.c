@@ -40,7 +40,11 @@ int	get_next_cmd(t_parsing *parser, t_token **cmd_start)
 void	set_cmd_flags(t_parsing *parser)
 {
 	t_command	*current;
+	t_heredoc	*heredoc;
+	t_redirect	*redir;
 
+	heredoc = NULL;
+	redir = NULL;
 	current = parser->cmd_head;
 	if (!current)
 		return ;
@@ -51,7 +55,15 @@ void	set_cmd_flags(t_parsing *parser)
 		if (current != parser->cmd_head)
 			current->has_pipe_in = 1;
 		if (current->redirections)
+		{
 			current->has_redir = 1;
+			if (current->has_heredoc){
+				while (redir){
+					if (redir->type == REDIR_HEREDOC)
+						;//todo create_heredoc();
+				}
+			}
+		}
 		if (current->args && is_builtin(current->args[0]))
 			current->is_builtin = 1;
 		current->input_fd = -1;

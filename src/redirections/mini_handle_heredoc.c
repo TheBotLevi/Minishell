@@ -12,34 +12,40 @@
 
 #include "../../inc/minishell.h"
 
-/*
-static	int	check_exit(t_cmd *cmd, char *line)
+static char	*expand_variables(t_mini *mini, t_redirect *redir, char *line);
+
+int prepare_heredocs(t_mini *mini)
 {
-	if (g_exit == 130)
+	t_heredoc *hd;
+	int pipefd[2];
+	char *line;
+
+	hd = mini->heredocs;
+	while (hd)
 	{
-		cmd->exit_status = 130;
-		return (1);
+		if (pipe(pipefd) < 0)
+			return (perror("pipe"), -1);
+		while (1)
+		{
+			line = readline("> ");
+			if (!line || ft_strcmp(line, hd->delimiter) == 0)
+			{
+				free(line);
+				break;
+			}
+			// expand unless quoted
+			if (!hd->quoted)
+				line = expand_variables(mini, NULL, line);
+			ft_putendl_fd(line, pipefd[1]);
+			free(line);
+		}
+		close(pipefd[1]);
+		hd->redir->fd = pipefd[0]; // store read end in redirection
+		hd = hd->next;
 	}
-	if (line == NULL)
-		return (1);
-	return (0);
+	return 0;
 }
 
-static int	if_child_interrupted(t_mini *mini, int pipefd_read)
-{
-	char	*expanded;
-	t_token	*tokens;
-
-	if (WIFEXITED(mini->exit_status) && WEXITSTATUS(mini->exit_status) == 130)
-	{
-		close(pipefd_read);
-		restore_main_signals();
-		g_exit = 130;
-		return (1);
-	}
-	return (0);
-}
-*/
 void	print_error_and_free_tokens(t_token *tokens)
 {
 	ft_putendl_fd("mariashell: memory allocation error during "
@@ -110,6 +116,57 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 	exit(0);
 }
 
+
+
+int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
+{
+	int		pipefd[2];
+	pid_t	pid;
+	int		saved_g_exit;
+
+	saved_g_exit = g_exit;
+	g_exit = 0;
+	mini->exit_status = 0;
+	if (pipe(pipefd) < 0)
+	{
+		perror("minishell: pipe");
+		return (-1);
+	}
+	pid = fork();
+	if (pid == 0)
+		handle_heredoc_delimiter(mini, pipefd, redir);
+	else if (pid < 0)
+	{
+		close(pipefd[0]);
+		close(pipefd[1]);
+		perror("minishell: fork");
+		g_exit = saved_g_exit;
+		return (-1);
+	}
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	close(pipefd[1]);
+	waitpid(pid, &mini->exit_status, 0);
+	restore_main_signals();
+	if (WIFEXITED(mini->exit_status) && WEXITSTATUS(mini->exit_status) == 130)
+	{
+		close(pipefd[0]);
+		g_exit = 130;
+		return (-1);
+	}
+	g_exit = saved_g_exit;
+	if (dup2(hd->redir->fd, STDIN_FILENO) < 0)
+	{
+		close(pipefd[0]);
+		perror("minishell: dup2");
+		return (-1);
+	}
+	close(pipefd[0]);
+	return (0);
+}
+
+/*
+
 int	finish_process(t_mini *mini, int saved_g_exit, int pipefd[2], pid_t pid)
 {
 	signal(SIGINT, SIG_IGN);
@@ -161,3 +218,6 @@ int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
 	}
 	return (finish_process(mini, saved_g_exit, pipefd, pid));
 }
+*/
+
+
