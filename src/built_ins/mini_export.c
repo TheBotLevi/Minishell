@@ -125,3 +125,5 @@ int	mini_export(t_mini *mini)
 	}
 	return (status);
 }
+
+
