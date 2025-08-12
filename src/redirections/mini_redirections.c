@@ -54,7 +54,6 @@ static int	handle_output_redirection(t_mini *mini)
 
 static int	handle_append_redirection(t_mini *mini)
 {
-//	printf("DEBUG: Opening file '%s' for append\n", mini->filename);
 	mini->fd = open(mini->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (mini->fd < 0)
 	{
@@ -63,28 +62,27 @@ static int	handle_append_redirection(t_mini *mini)
 		ft_putendl_fd(": Permission denied", STDERR_FILENO);
 		return (-1);
 	}
-//	printf("DEBUG: File opened successfully, fd = %d\n", mini->fd);
 	if (dup2(mini->fd, STDOUT_FILENO) < 0)
 	{
 		close(mini->fd);
 		perror("minishell: dup2");
 		return (-1);
 	}
-//	printf("DEBUG: dup2 successfull, stdout redirected\n");
 	close(mini->fd);
 	return (0);
 }
 
 int	execute_redirections(t_mini *mini)
 {
-	int	error;
-	t_redirect *redir;
+	int			error;
+	t_redirect	*redir;
 
 	if (!mini->cur_cmd->args)
 		return (0);
 	error = 0;
 	redir = mini->cur_cmd->redirections;
-	while (redir) {
+	while (redir)
+	{
 		mini->filename = redir->filename;
 		if (redir->type == REDIR_INPUT)
 			error = handle_input_redirection(mini);

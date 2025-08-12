@@ -14,6 +14,7 @@ LIBFT = ${PATH_LIBFT}/libft.a
 OBJS = ${SRCS:${SRC_DIR}/%.c=${OBJ_DIR}/%.o}
 SRCS = src/mini_utils.c \
        src/executions/mini_pipes_exec.c \
+       src/executions/mini_pipes_helpers.c \
        src/mini_handle_built_in.c \
        src/executions/mini_execute.c \
        src/mini_environment.c \

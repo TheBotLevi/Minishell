@@ -16,11 +16,7 @@ void	handle_heredoc_sigint(int sig)
 {
 	(void)sig;
 	g_exit = 130;
-//	signal(SIGINT, SIG_DFL);
-//	kill(0, SIGINT);
 	write(STDOUT_FILENO, "\n", 1);
-//	exit(130);
-//	rl_replace_line("", 0);
 	rl_done = 1;
 	close(STDIN_FILENO);
 }
@@ -49,5 +45,15 @@ void	restore_main_signals(void)
 {
 	signal(SIGINT, handle_sigint);
 	signal(SIGQUIT, SIG_IGN);
-//	write(STDOUT_FILENO, "DEBUG: Signals restored\n", 30);
+}
+
+void	check_exit(int g_exit, char *line, int write_pipefd)
+{
+	if (g_exit == 130)
+	{
+		if (line)
+			free(line);
+		close(write_pipefd);
+		exit(130);
+	}
 }

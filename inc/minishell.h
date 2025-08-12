@@ -183,10 +183,15 @@ int		has_pipes(char *line);
 int		parse_pipeline(char *line, t_mini **pipeline);
 int		execute_pipeline(t_mini *pipeline);
 void	free_pipeline(t_mini *pipeline);
+void	close_all_pipes(t_mini *pipeline);
+void	setup_pipe_fds(t_mini *pipeline, int cmd_index);
+int	create_pipes(t_mini *pipeline);
+void free_pipeline_pids(t_mini *pipeline);
 
 //redirections
 int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir);
+void	check_exit(int g_exit, char *line, int write_pipefd);
 
 //### parsing files
 
