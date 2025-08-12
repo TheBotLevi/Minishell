@@ -58,6 +58,13 @@ void	free_redirections(t_redirect *redir)
 	}
 }
 
+void	free_n_array(char **ar, size_t i)
+{
+	while (i > 0)
+		free(ar[--i]);
+	free(ar);
+}
+
 void	free_cmds(t_command *cmd)
 {
 	t_command	*tmp;

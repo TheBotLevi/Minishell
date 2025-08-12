@@ -35,7 +35,8 @@ int	mini_echo(char **cmds)
 	i = 1;
 	printed = 0;
 	new_line = 1;
-	while (cmds[i] && cmds[i][0] == '-' && cmds[i][1] == 'n' && only_n(&cmds[i][1]))
+	while (cmds[i] && cmds[i][0] == '-' && cmds[i][1] == 'n'
+		&& only_n(&cmds[i][1]))
 	{
 		new_line = 0;
 		i++;

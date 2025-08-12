@@ -61,6 +61,22 @@ int	create_pipes(t_mini *pipeline)
 	return (0);
 }
 
+int	backup_fds(t_mini *mini)
+{
+	mini->saved_stdin = dup(STDIN_FILENO);
+	mini->saved_stdout = dup(STDOUT_FILENO);
+	if (mini->saved_stdin == -1 || mini->saved_stdout == -1)
+	{
+		if (mini->saved_stdin != -1)
+			close(mini->saved_stdin);
+		if (mini->saved_stdout != -1)
+			close(mini->saved_stdout);
+		return (-1);
+	}
+	mini->redir_flag = 1;
+	return (0);
+}
+
 void	free_pipeline_pids(t_mini *pipeline)
 {
 	if (pipeline->pids)

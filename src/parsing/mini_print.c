@@ -12,6 +12,21 @@
 
 #include "../../inc/minishell.h"
 
+void	print_array(char **ar)
+{
+	int	i;
+
+	i = 0;
+	if (!ar)
+		return ;
+	while (ar[i] != NULL)
+	{
+		printf("[%s]", ar[i]);
+		i++;
+	}
+	printf("\n");
+}
+
 // prints error and frees tokens
 void	print_unexpected_token_error(const t_token *token)
 {

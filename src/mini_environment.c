@@ -12,12 +12,38 @@
 
 #include "../inc/minishell.h"
 
+int	insert_env_var(t_env **env_list, t_env *new_node, char *env_key)
+{
+	char	*equals_pos;
+
+	equals_pos = ft_strchr(env_key, '=');
+	if (equals_pos)
+	{
+		new_node->key = ft_substr(env_key, 0, equals_pos - env_key);
+		new_node->value = ft_strdup(equals_pos + 1);
+		if (!new_node->key || !new_node->value)
+		{
+			if (new_node->key)
+				free(new_node->key);
+			if (new_node->value)
+				free(new_node->value);
+			free(new_node);
+			free_env_list(*env_list);
+			return (1);
+		}
+		new_node->next = *env_list;
+		*env_list = new_node;
+	}
+	else
+		free(new_node);
+	return (0);
+}
+
 t_env	*create_env_list(char **env)
 {
 	t_env	*env_list;
 	t_env	*new_node;
-	int	i;
-	char	*equals_pos;
+	int		i;
 
 	env_list = NULL;
 	i = 0;
@@ -30,35 +56,10 @@ t_env	*create_env_list(char **env)
 			return (NULL);
 		}
 		ft_bzero(new_node, sizeof(t_env));
-		equals_pos = ft_strchr(env[i], '=');
-		if (equals_pos)
-		{
-			new_node->key = ft_substr(env[i], 0, equals_pos - env[i]);
-			new_node->value = ft_strdup(equals_pos + 1);
-			if (!new_node->key || !new_node->value)
-			{
-				if (new_node->key)
-					free(new_node->key);
-				if (new_node->value)
-					free(new_node->value);
-				free(new_node);
-				free_env_list(env_list);
-				return (NULL);
-			}
-			new_node->next = env_list;
-			env_list = new_node;
-		}
-		else
-			free(new_node);
+		if (insert_env_var(&env_list, new_node, env[i]))
+			return (NULL);
 		i++;
 	}
-	/*
-	t_env *tmp = env_list;
-	while (tmp)
-	{
-   		printf("key=%s value=%s\n", tmp->key, tmp->value);
-    		tmp = tmp->next;
-	}*/
 	return (env_list);
 }
 
@@ -76,59 +77,43 @@ char	**get_paths_from_list(t_env *env_list)
 	return (NULL);
 }
 
-//had to create function because ft_lstsize in libft has t_list and we need to pass a t_env
-int	ft_envsize(t_env *lst)
+int	fill_env_list(char **env_array, t_env *env_list, int *i)
 {
-	int	count;
-	t_env *current;
+	char	*tmp;
 
-	count = 0;
-	current = lst;
-	while (current)
+	while (env_list)
 	{
-		count++;
-		current = current->next;
+		if (env_list->key && env_list->value)
+		{
+			tmp = ft_strjoin(env_list->key, "=");
+			if (!tmp)
+				return (1);
+			env_array[*i] = ft_strjoin(tmp, env_list->value);
+			free(tmp);
+			if (!env_array[*i])
+				return (1);
+			(*i)++;
+		}
+		env_list = env_list->next;
 	}
-	return (count);
+	return (0);
 }
 
 char	**env_list_to_array(t_env *env_list)
 {
-	int	count;
-	int	i;
-	char	*tmp;
+	int		count;
+	int		i;
 	char	**env_array;
-	t_env	*current;
 
-	env_array = NULL;
-	count = ft_envsize(env_list); //changed to ft_lstsize like you wanted ;)
+	count = ft_envsize(env_list);
 	env_array = (char **)malloc(sizeof(char *) * (count + 1));
 	if (!env_array)
 		return (NULL);
 	i = 0;
-	current = env_list;
-	while (current)
+	if (fill_env_list(env_array, env_list, &i))
 	{
-		if (!current->key || !current->value)
-		{
-			current = current->next;
-			continue ;
-		}
-		tmp = ft_strjoin(current->key, "=");
-		if (!tmp)
-		{
-			free_env_array(env_array, i);
-			return (NULL);
-		}
-		env_array[i] = ft_strjoin(tmp, current->value);
-		free(tmp);
-		if (!env_array[i])
-		{
-			free_env_array(env_array, i);
-			return (NULL);
-		}
-		current = current->next;
-		i++;
+		free_env_array(env_array, i);
+		return (NULL);
 	}
 	env_array[i] = NULL;
 	return (env_array);

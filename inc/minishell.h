@@ -116,7 +116,6 @@ int					ft_strcmp(char *s1, char *s2);
 void				clear_readline_history(void);
 char				*get_env_value(t_env *env, char *key);
 char				**parse_input(char *line);
-void				sort_env_vars(t_env **sorted_env, int count);
 int					is_valid_export(char *str);
 int	add_new_env_var(t_env **env, char *key, char *value);
 void print_array(char** ar);
@@ -130,6 +129,8 @@ int					mini_unset(t_mini *mini);
 int					mini_env(t_env **env);
 int					mini_cd(t_mini *mini);
 int					mini_export(t_mini *mini);
+int	handle_no_value_var(char *arg, t_env **env);
+void	print_exported_var(t_env *env);
 
 // handling built_in's
 int					is_builtin(char *cmd);
@@ -138,6 +139,7 @@ int					handle_builtin(t_mini *mini);
 // remove env
 int					remove_env_head(t_env **env, char *key);
 int					remove_env_var(t_env **env, char *key);
+int	update_existing_var(t_env *env, char *key, char *value);
 
 // add or update env to list
 int					update_env(t_env **env, char *var_str);
@@ -147,11 +149,13 @@ char				**env_list_to_array(t_env *env_list);
 char	**get_paths_from_list(t_env *env_list);
 t_env	*create_env_list(char **env);
 
+// env utils
+int	ft_envsize(t_env *lst);
+void	sort_env_vars(t_env **sorted_env, int count);
+
 // free
-void				free_n_array(char **ar, size_t i);
 void				free_args(char **args);
 void				free_env_list(t_env *env);
-void	free_command_list(t_mini *cmds);
 void	free_everything(t_mini *mini);
 void	free_env_array(char **array, int count);
 void	cleanup_redir(t_mini *mini);
@@ -161,6 +165,11 @@ int					execute_external_cmd(t_mini *mini);
 //int	process_command(char *line, t_mini *mini);
 int		process_command( t_mini *mini);
 char	*find_exec(char *cmd, char **paths, t_mini* mini);
+void	handle_external_command_not_found(t_mini *mini);
+void	handle_external_file_not_found(t_mini *mini);
+int	handle_parent_process(pid_t pid, char **envp);
+int	execute_builtin_in_parent(t_mini *mini);
+void	restore_fds(t_mini *mini);
 
 //signals
 void	setup_signals(void);
@@ -187,6 +196,7 @@ void	close_all_pipes(t_mini *pipeline);
 void	setup_pipe_fds(t_mini *pipeline, int cmd_index);
 int	create_pipes(t_mini *pipeline);
 void free_pipeline_pids(t_mini *pipeline);
+int	backup_fds(t_mini *mini);
 
 //redirections
 int	execute_redirections(t_mini *mini);
@@ -308,6 +318,8 @@ int	parse_redirections(t_parsing *parser, t_token *start_cmd, t_token *end_cmd);
 void	free_middle_tokens_inclusive(t_token *start, t_token *end);
 void	free_cmds(t_command *cmd);
 void	free_tokens(t_token *tokens);
+void				free_n_array(char **ar, size_t i);
+void	free_redirections(t_redirect *redir);
 
 //mini_print
 void print_unexpected_token_error(const t_token* token);

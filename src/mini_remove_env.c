@@ -14,7 +14,7 @@
 
 int	remove_env_head(t_env **env, char *key)
 {
-	t_env *current;
+	t_env	*current;
 
 	if (!env || !*env || !key)
 		return (0);
@@ -53,6 +53,22 @@ int	remove_env_var(t_env **env, char *key)
 		}
 		prev = current;
 		current = current->next;
+	}
+	return (0);
+}
+
+int	update_existing_var(t_env *env, char *key, char *value)
+{
+	while (env)
+	{
+		if (ft_strcmp(env->key, key) == 0)
+		{
+			free(env->value);
+			env->value = value;
+			free(key);
+			return (1);
+		}
+		env = env->next;
 	}
 	return (0);
 }

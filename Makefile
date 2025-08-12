@@ -13,10 +13,12 @@ LIBFT = ${PATH_LIBFT}/libft.a
 
 OBJS = ${SRCS:${SRC_DIR}/%.c=${OBJ_DIR}/%.o}
 SRCS = src/mini_utils.c \
+       src/mini_env_utils.c \
        src/executions/mini_pipes_exec.c \
        src/executions/mini_pipes_helpers.c \
        src/mini_handle_built_in.c \
        src/executions/mini_execute.c \
+       src/executions/mini_execute_helpers.c \
        src/mini_environment.c \
        src/mini_remove_env.c \
        src/mini_update_env.c \
@@ -29,6 +31,7 @@ SRCS = src/mini_utils.c \
        src/built_ins/mini_env.c \
        src/built_ins/mini_exit.c \
        src/built_ins/mini_export.c \
+       src/built_ins/mini_export_utils.c \
        src/built_ins/mini_pwd.c \
        src/built_ins/mini_unset.c \
        src/redirections/mini_redirections.c \

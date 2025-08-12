@@ -12,13 +12,6 @@
 
 #include "../inc/minishell.h"
 
-void	free_n_array(char **ar, size_t i)
-{
-	while (i > 0)
-		free(ar[--i]);
-	free(ar);
-}
-
 void	free_env_array(char **array, int count)
 {
 	int	i;
@@ -44,7 +37,6 @@ void	free_args(char **args)
 		return ;
 	while (args[i])
 	{
-//		printf("Hello %d\n", i);
 		free(args[i]);
 		i++;
 	}
@@ -65,20 +57,6 @@ void	free_env_list(t_env *env)
 	}
 }
 
-void	free_command_list(t_mini *cmds)
-{
-	t_mini *tmp;
-
-	while (cmds)
-	{
-		tmp = cmds->next;
-//		free_args(cmds->args);
-		free(cmds->old_path);
-		free(cmds);
-		cmds = tmp;
-	}
-}
-
 static void	help_free_pipelines(t_mini *pipeline)
 {
 	int	i;
@@ -91,54 +69,17 @@ static void	help_free_pipelines(t_mini *pipeline)
 	}
 	free(pipeline->pipes);
 }
-/*
-void	free_pipeline(t_mini *pipeline)
-{
-	t_mini	*current;
-	t_mini	*next;
-
-	if (!pipeline)
-		return;
-	current = pipeline->commands;
-	while (current)
-	{
-		next = current->next;
-		free_args(current->args);
-		free(current);
-		current = NULL;
-		current = next;
-	}
-	if (pipeline->pipes)
-		help_free_pipelines(pipeline);
-	if (pipeline->pids)
-		free(pipeline->pids);
-//	if (pipeline->commands)
-//		free(pipeline->commands);
-	free(pipeline);
-}*/
 
 void	free_everything(t_mini *mini)
 {
 	if (!mini)
-	return ;
-	//free_args(mini->args);
+		return ;
 	free_cmds(mini->cmds);
 	free(mini->old_path);
 	if (mini->pids)
 		free(mini->pids);
 	if (mini->pipes)
 		help_free_pipelines(mini);
-		//free_pipeline(mini);
 	free_env_list(mini->env_struct);
 	free(mini);
 }
-/*
-void	cleanup_redir(t_mini *mini)
-{
-	if (mini->args && mini->original_args && mini->args != mini->original_args)
-	{
-		free(mini->args);
-		mini->args = mini->original_args;
-		mini->original_args = NULL;
-	}
-}*/

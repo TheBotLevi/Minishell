@@ -43,37 +43,13 @@ char	*get_env_value(t_env *env, char *key)
 	return (NULL);
 }
 
-void	sort_env_vars(t_env **sorted_env, int count)
-{
-	int	i;
-	int	j;
-	t_env	*temp;
-
-	i = 0;
-	temp = NULL;
-	while (i < count - 1)
-	{
-		j = 0;
-		while (j < count - i - 1)
-		{
-			if (ft_strcmp(sorted_env[j]->key, sorted_env[j + 1]->key) > 0)
-			{
-				temp = sorted_env[j];
-				sorted_env[j] = sorted_env[j + 1];
-				sorted_env[j + 1] = temp;
-			}
-			j++;
-		}
-		i++;
-	}
-}
-
-void print_invalid_export_key_error(char *arg)
+void	print_invalid_export_key_error(char *arg)
 {
 	ft_putstr_fd("mariashell: export: `", STDERR_FILENO);
 	ft_putstr_fd(arg, STDERR_FILENO);
 	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 }
+
 int	is_valid_export(char *str)
 {
 	int	i;
@@ -90,17 +66,4 @@ int	is_valid_export(char *str)
 		i++;
 	}
 	return (1);
-}
-
-void print_array(char** ar) {
-	int i;
-
-	i = 0;
-	if (!ar)
-		return;
-	while (ar[i] != NULL) {
-		printf("[%s]", ar[i]);
-		i++;
-	}
-	printf("\n");
 }

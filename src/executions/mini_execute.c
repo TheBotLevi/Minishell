@@ -12,100 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-static int	backup_fds(t_mini *mini)
-{
-	mini->saved_stdin = dup(STDIN_FILENO);
-	mini->saved_stdout = dup(STDOUT_FILENO);
-	if (mini->saved_stdin == -1 || mini->saved_stdout == -1)
-	{
-		if (mini->saved_stdin != -1)
-			close(mini->saved_stdin);
-		if (mini->saved_stdout != -1)
-			close(mini->saved_stdout);
-		return (-1);
-	}
-	mini->redir_flag = 1;
-	return (0);
-}
-
-static void	restore_fds(t_mini *mini)
-{
-	if (mini->redir_flag)
-	{
-		if (mini->saved_stdin != -1)
-		{
-			dup2(mini->saved_stdin, STDIN_FILENO);
-			close(mini->saved_stdin);
-		}
-		if (mini->saved_stdout != 1)
-		{
-			dup2(mini->saved_stdout, STDOUT_FILENO);
-			close(mini->saved_stdout);
-		}
-		mini->redir_flag = 0;
-	}
-}
-
-int	execute_builtin_in_parent(t_mini *mini)
-{
-	int	res;
-	int	has_redir;
-
-	has_redir = mini->cur_cmd->has_redir;
-	if (has_redir)
-	{
-		if (backup_fds(mini) == -1)
-			return (1);
-		if (execute_redirections(mini) != 0)
-		{
-			restore_fds(mini);
-			return (1);
-		}
-	}
-	res = handle_builtin(mini);
-	if (has_redir)
-		restore_fds(mini);
-	return (res);
-}
-
-static int	handle_parent_process(pid_t pid, char **envp)
-{
-	int	status;
-
-	if (pid < 0)
-	{
-		ft_putendl_fd("minishell: Fork failed", STDERR_FILENO);
-		status = 1;
-	}
-	else
-	{
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status))
-			status = WEXITSTATUS(status);
-		if (status == 2)
-			write(STDERR_FILENO, "\n", 1);
-	}
-	free_args(envp);
-	envp = NULL;
-	return (status);
-}
-
-static void	handle_external_command_not_found(t_mini *mini)
-{
-	ft_putstr_fd("mariashell: ", STDERR_FILENO);
-	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
-	ft_putendl_fd(": command not found", STDERR_FILENO);
-	exit(127);
-}
-
-static void	handle_external_file_not_found(t_mini *mini)
-{
-	ft_putstr_fd("mariashell: ", STDERR_FILENO);
-	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
-	ft_putendl_fd(": No such file or directory", STDERR_FILENO);
-	exit(127);
-}
-
 int	execute_external_cmd(t_mini *mini)
 {
 	pid_t	pid;
@@ -126,8 +32,7 @@ int	execute_external_cmd(t_mini *mini)
 		envp = env_list_to_array(mini->env_struct);
 		if (!envp)
 		{
-			//cleanup_redir(mini);
-			//free_cmds(mini->cmds);
+			// free_cmds(mini->cmds);
 			exit(1);
 		}
 		paths = get_paths_from_list(mini->env_struct);
@@ -135,14 +40,10 @@ int	execute_external_cmd(t_mini *mini)
 		if (paths)
 			free_args(paths);
 		if (!exec_path)
-		{
-			//free_cmds(mini->cmds);
 			free_args(envp);
-//			handle_external_command_not_found(mini);
-		}
 		execve(exec_path, mini->cur_cmd->args, envp);
 		perror("mariashell: execve");
-		//free_cmds(mini->cmds);
+		// free_cmds(mini->cmds);
 		free(exec_path);
 		free_args(envp);
 		exit(126);
@@ -151,24 +52,22 @@ int	execute_external_cmd(t_mini *mini)
 	return (handle_parent_process(pid, envp));
 }
 
-static int	handle_single_command(t_mini *mini)
-{
-	if (is_builtin(mini->cur_cmd->args[0]))
-		return (execute_builtin_in_parent(mini));
-	return (execute_external_cmd(mini));
-}
-
 int	process_command(t_mini *mini)
 {
 	if (!mini->cmds)
 		return (0);
 	mini->cur_cmd = mini->cmds;
-	if (mini->cmd_count > 1) {
+	if (mini->cmd_count > 1)
+	{
 		mini->exit_status = execute_pipeline(mini);
 		return (mini->exit_status);
 	}
-	if (mini->cur_cmd->args && mini->cur_cmd->args[0])
-		mini->exit_status = handle_single_command(mini);
+	if (mini->cur_cmd->args && mini->cur_cmd->args[0]){
+		if (is_builtin(mini->cur_cmd->args[0]))
+			mini->exit_status = execute_builtin_in_parent(mini);
+		else
+			mini->exit_status = execute_external_cmd(mini);
+	}
 	free_cmds(mini->cmds);
 	mini->cmds = NULL;
 	mini->cur_cmd = NULL;
@@ -176,9 +75,9 @@ int	process_command(t_mini *mini)
 }
 
 // Return values: 1 = OK, 0 = not found, -1 = found but not executable
-static int can_execute(char *cmd)
+static int	can_execute(char *cmd)
 {
-	struct stat s;
+	struct stat	s;
 
 	if (access(cmd, F_OK) == 0)
 	{
@@ -206,7 +105,7 @@ static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 {
 	char	*path;
 	char	*full_path;
-	int	i;
+	int		i;
 
 	if (!paths)
 		return (NULL);
@@ -227,7 +126,7 @@ static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 
 char	*find_exec(char *cmd, char **paths, t_mini *mini)
 {
-	int exec_check;
+	int	exec_check;
 
 	if (ft_strchr(cmd, '/'))
 	{

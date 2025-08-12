@@ -12,7 +12,7 @@
 
 #include "../inc/minishell.h"
 
-int	parse_var(char *var_str, char **key, char ** value)
+int	parse_var(char *var_str, char **key, char **value)
 {
 	char	*equals_pos;
 
@@ -30,25 +30,9 @@ int	parse_var(char *var_str, char **key, char ** value)
 	return (0);
 }
 
-int	update_existing_var(t_env *env, char *key, char *value)
-{
-	while (env)
-	{
-		if (ft_strcmp(env->key, key) == 0)
-		{
-			free(env->value);
-			env->value = value;
-			free(key);
-			return (1);
-		}
-		env = env->next;
-	}
-	return (0);
-}
-
 int	add_new_env_var(t_env **env, char *key, char *value)
 {
-	t_env *new_node;
+	t_env	*new_node;
 
 	new_node = malloc(sizeof(t_env));
 	if (!new_node)
@@ -61,8 +45,6 @@ int	add_new_env_var(t_env **env, char *key, char *value)
 	new_node->value = value;
 	new_node->next = *env;
 	*env = new_node;
-//	free(key);
-//	free(value);
 	return (0);
 }
 
@@ -80,6 +62,20 @@ int	update_env(t_env **env, char *var_str)
 	return (add_new_env_var(env, key, value));
 }
 
+int	init_values(char *key, char *value, char **key_cpy, char **value_cpy)
+{
+	*key_cpy = ft_strdup(key);
+	if (!*key_cpy)
+		return (1);
+	*value_cpy = ft_strdup(value);
+	if (!*value_cpy)
+	{
+		free(*key_cpy);
+		return (1);
+	}
+	return (0);
+}
+
 int	update_env_value(t_env **env, char *key, char *value)
 {
 	t_env	*current;
@@ -88,15 +84,8 @@ int	update_env_value(t_env **env, char *key, char *value)
 
 	if (!env || !key)
 		return (1);
-	key_cpy = ft_strdup(key);
-	if (!key_cpy)
+	if (init_values(key, value, &key_cpy, &value_cpy))
 		return (1);
-	value_cpy = ft_strdup(value);
-	if (!value_cpy)
-	{
-		free(key_cpy);
-		return (1);
-	}
 	current = *env;
 	while (current)
 	{

@@ -12,37 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-static int	handle_no_value_var(char *arg, t_env **env)
-{
-	char	*key;
-	t_env	*current;
-
-	current = *env;
-	while (current)
-	{
-		if (ft_strcmp(current->key, arg) == 0)
-			return (0);
-		current = current->next;
-	}
-	key = ft_strdup(arg);
-	if (!key)
-		return (1);
-	return (add_new_env_var(env, key, NULL));
-}
-
-static void	print_exported_var(t_env *env)
-{
-	ft_putstr_fd("export ", STDOUT_FILENO);
-	ft_putstr_fd(env->key, STDOUT_FILENO);
-	if (env->value)
-	{
-		ft_putstr_fd("=\"", STDOUT_FILENO);
-		ft_putstr_fd(env->value, STDOUT_FILENO);
-		ft_putchar_fd('\"', STDOUT_FILENO);
-	}
-	ft_putchar_fd('\n', STDOUT_FILENO);
-}
-
 static void	fill_sorted_env(t_env *env, t_env **sorted_env, int count)
 {
 	t_env	*current;

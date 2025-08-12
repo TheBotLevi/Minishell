@@ -40,8 +40,7 @@ static char	*get_cd_path(t_mini *mini)
 {
 	char	*path;
 
-	//if (!mini->args[1] || ft_strcmp(mini->args[1], "~") == 0)
-	if (!mini->cur_cmd->args[1] || ft_strcmp(mini->cur_cmd->args[1], "~") == 0) //todo points to single char or first char in string?
+	if (!mini->cur_cmd->args[1] || ft_strcmp(mini->cur_cmd->args[1], "~") == 0)
 		path = get_env_value(mini->env_struct, "HOME");
 	else if (ft_strcmp(mini->cur_cmd->args[1], "-") == 0)
 	{
@@ -71,7 +70,7 @@ int	mini_cd(t_mini *mini)
 {
 	char	*path;
 	char	current_dir[BUFFER_SIZE];
-	int     argc;
+	int		argc;
 
 	argc = 0;
 	while (mini->cur_cmd->args[argc])
