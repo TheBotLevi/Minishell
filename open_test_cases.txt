@@ -9,7 +9,7 @@ open test cases
 
 
 
-> output.txt        # Syntax error: no command
+
 
 - unset builtin should:
       Not check existence before deciding the exit code.
@@ -98,6 +98,7 @@ ls >>> file         # Syntax error: invalid operator --> treats as syntax error 
 |                    # Syntax error: single pipe
 export ""          # falsely creates a valuless entry in export, should produce export: `': not a valid identifier
 ls |                # Syntax error: nothing after pipe
+> output.txt        # Syntax error: no command
 
 
 UNTESTED:

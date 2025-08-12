@@ -57,3 +57,44 @@ void	command_lst_add_back(t_command **cmd_head, t_command *new_cmd)
 		last_elem = last_elem->next;
 	last_elem->next = new_cmd;
 }
+
+t_command	*handle_parsing_result(t_mini *mini, t_parsing *parser, int error)
+{
+	t_command	*cmds;
+
+	cmds = NULL;
+	free_tokens(parser->tokens_head);
+	if (error > 0)
+	{
+		mini->exit_status = 1;
+		if (error == 1 || error == 2)
+		{
+			ft_putendl_fd("mariashell: memory allocation error during "
+				"parsing", STDERR_FILENO);
+		}
+		if (error == 3)
+			mini->exit_status = 2;
+		if (parser->cmd_head)
+			free_cmds(parser->cmd_head);
+	}
+	else
+	{
+		cmds = parser->cmd_head;
+		free(parser);
+	}
+	return (cmds);
+}
+
+t_parsing	*init_parser(t_mini *mini)
+{
+	t_parsing	*parser;
+
+	parser = malloc(sizeof(t_parsing));
+	if (!parser)
+		return (NULL);
+	memset(parser, 0, sizeof(t_parsing));
+	parser->ifs = set_ifs(mini);
+	parser->env_struct = mini->env_struct;
+	parser->exit_status = mini->exit_status;
+	return (parser);
+}

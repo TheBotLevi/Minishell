@@ -27,9 +27,15 @@
 # include <fcntl.h>
 
 # define BUFFER_SIZE 4096
+#define REDIR_INPUT 1
+#define REDIR_OUTPUT 2
+#define REDIR_APPEND 3
+#define REDIR_HEREDOC 4
 
 typedef struct s_mini t_mini;
 typedef struct s_command t_command;
+typedef struct s_token t_token;
+typedef struct s_parsing t_parsing;
 
 typedef struct s_env
 {
@@ -38,50 +44,24 @@ typedef struct s_env
 	struct s_env	*next;
 }					t_env;
 
-/*typedef struct s_pipeline
-{
-	char			*commands; //changed from t_mini to char for clean code purposes
-	int				cmd_count;
-	int				**pipes;
-	pid_t			*pids;
-}					t_pipeline;*/
-
-
 typedef struct s_mini
 {
-	//char			**args;	//is going to change for parsing (tokenization)
 	t_command		*cmds;
 	t_command		*cur_cmd;
 	char			*old_path;
-	int				input_fd;
-	int				output_fd;
 	int				fd;
 	char			*filename;
 	int				exit_status;
-	t_mini			*commands;
 	int				cmd_count;
 	int				**pipes;
+	pid_t			*pids;
 	int			saved_stdin;
 	int			saved_stdout;
 	int			redir_flag;
-	char			**original_args;
-	pid_t			*pids;
 	t_env		*env_struct;
-//	t_pipeline	*pipes;
-//	t_list		*list;
-	struct s_mini	*next;
+	char		**envp;
 }					t_mini;
 
-#define REDIR_INPUT 1
-#define REDIR_OUTPUT 2
-#define REDIR_APPEND 3
-#define REDIR_HEREDOC 4
-
-/*Type codes:
- *1: REDIR_IN
- *2: REDIR_OUT
- *3: REDIR_APPEND
- *4: HEREDOC */
 typedef struct s_redirect {
 	char *filename;
 	int is_quoted;
@@ -110,6 +90,8 @@ extern volatile sig_atomic_t	g_exit;
 
 // main
 void				ft_mini_loop(t_mini *mini);
+t_command	*parse_line_to_commands(char *line, t_mini *mini);
+int	handle_tokenize_result(t_mini *mini, t_parsing *parser, int token_error);
 
 // utils
 int					ft_strcmp(char *s1, char *s2);
@@ -134,7 +116,7 @@ void	print_exported_var(t_env *env);
 
 // handling built_in's
 int					is_builtin(char *cmd);
-int					handle_builtin(t_mini *mini);
+int					handle_builtin(t_mini *mini, int in_parent);
 
 // remove env
 int					remove_env_head(t_env **env, char *key);
@@ -159,11 +141,11 @@ void				free_env_list(t_env *env);
 void	free_everything(t_mini *mini);
 void	free_env_array(char **array, int count);
 void	cleanup_redir(t_mini *mini);
+void	help_free_pipelines(t_mini *pipeline);
 
 // execute
 int					execute_external_cmd(t_mini *mini);
-//int	process_command(char *line, t_mini *mini);
-int		process_command( t_mini *mini);
+int		process_command( t_mini *mini, char* line);
 char	*find_exec(char *cmd, char **paths, t_mini* mini);
 void	handle_external_command_not_found(t_mini *mini);
 void	handle_external_file_not_found(t_mini *mini);
@@ -201,7 +183,7 @@ int	backup_fds(t_mini *mini);
 //redirections
 int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir);
-void	check_exit(int g_exit, char *line, int write_pipefd);
+void	check_exit(t_mini* mini, char *line, int write_pipefd);
 
 //### parsing files
 
@@ -218,28 +200,16 @@ typedef struct s_token {
 	int is_dollar;
 	int is_var;
 	int is_exit_status;
-	//int is_eof; // signals ctrl+D
 	int is_redir_heredoc;
 	int is_redir_heredoc_delimiter;
 	int is_redir_filename;
-	//int is_heredoc_end;
 	int is_redirection;
-	//int is_redirection_end;
 	int is_redir_input;
 	int is_redir_output;
 	int is_redir_output_append;
 	struct s_token *prev;
 	struct s_token *next;
 } t_token;
-
-typedef struct s_quote_state {
-	int in_single_quote;
-	int in_double_quote;
-	int within_quote;
-	int is_start_quote;
-	int is_end_quote;
-} t_quote_state;
-
 
 typedef struct s_parsing {
 	char	*ifs; //no need to free (either stack alloc or malloc in env)
@@ -252,6 +222,14 @@ typedef struct s_parsing {
 	t_command * cmd_head;
 	t_command * current_cmd;
 } t_parsing;
+
+typedef struct s_quote_state {
+	int in_single_quote;
+	int in_double_quote;
+	int within_quote;
+	int is_start_quote;
+	int is_end_quote;
+} t_quote_state;
 
 //mini_tokenize
 
@@ -310,6 +288,9 @@ int	expand_vars(int exit_status, t_env	*env_struct, t_token **tokens);
 t_token* get_cmd_end (t_token *cmd_start);
 void	redir_lst_add_back(t_redirect **redir_head, t_redirect *new_redir);
 void	command_lst_add_back(t_command **cmd_head, t_command *new_cmd);
+t_command	*handle_parsing_result(t_mini *mini, t_parsing *parser,
+	                                int error);
+t_parsing	*init_parser(t_mini *mini);
 
 //mini_syntax_redir
 int	parse_redirections(t_parsing *parser, t_token *start_cmd, t_token *end_cmd);

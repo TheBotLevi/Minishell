@@ -25,23 +25,30 @@ int	is_builtin(char *cmd)
 }
 
 //  127 error code indicates “command not found"
-int	handle_builtin(t_mini *mini)
+int	handle_builtin(t_mini *mini, int in_parent)
 {
+	int exit_status;
+
+	exit_status = 0;
 	if (!mini->cur_cmd->args || !mini->cur_cmd->args[0])
-		return (1);
-	if (ft_strcmp(mini->cur_cmd->args[0], "echo") == 0)
-		return (mini_echo(mini->cur_cmd->args));
-	if (ft_strcmp(mini->cur_cmd->args[0], "cd") == 0)
-		return (mini_cd(mini));
-	if (ft_strcmp(mini->cur_cmd->args[0], "pwd") == 0)
-		return (mini_pwd());
-	if (ft_strcmp(mini->cur_cmd->args[0], "export") == 0)
-		return (mini_export(mini));
-	if (ft_strcmp(mini->cur_cmd->args[0], "unset") == 0)
-		return (mini_unset(mini));
-	if (ft_strcmp(mini->cur_cmd->args[0], "env") == 0)
-		return (mini_env(&mini->env_struct));
-	if (ft_strcmp(mini->cur_cmd->args[0], "exit") == 0)
-		return (mini_exit(mini));
-	return (127);
+		exit_status = 1;
+	else if (ft_strcmp(mini->cur_cmd->args[0], "echo") == 0)
+		exit_status = mini_echo(mini->cur_cmd->args);
+	else if (ft_strcmp(mini->cur_cmd->args[0], "cd") == 0)
+		exit_status = mini_cd(mini);
+	else if (ft_strcmp(mini->cur_cmd->args[0], "pwd") == 0)
+		exit_status = mini_pwd();
+	else if (ft_strcmp(mini->cur_cmd->args[0], "export") == 0)
+		exit_status = mini_export(mini);
+	else if (ft_strcmp(mini->cur_cmd->args[0], "unset") == 0)
+		exit_status = mini_unset(mini);
+	else if (ft_strcmp(mini->cur_cmd->args[0], "env") == 0)
+		exit_status = mini_env(&mini->env_struct);
+	else if (ft_strcmp(mini->cur_cmd->args[0], "exit") == 0)
+		exit_status = mini_exit(mini);
+	else
+		exit_status = 127;
+	if (!in_parent)
+		free_everything(mini);
+	return (exit_status);
 }

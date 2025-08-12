@@ -36,6 +36,7 @@ int	execute_builtin_in_parent(t_mini *mini)
 	int	has_redir;
 
 	has_redir = mini->cur_cmd->has_redir;
+	mini->redir_flag = mini->cur_cmd->has_redir;
 	if (has_redir)
 	{
 		if (backup_fds(mini) == -1)
@@ -46,7 +47,7 @@ int	execute_builtin_in_parent(t_mini *mini)
 			return (1);
 		}
 	}
-	res = handle_builtin(mini);
+	res = handle_builtin(mini, 1);
 	if (has_redir)
 		restore_fds(mini);
 	return (res);
@@ -79,6 +80,7 @@ void	handle_external_command_not_found(t_mini *mini)
 	ft_putstr_fd("mariashell: ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": command not found", STDERR_FILENO);
+	free_everything(mini);
 	exit(127);
 }
 
@@ -87,5 +89,6 @@ void	handle_external_file_not_found(t_mini *mini)
 	ft_putstr_fd("mariashell: ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+	free_everything(mini);
 	exit(127);
 }

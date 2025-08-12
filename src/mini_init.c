@@ -42,17 +42,14 @@ static void	mini_init_init(t_mini *mini)
 	mini->cmd_count = 0;
 	mini->cmds = NULL;
 	mini->cur_cmd = NULL;
-	mini->commands = NULL;
 	mini->fd = -1;
 	mini->filename = NULL;
-	mini->input_fd = -1;
-	mini->output_fd = -1;
 	mini->pids = NULL;
 	mini->pipes = NULL;
+	mini->envp = NULL;
 	mini->saved_stdin = -1;
 	mini->saved_stdout = -1;
 	mini->redir_flag = 0;
-	mini->original_args = NULL;
 }
 
 t_mini	*mini_init(char **envp)
@@ -65,6 +62,7 @@ t_mini	*mini_init(char **envp)
 		ft_putendl_fd("Error allocating memory for mini", STDERR_FILENO);
 		return (NULL);
 	}
+	ft_memset(mini, 0, sizeof(t_mini));
 	mini->env_struct = init_environment(envp);
 	if (!mini->env_struct)
 	{

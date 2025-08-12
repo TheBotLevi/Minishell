@@ -81,7 +81,7 @@ static void	ft_initiate_vars(int *i, int *j, int *s_word)
 char	**ft_split(const char *s, char c)
 {
 	char	**res;
-	int	i;
+	int		i;
 	int		j;
 	int		s_word;
 

@@ -12,57 +12,6 @@
 
 #include "../inc/minishell.h"
 
-static t_parsing	*init_parser(t_mini *mini)
-{
-	t_parsing	*parser;
-
-	parser = malloc(sizeof(t_parsing));
-	if (!parser)
-		return (NULL);
-	memset(parser, 0, sizeof(t_parsing));
-	parser->ifs = set_ifs(mini);
-	parser->env_struct = mini->env_struct;
-	parser->exit_status = mini->exit_status;
-	return (parser);
-}
-
-t_command	*handle_parsing_result(t_mini *mini, t_parsing *parser,
-		int parse_error)
-{
-	t_command	*cmds;
-
-	cmds = NULL;
-	if (parse_error > 0)
-	{
-		mini->exit_status = 1;
-		if (parse_error == 1)
-		{
-			ft_putendl_fd("mariashell: memory allocation error during "
-							"parsing",
-							STDERR_FILENO);
-		}
-		if (parse_error == 2)
-		{
-			ft_putendl_fd("mariashell: memory allocation error during "
-							"redirection parsing",
-							STDERR_FILENO);
-		}
-		if (parse_error == 3)
-		{
-			mini->exit_status = 2;
-		}
-		free_tokens(parser->tokens_head);
-		if (parser->cmd_head)
-			free_cmds(parser->cmd_head);
-	}
-	else
-	{
-		cmds = parser->cmd_head;
-		free(parser);
-	}
-	return (cmds);
-}
-
 // error 1 has no specific message (e.g. empty line)
 // or message already printed in the function
 int	handle_tokenize_result(t_mini *mini, t_parsing *parser, int token_error)
@@ -72,22 +21,19 @@ int	handle_tokenize_result(t_mini *mini, t_parsing *parser, int token_error)
 		if (token_error == 2)
 		{
 			ft_putendl_fd("mariashell: memory allocation error during "
-							"token creation",
-							STDERR_FILENO);
+				"token creation", STDERR_FILENO);
 			mini->exit_status = 1;
 		}
 		if (token_error == 3)
 		{
 			ft_putendl_fd("mariashell: memory allocation error during "
-							"variable expansion",
-							STDERR_FILENO);
+				"variable expansion", STDERR_FILENO);
 			mini->exit_status = 1;
 		}
 		if (token_error == 4)
 		{
 			ft_putendl_fd("mariashell: syntax error near unexpected token"
-							" `|'",
-							2);
+				" `|'", 2);
 			mini->exit_status = 2;
 		}
 		parser->tokens_head = NULL;
@@ -96,7 +42,7 @@ int	handle_tokenize_result(t_mini *mini, t_parsing *parser, int token_error)
 	return (token_error);
 }
 
-static t_command	*parse_line_to_commands(char *line, t_mini *mini)
+t_command	*parse_line_to_commands(char *line, t_mini *mini)
 {
 	t_parsing	*parser;
 	t_command	*cmds;
@@ -107,12 +53,34 @@ static t_command	*parse_line_to_commands(char *line, t_mini *mini)
 		return (NULL);
 	if (handle_tokenize_result(mini, parser, tokenize(line, parser)))
 		return (NULL);
-	// print_tokens(parser->tokens_head);
-	// printf("n comamnds: %d\n", parser->n_cmds);
 	mini->cmd_count = parser->n_cmds;
 	cmds = handle_parsing_result(mini, parser, parse_tokens(parser));
-	// print_commands(cmds);
 	return (cmds);
+}
+
+static int	handle_line(t_mini *mini, char *line)
+{
+	int	status;
+
+	if (!*line)
+	{
+		free(line);
+		return (0);
+	}
+	add_history(line);
+	status = process_command(mini, line);
+	if (status == 130 || g_exit == 130)
+	{
+		mini->exit_status = 130;
+		g_exit = 0;
+	}
+	if (ft_strcmp(line, "exit") == 0)
+	{
+		free(line);
+		return (-1);
+	}
+	free(line);
+	return (0);
 }
 
 void	ft_mini_loop(t_mini *mini)
@@ -133,31 +101,10 @@ void	ft_mini_loop(t_mini *mini)
 			break ;
 		}
 		if (g_exit == 130)
-		{
-			//			ft_putchar_fd('\n', STDOUT_FILENO);
 			g_exit = 0;
-			//			continue ;
-		}
-		if (!*line)
-		{
-			free(line);
-			continue ;
-		}
-		add_history(line);
-		mini->cmds = parse_line_to_commands(line, mini);
-		status = process_command(mini);
-		if (status == 130 || g_exit == 130)
-		{
-			mini->exit_status = 130;
-			g_exit = 0;
-		}
-		if (ft_strcmp(line, "exit") == 0)
-		{
-			free(line);
+		status = handle_line(mini, line);
+		if (status == -1)
 			break ;
-		}
-		//		printf("exit status: %d\n", status);
-		free(line);
 	}
 }
 
@@ -168,8 +115,8 @@ int	main(int ac, char **av, char **envp)
 	(void)av;
 	/*
 	if (!isatty(STDIN_FILENO)) {
-		ft_putendl_fd("Warning: Non-interactive mode detected (input is not a terminal).",
-			STDERR_FILENO);
+		ft_putendl_fd("Warning: Non-interactive mode detected (input is not
+		a terminal).", STDERR_FILENO);
 		return (0);
 	}*/
 	if (ac != 1)
@@ -182,10 +129,9 @@ int	main(int ac, char **av, char **envp)
 		return (1);
 	setup_signals();
 	ft_mini_loop(mini);
-	clear_readline_history();
+	clear_readline_history(); //	rl_clear_history();
 	//	free_env_list(mini->env_struct);
 	//	clear_history();
-	//	rl_clear_history();
 	free_everything(mini);
 	return (0);
 }

@@ -34,7 +34,6 @@ void	try_run_cmd(t_mini *pipeline, char *exec_path, char **envp)
  * or Execute external commands*/
 static void	execute_single_cmd(t_mini *pipeline, int cmd_index)
 {
-	char	**envp;
 	char	**paths;
 	char	*exec_path;
 
@@ -42,17 +41,19 @@ static void	execute_single_cmd(t_mini *pipeline, int cmd_index)
 	setup_pipe_fds(pipeline, cmd_index);
 	close_all_pipes(pipeline);
 	if (execute_redirections(pipeline) != 0)
+	{
+		free_everything(pipeline);
 		exit(1);
+	}
 	if (is_builtin(pipeline->cur_cmd->args[0]))
-		exit(handle_builtin(pipeline));
-	envp = env_list_to_array(pipeline->cur_cmd->env_struct);
+		exit(handle_builtin(pipeline, 0));
+	pipeline->envp = env_list_to_array(pipeline->cur_cmd->env_struct);
 	paths = get_paths_from_list(pipeline->cur_cmd->env_struct);
 	exec_path = find_exec(pipeline->cur_cmd->args[0], paths, pipeline);
 	if (paths)
 		free_args(paths);
-	try_run_cmd(pipeline, exec_path, envp);
-	if (envp)
-		free_args(envp);
+	try_run_cmd(pipeline, exec_path, pipeline->envp);
+	free_everything(pipeline);
 	exit(127);
 }
 

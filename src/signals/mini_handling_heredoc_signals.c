@@ -21,20 +21,6 @@ void	handle_heredoc_sigint(int sig)
 	close(STDIN_FILENO);
 }
 
-/*
-void	handle_heredoc_sigint_child(int sig)
-{
-	(void)sig;
-	write(STDOUT_FILENO, "\n", 1);
-}
-
-void	handle_heredoc_signal_child(void)
-{
-	signal(SIGINT, handle_heredoc_sigint_child);
-	signal(SIGQUIT, SIG_IGN);
-}
-*/
-
 void	handle_heredoc_signals(void)
 {
 	signal(SIGINT, handle_heredoc_sigint);
@@ -47,13 +33,14 @@ void	restore_main_signals(void)
 	signal(SIGQUIT, SIG_IGN);
 }
 
-void	check_exit(int g_exit, char *line, int write_pipefd)
+void	check_exit(t_mini* mini, char *line, int write_pipefd)
 {
 	if (g_exit == 130)
 	{
 		if (line)
 			free(line);
 		close(write_pipefd);
+		free_everything(mini);
 		exit(130);
 	}
 }

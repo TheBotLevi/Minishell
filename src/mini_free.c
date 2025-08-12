@@ -57,7 +57,7 @@ void	free_env_list(t_env *env)
 	}
 }
 
-static void	help_free_pipelines(t_mini *pipeline)
+void	help_free_pipelines(t_mini *pipeline)
 {
 	int	i;
 
@@ -80,6 +80,9 @@ void	free_everything(t_mini *mini)
 		free(mini->pids);
 	if (mini->pipes)
 		help_free_pipelines(mini);
-	free_env_list(mini->env_struct);
+	if (mini->env_struct)
+		free_env_list(mini->env_struct);
+	if (mini->envp)
+		free_args(mini->envp);
 	free(mini);
 }

@@ -89,7 +89,7 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 	while (1)
 	{
 		line = readline("> ");
-		check_exit(g_exit, line, pipefd[1]);
+		check_exit(mini, line, pipefd[1]);
 		if (!line || ft_strcmp(line, redir->filename) == 0)
 		{
 			if (!line)
@@ -105,6 +105,7 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 		free(line);
 	}
 	close(pipefd[1]);
+	free_everything(mini);
 	exit(0);
 }
 

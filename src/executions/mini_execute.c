@@ -15,24 +15,22 @@
 int	execute_external_cmd(t_mini *mini)
 {
 	pid_t	pid;
-	char	**envp;
 	char	**paths;
 	char	*exec_path;
 
 	pid = fork();
-	envp = NULL;
 	if (pid == 0)
 	{
 		setup_child_signals();
 		if (execute_redirections(mini) != 0)
 		{
-			free_cmds(mini->cmds);
+			free_everything(mini);
 			exit(1);
 		}
-		envp = env_list_to_array(mini->env_struct);
-		if (!envp)
+		mini->envp = env_list_to_array(mini->env_struct);
+		if (!mini->envp)
 		{
-			// free_cmds(mini->cmds);
+			free_everything(mini);
 			exit(1);
 		}
 		paths = get_paths_from_list(mini->env_struct);
@@ -40,33 +38,34 @@ int	execute_external_cmd(t_mini *mini)
 		if (paths)
 			free_args(paths);
 		if (!exec_path)
-			free_args(envp);
-		execve(exec_path, mini->cur_cmd->args, envp);
+			free_args(mini->envp);
+		execve(exec_path, mini->cur_cmd->args, mini->envp);
 		perror("mariashell: execve");
-		// free_cmds(mini->cmds);
+		free_everything(mini);
 		free(exec_path);
-		free_args(envp);
 		exit(126);
 	}
 	signal(SIGINT, SIG_IGN);
-	return (handle_parent_process(pid, envp));
+	return (handle_parent_process(pid, mini->envp));
 }
 
-int	process_command(t_mini *mini)
+int	process_command(t_mini *mini, char* line)
 {
+	mini->cmds = parse_line_to_commands(line, mini);
 	if (!mini->cmds)
 		return (0);
 	mini->cur_cmd = mini->cmds;
 	if (mini->cmd_count > 1)
-	{
 		mini->exit_status = execute_pipeline(mini);
-		return (mini->exit_status);
-	}
-	if (mini->cur_cmd->args && mini->cur_cmd->args[0]){
+	else if (mini->cur_cmd->args && mini->cur_cmd->args[0]){
 		if (is_builtin(mini->cur_cmd->args[0]))
 			mini->exit_status = execute_builtin_in_parent(mini);
 		else
 			mini->exit_status = execute_external_cmd(mini);
+	}
+	if (mini->pipes) {
+		help_free_pipelines(mini);
+		mini->pipes = NULL;
 	}
 	free_cmds(mini->cmds);
 	mini->cmds = NULL;
@@ -120,6 +119,7 @@ static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 		free(full_path);
 		i++;
 	}
+	free_args(paths);
 	handle_external_command_not_found(mini);
 	return (NULL);
 }
@@ -134,7 +134,12 @@ char	*find_exec(char *cmd, char **paths, t_mini *mini)
 		if (exec_check == 1)
 			return (ft_strdup(cmd));
 		if (exec_check == -1)
+		{
+			free_args(paths);
+			free_everything(mini);
 			exit(126);
+		}
+		free_args(paths);
 		handle_external_file_not_found(mini);
 		return (NULL);
 	}

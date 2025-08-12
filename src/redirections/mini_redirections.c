@@ -12,8 +12,22 @@
 
 #include "../../inc/minishell.h"
 
+static int	handle_empty_filename(t_mini *mini)
+{
+	if (mini->filename == NULL || mini->filename[0] == '\0')
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(mini->filename, STDERR_FILENO);
+		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+		return (-1);
+	}
+	return (0);
+}
+
 static int	handle_input_redirection(t_mini *mini)
 {
+	if (handle_empty_filename(mini) == -1)
+		return (-1);
 	mini->fd = open(mini->filename, O_RDONLY);
 	if (mini->fd < 0)
 	{
@@ -34,6 +48,8 @@ static int	handle_input_redirection(t_mini *mini)
 
 static int	handle_output_redirection(t_mini *mini)
 {
+	if (handle_empty_filename(mini) == -1)
+		return (-1);
 	mini->fd = open(mini->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (mini->fd < 0)
 	{
@@ -54,6 +70,8 @@ static int	handle_output_redirection(t_mini *mini)
 
 static int	handle_append_redirection(t_mini *mini)
 {
+	if (handle_empty_filename(mini) == -1)
+		return (-1);
 	mini->fd = open(mini->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
 	if (mini->fd < 0)
 	{
