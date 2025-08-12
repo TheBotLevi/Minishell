@@ -71,7 +71,16 @@ int	mini_cd(t_mini *mini)
 {
 	char	*path;
 	char	current_dir[BUFFER_SIZE];
+	int     argc;
 
+	argc = 0;
+	while (mini->cur_cmd->args[argc])
+		argc++;
+	if (argc > 2)
+	{
+		ft_putendl_fd("mariashell: cd: too many arguments", STDERR_FILENO);
+		return (1);
+	}
 	if (getcwd(current_dir, BUFFER_SIZE) == NULL)
 		return (1);
 	if (mini->old_path)
