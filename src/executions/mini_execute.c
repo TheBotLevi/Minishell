@@ -120,11 +120,9 @@ int	execute_external_cmd(t_mini *mini)
 		setup_child_signals();
 		if (execute_redirections(mini) != 0)
 		{
-			//cleanup_redir(mini);
 			free_cmds(mini->cmds);
 			exit(1);
 		}
-
 		envp = env_list_to_array(mini->env_struct);
 		if (!envp)
 		{
@@ -139,15 +137,12 @@ int	execute_external_cmd(t_mini *mini)
 		if (!exec_path)
 		{
 			//free_cmds(mini->cmds);
-			//cleanup_redir(mini);
 			free_args(envp);
 //			handle_external_command_not_found(mini);
-
 		}
 		execve(exec_path, mini->cur_cmd->args, envp);
 		perror("mariashell: execve");
 		//free_cmds(mini->cmds);
-		//cleanup_redir(mini);
 		free(exec_path);
 		free_args(envp);
 		exit(126);
@@ -207,23 +202,12 @@ static int can_execute(char *cmd)
 	return (0);
 }
 
-char	*find_exec(char *cmd, char **paths, t_mini *mini)
+static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 {
 	char	*path;
 	char	*full_path;
 	int	i;
-	int exec_check;
 
-	if (ft_strchr(cmd, '/'))
-	{
-		exec_check = can_execute(cmd);
-		if (exec_check == 1)
-			return (ft_strdup(cmd));
-		if (exec_check == -1)
-			exit(126);
-		handle_external_file_not_found(mini);
-		return (NULL);
-	}
 	if (!paths)
 		return (NULL);
 	i = 0;
@@ -239,4 +223,21 @@ char	*find_exec(char *cmd, char **paths, t_mini *mini)
 	}
 	handle_external_command_not_found(mini);
 	return (NULL);
+}
+
+char	*find_exec(char *cmd, char **paths, t_mini *mini)
+{
+	int exec_check;
+
+	if (ft_strchr(cmd, '/'))
+	{
+		exec_check = can_execute(cmd);
+		if (exec_check == 1)
+			return (ft_strdup(cmd));
+		if (exec_check == -1)
+			exit(126);
+		handle_external_file_not_found(mini);
+		return (NULL);
+	}
+	return (create_full_path(cmd, paths, mini));
 }

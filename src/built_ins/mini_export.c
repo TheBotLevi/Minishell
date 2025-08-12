@@ -46,7 +46,7 @@ static void	print_exported_var(t_env *env)
 static void	fill_sorted_env(t_env *env, t_env **sorted_env, int count)
 {
 	t_env	*current;
-	int	i;
+	int		i;
 
 	current = env;
 	i = 0;
@@ -68,7 +68,7 @@ static void	display_exported_vars(t_env *env)
 {
 	t_env	**sorted_env;
 	t_env	*temp;
-	int	count;
+	int		count;
 
 	count = 0;
 	temp = env;
@@ -83,7 +83,7 @@ static void	display_exported_vars(t_env *env)
 	if (!sorted_env)
 		return ;
 	fill_sorted_env(env, sorted_env, count);
-	free (sorted_env);
+	free(sorted_env);
 }
 
 static int	handle_export_arg(char *arg, t_env **env)
@@ -96,6 +96,22 @@ static int	handle_export_arg(char *arg, t_env **env)
 	return (update_env(env, arg));
 }
 
+void	process_export_args(t_mini *mini, char *arg, int *status)
+{
+	if (!is_valid_export(arg))
+	{
+		print_invalid_export_key_error(arg);
+		*status = 1;
+	}
+	else if (ft_strchr(arg, '=') == NULL)
+	{
+		if (handle_no_value_var(arg, &mini->env_struct))
+			*status = 1;
+	}
+	else if (handle_export_arg(arg, &mini->env_struct))
+		*status = 1;
+}
+
 int	mini_export(t_mini *mini)
 {
 	int	i;
@@ -105,25 +121,13 @@ int	mini_export(t_mini *mini)
 	if (!mini->cur_cmd->args[1])
 	{
 		display_exported_vars(mini->env_struct);
-		return (0);
+		return (status);
 	}
 	i = 1;
 	while (mini->cur_cmd->args[i])
 	{
-		if (!is_valid_export(mini->cur_cmd->args[i])) {
-			print_invalid_export_key_error(mini->cur_cmd->args[i]);
-			status = 1;
-		}
-		else if (ft_strchr(mini->cur_cmd->args[i], '=') == NULL && mini->cur_cmd->args[i])
-		{
-			if (handle_no_value_var(mini->cur_cmd->args[i], &mini->env_struct))
-				status = 1;
-		}
-		else if (handle_export_arg(mini->cur_cmd->args[i], &mini->env_struct))
-			status = 1;
+		process_export_args(mini, mini->cur_cmd->args[i], &status);
 		i++;
 	}
 	return (status);
 }
-
-

@@ -45,9 +45,9 @@ Cases:
 - Two or more arguments, first is numeric → print too many arguments,
 	don’t exit, status = 1
  */
-int mini_exit(t_mini *mini)
+int	mini_exit(t_mini *mini)
 {
-	int argc;
+	int	argc;
 
 	argc = 0;
 	while (mini->cur_cmd->args[argc])
