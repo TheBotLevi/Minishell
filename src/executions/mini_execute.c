@@ -98,7 +98,7 @@ static void	handle_external_command_not_found(t_mini *mini)
 	exit(127);
 }
 
-static void	handle_external_command_not_found2(t_mini *mini)
+static void	handle_external_file_not_found(t_mini *mini)
 {
 	ft_putstr_fd("mariashell: ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
@@ -180,7 +180,8 @@ int	process_command(t_mini *mini)
 	return (mini->exit_status);
 }
 
-static int	can_execute(char *cmd)
+// Return values: 1 = OK, 0 = not found, -1 = found but not executable
+static int can_execute(char *cmd)
 {
 	struct stat s;
 
@@ -193,14 +194,14 @@ static int	can_execute(char *cmd)
 				ft_putstr_fd("minishell: ", 2);
 				ft_putstr_fd(cmd, 2);
 				ft_putendl_fd(": Is a directory", 2);
-				return (0);
+				return (-1);
 			}
 			if (access(cmd, X_OK) == 0)
 				return (1);
 			ft_putstr_fd("minishell: ", 2);
 			ft_putstr_fd(cmd, 2);
 			ft_putendl_fd(": Permission denied", 2);
-			return (0);
+			return (-1);
 		}
 	}
 	return (0);
@@ -211,13 +212,16 @@ char	*find_exec(char *cmd, char **paths, t_mini *mini)
 	char	*path;
 	char	*full_path;
 	int	i;
+	int exec_check;
 
 	if (ft_strchr(cmd, '/'))
 	{
-		if (can_execute(cmd))
+		exec_check = can_execute(cmd);
+		if (exec_check == 1)
 			return (ft_strdup(cmd));
-		else
-			handle_external_command_not_found2(mini);
+		if (exec_check == -1)
+			exit(126);
+		handle_external_file_not_found(mini);
 		return (NULL);
 	}
 	if (!paths)
