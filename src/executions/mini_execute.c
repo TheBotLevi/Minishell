@@ -59,7 +59,7 @@ int	execute_builtin_in_parent(t_mini *mini)
 		if (execute_redirections(mini) != 0)
 		{
 			restore_fds(mini);
-			return (2);
+			return (1);
 		}
 	}
 	res = handle_builtin(mini);
