@@ -150,18 +150,31 @@ static void	execute_single_cmd(t_mini *pipeline,
 	exit(127);
 }
 
+// detect exit status or signal EPIPE/SIGPIPE resulting in exit 141
 static int	wait_for_processes(t_mini *pipeline)
 {
 	int	i;
 	int	status;
 	int	last_status;
+	int signal;
 
 	last_status = 0;
 	i = 0;
 	while (i < pipeline->cmd_count)
 	{
 		waitpid(pipeline->pids[i], &status, 0);
-		if (WIFEXITED(status))
+		if (WIFSIGNALED(status))
+		{
+			signal = WTERMSIG(status);
+			if (signal == SIGPIPE)
+			{
+				ft_putendl_fd("minishell: Broken pipe", STDERR_FILENO);
+				last_status = 141;
+			}
+			else
+				last_status = 128 + signal;
+		}
+		else if (WIFEXITED(status))
 			last_status = WEXITSTATUS(status);
 		i++;
 	}
