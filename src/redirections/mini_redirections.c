@@ -85,6 +85,7 @@ int	execute_redirections(t_mini *mini)
 	error = 0;
 	redir = mini->cur_cmd->redirections;
 	while (redir) {
+		mini->filename = redir->filename;
 		if (redir->type == REDIR_INPUT)
 			error = handle_input_redirection(mini);
 		else if (redir->type == REDIR_OUTPUT)
