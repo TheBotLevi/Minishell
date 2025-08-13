@@ -27,7 +27,7 @@ int	is_builtin(char *cmd)
 //  127 error code indicates “command not found"
 int	handle_builtin(t_mini *mini, int in_parent)
 {
-	int exit_status;
+	int	exit_status;
 
 	exit_status = 0;
 	if (!mini->cur_cmd->args || !mini->cur_cmd->args[0])

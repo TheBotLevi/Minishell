@@ -15,7 +15,6 @@
 int	execute_external_cmd(t_mini *mini)
 {
 	pid_t	pid;
-	char	**paths;
 	char	*exec_path;
 
 	pid = fork();
@@ -23,20 +22,10 @@ int	execute_external_cmd(t_mini *mini)
 	{
 		setup_child_signals();
 		if (execute_redirections(mini) != 0)
-		{
-			free_everything(mini);
 			exit(1);
-		}
-		mini->envp = env_list_to_array(mini->env_struct);
-		if (!mini->envp)
-		{
-			free_everything(mini);
+		if (set_environment(mini))
 			exit(1);
-		}
-		paths = get_paths_from_list(mini->env_struct);
-		exec_path = find_exec(mini->cur_cmd->args[0], paths, mini);
-		if (paths)
-			free_args(paths);
+		exec_path = find_exec(mini->cur_cmd->args[0], mini);
 		if (!exec_path)
 			free_args(mini->envp);
 		execve(exec_path, mini->cur_cmd->args, mini->envp);
@@ -49,7 +38,7 @@ int	execute_external_cmd(t_mini *mini)
 	return (handle_parent_process(pid, mini->envp));
 }
 
-int	process_command(t_mini *mini, char* line)
+int	process_command(t_mini *mini, char *line)
 {
 	mini->cmds = parse_line_to_commands(line, mini);
 	if (!mini->cmds)
@@ -59,13 +48,15 @@ int	process_command(t_mini *mini, char* line)
 		return (mini->exit_status);
 	if (mini->cmd_count > 1)
 		mini->exit_status = execute_pipeline(mini);
-	else if (mini->cur_cmd->args && mini->cur_cmd->args[0]){
+	else if (mini->cur_cmd->args && mini->cur_cmd->args[0])
+	{
 		if (is_builtin(mini->cur_cmd->args[0]))
 			mini->exit_status = execute_builtin_in_parent(mini);
 		else
 			mini->exit_status = execute_external_cmd(mini);
 	}
-	if (mini->pipes) {
+	if (mini->pipes)
+	{
 		help_free_pipelines(mini);
 		mini->pipes = NULL;
 	}
@@ -126,10 +117,17 @@ static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 	return (NULL);
 }
 
-char	*find_exec(char *cmd, char **paths, t_mini *mini)
+char	*find_exec(char *cmd, t_mini *mini)
 {
-	int	exec_check;
+	int		exec_check;
+	char	**paths;
 
+	paths = get_paths_from_list(mini->env_struct);
+	if (!paths)
+	{
+		free_args(paths);
+		return (NULL);
+	}
 	if (ft_strchr(cmd, '/'))
 	{
 		exec_check = can_execute(cmd);

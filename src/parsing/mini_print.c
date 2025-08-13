@@ -84,3 +84,14 @@ void	print_commands(t_command *cmds)
 		cmds = cmds->next;
 	}
 }
+
+int	set_environment(t_mini *mini)
+{
+	mini->envp = env_list_to_array(mini->env_struct);
+	if (!mini->envp)
+	{
+		free_everything(mini);
+		return (1);
+	}
+	return (0);
+}

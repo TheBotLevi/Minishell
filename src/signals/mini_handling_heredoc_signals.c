@@ -33,7 +33,7 @@ void	restore_main_signals(void)
 	signal(SIGQUIT, SIG_IGN);
 }
 
-void	check_exit(t_mini* mini, char *line, int write_pipefd)
+void	check_exit(t_mini *mini, char *line, int write_pipefd)
 {
 	if (g_exit == 130)
 	{

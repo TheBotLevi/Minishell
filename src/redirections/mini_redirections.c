@@ -12,18 +12,6 @@
 
 #include "../../inc/minishell.h"
 
-static int	handle_empty_filename(t_mini *mini)
-{
-	if (mini->filename == NULL || mini->filename[0] == '\0')
-	{
-		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd(mini->filename, STDERR_FILENO);
-		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
-		return (-1);
-	}
-	return (0);
-}
-
 static int	handle_input_redirection(t_mini *mini)
 {
 	if (handle_empty_filename(mini) == -1)
@@ -90,7 +78,7 @@ static int	handle_append_redirection(t_mini *mini)
 	return (0);
 }
 
-static int	handle_heredoc_fd(t_mini *mini, t_redirect* redir)
+static int	handle_heredoc_fd(t_mini *mini, t_redirect *redir)
 {
 	mini->fd = redir->fd;
 	if (mini->fd < 0)
@@ -110,7 +98,6 @@ static int	handle_heredoc_fd(t_mini *mini, t_redirect* redir)
 	return (0);
 }
 
-
 int	execute_redirections(t_mini *mini)
 {
 	int			error;
@@ -129,11 +116,13 @@ int	execute_redirections(t_mini *mini)
 			error = handle_output_redirection(mini);
 		else if (redir->type == REDIR_APPEND)
 			error = handle_append_redirection(mini);
-		else if (redir->type == REDIR_HEREDOC){
+		else if (redir->type == REDIR_HEREDOC)
 			error = handle_heredoc_fd(mini, redir);
-		}
 		if (error)
+		{
+			free_everything(mini);
 			return (1);
+		}
 		redir = redir->next;
 	}
 	return (0);

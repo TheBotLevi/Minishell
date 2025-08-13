@@ -21,7 +21,7 @@ t_env	*init_environment(char **env)
 	env_list = create_env_list(env);
 	if (!env_list)
 		return (NULL);
-	//update_env_value(&env_list, "SHELL", "minishell");//todo wanted/necessary?
+	update_env_value(&env_list, "SHELL", "minishell");
 	if (getcwd(cwd, BUFFER_SIZE))
 	{
 		pwd = ft_strjoin("PWD=", cwd);

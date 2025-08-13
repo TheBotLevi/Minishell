@@ -22,9 +22,16 @@ int	ft_strcmp(char *s1, char *s2)
 	return (*s1 - *s2);
 }
 
-void	clear_readline_history(void)
+int	handle_empty_filename(t_mini *mini)
 {
-	rl_clear_history();
+	if (mini->filename == NULL || mini->filename[0] == '\0')
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(mini->filename, STDERR_FILENO);
+		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+		return (-1);
+	}
+	return (0);
 }
 
 char	*get_env_value(t_env *env, char *key)
