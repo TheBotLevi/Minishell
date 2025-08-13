@@ -55,11 +55,8 @@ int	process_command(t_mini *mini, char* line)
 	if (!mini->cmds)
 		return (0);
 	mini->cur_cmd = mini->cmds;
-	if (prepare_heredocs(mini) != 0) {
-		g_exit = 130;
-		mini->exit_status = g_exit;
+	if (prepare_heredocs(mini) != 0)
 		return (mini->exit_status);
-	}
 	if (mini->cmd_count > 1)
 		mini->exit_status = execute_pipeline(mini);
 	else if (mini->cur_cmd->args && mini->cur_cmd->args[0]){

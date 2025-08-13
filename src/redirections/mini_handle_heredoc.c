@@ -81,7 +81,7 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 	}
 	close(pipefd[1]);
 	free_everything(mini);
-	exit(0);
+	exit(g_exit);
 }
 
 int prepare_heredocs(t_mini *mini)
@@ -104,6 +104,7 @@ int prepare_heredocs(t_mini *mini)
 				pid = fork();
 				if (pid == 0)
 					handle_heredoc_delimiter(mini, pipefd, redir);
+				signal(SIGINT, SIG_IGN);
 				close(pipefd[1]);
 				waitpid(pid, &mini->exit_status, 0);
 				if (WIFEXITED(mini->exit_status) &&
@@ -112,7 +113,7 @@ int prepare_heredocs(t_mini *mini)
 					close(pipefd[0]);
 					redir->fd = -1;
 					g_exit = 130;
-					return (130);
+					return (g_exit);
 				}
 				redir->fd = pipefd[0];
 			}

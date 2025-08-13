@@ -71,8 +71,8 @@ static int	handle_line(t_mini *mini, char *line)
 	status = process_command(mini, line);
 	if (status == 130 || g_exit == 130)
 	{
-		mini->exit_status = 130;
-		g_exit = 0;
+		free(line);
+		return(130);
 	}
 	if (ft_strcmp(line, "exit") == 0)
 	{
