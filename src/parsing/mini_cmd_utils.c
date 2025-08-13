@@ -74,6 +74,8 @@ t_command	*handle_parsing_result(t_mini *mini, t_parsing *parser, int error)
 		}
 		if (error == 3)
 			mini->exit_status = 2;
+		if (parser->heredoc)
+			free_heredocs(parser->heredoc);
 		if (parser->cmd_head)
 			free_cmds(parser->cmd_head);
 	}

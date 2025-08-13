@@ -13,7 +13,7 @@
 #include "../../inc/minishell.h"
 
 static char	*expand_variables(t_mini *mini, t_redirect *redir, char *line);
-
+/*
 int prepare_heredocs(t_mini *mini)
 {
 	t_heredoc *hd;
@@ -44,7 +44,7 @@ int prepare_heredocs(t_mini *mini)
 		hd = hd->next;
 	}
 	return 0;
-}
+}*/
 
 void	print_error_and_free_tokens(t_token *tokens)
 {
@@ -117,7 +117,7 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 }
 
 
-
+/*
 int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
 {
 	int		pipefd[2];
@@ -163,9 +163,8 @@ int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
 	}
 	close(pipefd[0]);
 	return (0);
-}
+}*/
 
-/*
 
 int	finish_process(t_mini *mini, int saved_g_exit, int pipefd[2], pid_t pid)
 {
@@ -218,6 +217,5 @@ int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
 	}
 	return (finish_process(mini, saved_g_exit, pipefd, pid));
 }
-*/
 
 

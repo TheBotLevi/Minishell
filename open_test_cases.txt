@@ -4,6 +4,8 @@ TODOS:
 - put mini or mariashell consistently
 - check heredoc delim flag usage
 - avoid pipe array and just use command pipes
+- execentric delimiter eg <jkfsduie$sd
+- add heredoc free to free logic
 
 open test cases
 
@@ -107,6 +109,7 @@ ls >>> file         # Syntax error: invalid operator --> treats as syntax error 
 export ""          # falsely creates a valuless entry in export, should produce export: `': not a valid identifier
 ls |                # Syntax error: nothing after pipe
 > output.txt        # Syntax error: no command
+cat << ds$HOME$?
 
 
 UNTESTED:
