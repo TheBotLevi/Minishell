@@ -74,7 +74,8 @@ void	free_everything(t_mini *mini)
 {
 	if (!mini)
 		return ;
-	free_cmds(mini->cmds);
+	if (mini->cmds)
+		free_cmds(mini->cmds);
 	free(mini->old_path);
 	if (mini->pids)
 		free(mini->pids);

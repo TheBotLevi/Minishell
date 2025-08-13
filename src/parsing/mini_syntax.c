@@ -35,48 +35,12 @@ int	get_next_cmd(t_parsing *parser, t_token **cmd_start)
 	return (0);
 }
 
-
-void heredoc_lst_add_back(t_heredoc **heredoc_head, t_heredoc *new_heredoc)
-{
-	t_heredoc	*last_elem;
-
-	if (!heredoc_head || !new_heredoc)
-		return ;
-	if (*heredoc_head == NULL)
-	{
-		*heredoc_head = new_heredoc;
-		return ;
-	}
-	last_elem = *heredoc_head;
-	while (last_elem->next)
-		last_elem = last_elem->next;
-	last_elem->next = new_heredoc;
-}
-
-create_heredoc(t_parsing *parser, t_redirect	*redir) {
-
-	t_heredoc	*heredoc;
-
-	heredoc = NULL;
-	heredoc = malloc(sizeof(t_heredoc));
-	if (!heredoc)
-		return (1);
-	ft_memset(heredoc, 0, sizeof(t_heredoc));
-	heredoc->redir = redir;
-	heredoc->delimiter = redir->filename;
-	heredoc->quoted = redir->is_quoted;
-	heredoc_lst_add_back((&parser->heredoc), heredoc);
-	return (0);
-}
-
 // sets all flags except "has heredoc" as this is checked in each redirection
 // (if multiple) and set if ANY ONE has it
-int	set_cmd_flags(t_parsing *parser)
+void	set_cmd_flags(t_parsing *parser)
 {
 	t_command	*current;
-	t_redirect	*redir;
 
-	redir = NULL;
 	current = parser->cmd_head;
 	if (!current)
 		return ;
@@ -87,18 +51,7 @@ int	set_cmd_flags(t_parsing *parser)
 		if (current != parser->cmd_head)
 			current->has_pipe_in = 1;
 		if (current->redirections)
-		{
 			current->has_redir = 1;
-			if (current->has_heredoc){
-				while (redir) {
-					if (redir->type == REDIR_HEREDOC){
-						if (create_heredoc(parser, redir))
-							return (1);
-					}
-					redir = redir->next;
-				}
-			}
-		}
 		if (current->args && is_builtin(current->args[0]))
 			current->is_builtin = 1;
 		current->input_fd = -1;
@@ -106,7 +59,6 @@ int	set_cmd_flags(t_parsing *parser)
 		current->env_struct = parser->env_struct;
 		current = current->next;
 	}
-	return (0);
 }
 
 int	parse_tokens(t_parsing *parser)
@@ -129,7 +81,6 @@ int	parse_tokens(t_parsing *parser)
 			return (cmd_error);
 		i++;
 	}
-	if (set_cmd_flags(parser) > 0)
-		return (1);
+	set_cmd_flags(parser);
 	return (0);
 }

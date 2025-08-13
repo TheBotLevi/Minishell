@@ -36,7 +36,6 @@ typedef struct s_mini t_mini;
 typedef struct s_command t_command;
 typedef struct s_token t_token;
 typedef struct s_parsing t_parsing;
-typedef struct s_heredoc t_heredoc;
 
 typedef struct s_env
 {
@@ -61,7 +60,6 @@ typedef struct s_mini
 	int			redir_flag;
 	t_env		*env_struct;
 	char		**envp;
-	t_heredoc	*heredocs;
 }					t_mini;
 
 typedef struct s_redirect {
@@ -87,13 +85,6 @@ typedef struct s_command {
 	pid_t			*pids;
 	struct s_command *next;
 } t_command;
-
-typedef struct s_heredoc {
-	char            *delimiter;
-	int             quoted;
-	t_redirect      *redir; // so you know where to put the fd
-	struct s_heredoc *next;
-} t_heredoc;
 
 //global variable
 extern volatile sig_atomic_t	g_exit;
@@ -194,6 +185,7 @@ int	backup_fds(t_mini *mini);
 int	execute_redirections(t_mini *mini);
 int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir);
 void	check_exit(t_mini* mini, char *line, int write_pipefd);
+int prepare_heredocs(t_mini *mini);
 
 //### parsing files
 
@@ -231,7 +223,6 @@ typedef struct s_parsing {
 	t_token * current_tok_end;
 	t_command * cmd_head;
 	t_command * current_cmd;
-	t_heredoc * heredoc;
 } t_parsing;
 
 typedef struct s_quote_state {
@@ -289,11 +280,11 @@ int	count_quote_chars(const t_token *start, const t_token *end);
 size_t	set_start_stop(t_token **start, t_token **stop, t_token *end,
 		int ignore_redirections);
 
-//mini_syntax
-int parse_tokens(t_parsing *parser);
-
 //mini_token_var_exp
 int	expand_vars(int exit_status, t_env	*env_struct, t_token **tokens);
+
+//mini_syntax
+int parse_tokens(t_parsing *parser);
 
 //mini_cmd_utils
 t_token* get_cmd_end (t_token *cmd_start);

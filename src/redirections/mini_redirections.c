@@ -108,8 +108,12 @@ int	execute_redirections(t_mini *mini)
 			error = handle_output_redirection(mini);
 		else if (redir->type == REDIR_APPEND)
 			error = handle_append_redirection(mini);
-		else if (redir->type == REDIR_HEREDOC)
-			error = handle_heredoc_redirection(mini, redir);
+		else if (redir->type == REDIR_HEREDOC){
+			//error = handle_heredoc_redirection(mini, redir);
+			if (dup2(redir->fd, STDIN_FILENO) < 0)
+				perror("dup2");
+			close(redir->fd);
+		}
 		if (error)
 			return (1);
 		redir = redir->next;

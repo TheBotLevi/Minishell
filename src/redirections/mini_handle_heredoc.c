@@ -13,6 +13,7 @@
 #include "../../inc/minishell.h"
 
 static char	*expand_variables(t_mini *mini, t_redirect *redir, char *line);
+
 /*
 int prepare_heredocs(t_mini *mini)
 {
@@ -28,22 +29,30 @@ int prepare_heredocs(t_mini *mini)
 		while (1)
 		{
 			line = readline("> ");
+			if (g_heredoc_sig)
+				break;
 			if (!line || ft_strcmp(line, hd->delimiter) == 0)
 			{
+				if (!line){
+					ft_putendl_fd("mariashell: warning: here-document "
+				   "delimited by end-of-file", STDERR_FILENO);
+				}
 				free(line);
 				break;
 			}
-			// expand unless quoted
 			if (!hd->quoted)
-				line = expand_variables(mini, NULL, line);
+				line = expand_variables(mini, hd->redir, line);
 			ft_putendl_fd(line, pipefd[1]);
-			free(line);
+			free(line); //todo add signal ctrl c
 		}
 		close(pipefd[1]);
-		hd->redir->fd = pipefd[0]; // store read end in redirection
+		hd->redir->fd = pipefd[0];
+		if (g_heredoc_sig)
+			break;
 		hd = hd->next;
 	}
-	return 0;
+	printf("heredoc readin done\n");
+	return (0);
 }*/
 
 void	print_error_and_free_tokens(t_token *tokens)
@@ -165,7 +174,48 @@ int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
 	return (0);
 }*/
 
+int prepare_heredocs(t_mini *mini)
+{
+	t_command   *cmd;
+	t_redirect  *redir;
+	int         pipefd[2];
+	pid_t       pid;
 
+	cmd = mini->cmds;
+	while (cmd)
+	{
+		redir = cmd->redirections;
+		while (redir)
+		{
+			if (redir->type == REDIR_HEREDOC) // your enum/type check
+			{
+				if (pipe(pipefd) < 0)
+					return (perror("pipe"), -1);
+				pid = fork();
+				if (pid == 0)
+					handle_heredoc_delimiter(mini, pipefd, redir);
+				close(pipefd[1]);
+				waitpid(pid, &mini->exit_status, 0);
+				if (WIFEXITED(mini->exit_status) &&
+					WEXITSTATUS(mini->exit_status) == 130)
+				{
+					close(pipefd[0]);
+					redir->fd = -1;
+					g_exit = 130;
+					free_everything(mini);
+					return (130);
+				}
+				redir->fd = pipefd[0];
+			}
+			redir = redir->next;
+		}
+		cmd = cmd->next;
+	}
+	return (0);
+}
+
+
+/*
 int	finish_process(t_mini *mini, int saved_g_exit, int pipefd[2], pid_t pid)
 {
 	signal(SIGINT, SIG_IGN);
@@ -216,6 +266,6 @@ int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
 		return (-1);
 	}
 	return (finish_process(mini, saved_g_exit, pipefd, pid));
-}
+}*/
 
 
