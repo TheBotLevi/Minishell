@@ -38,7 +38,7 @@ int	set_quotes_and_heredoc(t_parsing *parser, t_token *tokens)
 {
 	if (mark_quote_flags(tokens))
 	{
-		ft_putendl_fd("mariashell: syntax error: unclosed quote",
+		ft_putendl_fd("minishell: syntax error: unclosed quote",
 			STDERR_FILENO);
 		free_tokens(tokens);
 		return (1);

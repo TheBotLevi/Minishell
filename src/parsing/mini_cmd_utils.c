@@ -69,7 +69,7 @@ t_command	*handle_parsing_result(t_mini *mini, t_parsing *parser, int error)
 		mini->exit_status = 1;
 		if (error == 1 || error == 2)
 		{
-			ft_putendl_fd("mariashell: memory allocation error during "
+			ft_putendl_fd("minishell: memory allocation error during "
 				"parsing", STDERR_FILENO);
 		}
 		if (error == 3)

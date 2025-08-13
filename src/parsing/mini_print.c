@@ -32,13 +32,13 @@ void	print_unexpected_token_error(const t_token *token)
 {
 	if (token)
 	{
-		ft_putstr_fd("mariashell: syntax error near unexpected token `",
+		ft_putstr_fd("minishell: syntax error near unexpected token `",
 			STDERR_FILENO);
 		ft_putchar_fd(token->c, STDERR_FILENO);
 		ft_putendl_fd("'", STDERR_FILENO);
 	}
 	else
-		ft_putendl_fd("mariashell: syntax error near unexpected token"
+		ft_putendl_fd("minishell: syntax error near unexpected token"
 			" `newline'",
 			STDERR_FILENO);
 }

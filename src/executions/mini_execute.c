@@ -30,7 +30,7 @@ int	execute_external_cmd(t_mini *mini)
 		if (!exec_path)
 			free_args(mini->envp);
 		execve(exec_path, mini->cur_cmd->args, mini->envp);
-		perror("mariashell: execve");
+		perror("minishell: execve");
 		free_everything(mini);
 		free(exec_path);
 		exit(126);

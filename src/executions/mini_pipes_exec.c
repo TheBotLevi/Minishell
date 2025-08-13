@@ -22,7 +22,7 @@ void	try_run_cmd(t_mini *pipeline, char *exec_path, char **envp)
 	}
 	else
 	{
-		ft_putstr_fd("mariashell: ", STDERR_FILENO);
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
 		ft_putstr_fd(pipeline->cur_cmd->args[0], STDERR_FILENO);
 		ft_putendl_fd(": command not found", STDERR_FILENO);
 	}

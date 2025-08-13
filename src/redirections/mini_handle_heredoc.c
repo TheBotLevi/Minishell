@@ -16,7 +16,7 @@ static char	*expand_variables(t_mini *mini, t_redirect *redir, char *line);
 
 void	print_error_and_free_tokens(t_token *tokens)
 {
-	ft_putendl_fd("mariashell: memory allocation error during "
+	ft_putendl_fd("minishell: memory allocation error during "
 		"variable expansion", STDERR_FILENO);
 	free_tokens(tokens);
 	tokens = NULL;
@@ -68,7 +68,7 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 		if (!line || ft_strcmp(line, redir->filename) == 0)
 		{
 			if (!line)
-				ft_putendl_fd("mariashell: warning: here-document delimited "
+				ft_putendl_fd("minishell: warning: here-document delimited "
 					"by end-of-file", STDERR_FILENO);
 			else
 				free(line);

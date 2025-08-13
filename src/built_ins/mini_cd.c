@@ -55,7 +55,7 @@ static char	*get_cd_path(t_mini *mini)
 
 static int	handle_cd_errors(t_mini *mini, char *path)
 {
-	ft_putstr_fd("mariashell: cd: ", STDERR_FILENO);
+	ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
 	if (!path && !mini->cur_cmd->args[1])
 		ft_putendl_fd("HOME not set", STDERR_FILENO);
 	else
@@ -77,7 +77,7 @@ int	mini_cd(t_mini *mini)
 		argc++;
 	if (argc > 2)
 	{
-		ft_putendl_fd("mariashell: cd: too many arguments", STDERR_FILENO);
+		ft_putendl_fd("minishell: cd: too many arguments", STDERR_FILENO);
 		return (1);
 	}
 	if (getcwd(current_dir, BUFFER_SIZE) == NULL)

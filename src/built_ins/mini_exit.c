@@ -30,7 +30,7 @@ int	is_numeric(char *str)
 
 static void	handle_invalid_args(t_mini *mini)
 {
-	ft_putstr_fd("mariashell: exit ", STDERR_FILENO);
+	ft_putstr_fd("minishell: exit ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[1], STDERR_FILENO);
 	ft_putendl_fd(": numeric argument required", STDERR_FILENO);
 	free_everything(mini);
@@ -65,7 +65,7 @@ int	mini_exit(t_mini *mini)
 		handle_invalid_args(mini);
 	if (argc > 2)
 	{
-		ft_putendl_fd("mariashell: exit: too many arguments", STDERR_FILENO);
+		ft_putendl_fd("minishell: exit: too many arguments", STDERR_FILENO);
 		return (1);
 	}
 	exit_status = ft_atoi(mini->cur_cmd->args[1]) & 255;

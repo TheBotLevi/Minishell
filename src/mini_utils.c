@@ -52,7 +52,7 @@ char	*get_env_value(t_env *env, char *key)
 
 void	print_invalid_export_key_error(char *arg)
 {
-	ft_putstr_fd("mariashell: export: `", STDERR_FILENO);
+	ft_putstr_fd("minishell: export: `", STDERR_FILENO);
 	ft_putstr_fd(arg, STDERR_FILENO);
 	ft_putendl_fd("': not a valid identifier", STDERR_FILENO);
 }

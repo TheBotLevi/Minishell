@@ -77,7 +77,7 @@ int	handle_parent_process(pid_t pid, char **envp)
 
 void	handle_external_command_not_found(t_mini *mini)
 {
-	ft_putstr_fd("mariashell: ", STDERR_FILENO);
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": command not found", STDERR_FILENO);
 	free_everything(mini);
@@ -86,7 +86,7 @@ void	handle_external_command_not_found(t_mini *mini)
 
 void	handle_external_file_not_found(t_mini *mini)
 {
-	ft_putstr_fd("mariashell: ", STDERR_FILENO);
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": No such file or directory", STDERR_FILENO);
 	free_everything(mini);

@@ -20,19 +20,19 @@ int	handle_tokenize_result(t_mini *mini, t_parsing *parser, int token_error)
 	{
 		if (token_error == 2)
 		{
-			ft_putendl_fd("mariashell: memory allocation error during "
+			ft_putendl_fd("minishell: memory allocation error during "
 				"token creation", STDERR_FILENO);
 			mini->exit_status = 1;
 		}
 		if (token_error == 3)
 		{
-			ft_putendl_fd("mariashell: memory allocation error during "
+			ft_putendl_fd("minishell: memory allocation error during "
 				"variable expansion", STDERR_FILENO);
 			mini->exit_status = 1;
 		}
 		if (token_error == 4)
 		{
-			ft_putendl_fd("mariashell: syntax error near unexpected token"
+			ft_putendl_fd("minishell: syntax error near unexpected token"
 				" `|'", 2);
 			mini->exit_status = 2;
 		}
@@ -94,7 +94,7 @@ void	ft_mini_loop(t_mini *mini)
 	{
 		setup_signals();
 		g_exit = 0;
-		line = readline("mariashell > ");
+		line = readline("minishell > ");
 		if (line == NULL)
 		{
 			ft_putendl_fd("exit", STDOUT_FILENO);
@@ -115,7 +115,7 @@ int	main(int ac, char **av, char **envp)
 	(void)av;
 	if (ac != 1)
 	{
-		ft_putendl_fd("mariashell: too many arguments", STDERR_FILENO);
+		ft_putendl_fd("minishell: too many arguments", STDERR_FILENO);
 		return (1);
 	}
 	mini = mini_init(envp);
