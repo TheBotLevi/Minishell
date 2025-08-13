@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 08:13:26 by ljeribha          #+#    #+#             */
-/*   Updated: 2024/10/30 09:38:47 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/13 16:42:48 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,7 @@
 
 void	ft_putendl_fd(char *s, int fd)
 {
-	while (s[i])
-	{
-		write (fd, s, ft_strlen(s));
-		s++;
-	}
+	write (fd, s, ft_strlen(s));
 	write (fd, "\n", 1);
 }
 
