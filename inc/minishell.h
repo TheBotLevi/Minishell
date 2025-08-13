@@ -108,6 +108,7 @@ int								add_new_env_var(t_env **env, char *key,
 									char *value);
 void							print_array(char **ar);
 void							print_invalid_export_key_error(char *arg);
+int								handle_empty_filename(t_mini *mini);
 
 // built_in's
 int								mini_echo(char **args);
@@ -153,8 +154,7 @@ void							help_free_pipelines(t_mini *pipeline);
 // execute
 int								execute_external_cmd(t_mini *mini);
 int								process_command(t_mini *mini, char *line);
-char							*find_exec(char *cmd, char **paths,
-									t_mini *mini);
+char							*find_exec(char *cmd, t_mini *mini);
 void							handle_external_command_not_found(t_mini *mini);
 void							handle_external_file_not_found(t_mini *mini);
 int								handle_parent_process(pid_t pid, char **envp);
@@ -290,7 +290,7 @@ int								is_within_quote_token(const char c,
 void							cancel_unfinished_quote_token(t_token *token);
 int								mark_quote_flags(t_token *current);
 
-// mini_split //todo to be modified and cleaned up
+// mini_split
 char							**ft_split_on_ifs(t_token *tokens, t_token *end,
 									int ignore_redirections);
 
