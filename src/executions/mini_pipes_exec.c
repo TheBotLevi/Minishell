@@ -62,27 +62,17 @@ static int	wait_for_processes(t_mini *pipeline)
 {
 	int	i;
 	int	status;
-	int	last_status;
-	int	signal;
 
-	last_status = 0;
 	i = 0;
 	while (i < pipeline->cmd_count)
 	{
 		waitpid(pipeline->pids[i], &status, 0);
-		if (WIFSIGNALED(status))
-		{
-			signal = WTERMSIG(status);
-			if (signal == SIGPIPE)
-				ft_putendl_fd("minishell: Broken pipe", STDERR_FILENO);
-			last_status = 128 + signal;
-		}
-		else if (WIFEXITED(status))
-			last_status = WEXITSTATUS(status);
+		if (WIFEXITED(status))
+			status = WEXITSTATUS(status);
 		i++;
 	}
 	free_pipeline_pids(pipeline);
-	return (last_status);
+	return (status);
 }
 
 int	create_and_fork_process(t_mini *pipeline)

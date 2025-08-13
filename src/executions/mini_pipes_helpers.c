@@ -29,7 +29,6 @@ void	close_all_pipes(t_mini *pipeline)
 
 void	setup_pipe_fds(t_mini *pipeline, int cmd_index)
 {
-	// todo null check for pipeline pointer called from execute_single_cmd?
 	if (cmd_index > 0)
 		dup2(pipeline->pipes[cmd_index - 1][0], STDIN_FILENO);
 	if (cmd_index < pipeline->cmd_count - 1)

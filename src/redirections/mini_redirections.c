@@ -90,6 +90,27 @@ static int	handle_append_redirection(t_mini *mini)
 	return (0);
 }
 
+static int	handle_heredoc_fd(t_mini *mini, t_redirect* redir)
+{
+	mini->fd = redir->fd;
+	if (mini->fd < 0)
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(mini->filename, STDERR_FILENO);
+		ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+		return (-1);
+	}
+	if (dup2(mini->fd, STDIN_FILENO) < 0)
+	{
+		close(mini->fd);
+		perror("minishell: dup2");
+		return (-1);
+	}
+	close(mini->fd);
+	return (0);
+}
+
+
 int	execute_redirections(t_mini *mini)
 {
 	int			error;
@@ -109,10 +130,7 @@ int	execute_redirections(t_mini *mini)
 		else if (redir->type == REDIR_APPEND)
 			error = handle_append_redirection(mini);
 		else if (redir->type == REDIR_HEREDOC){
-			//error = handle_heredoc_redirection(mini, redir);
-			if (dup2(redir->fd, STDIN_FILENO) < 0)
-				perror("dup2");
-			close(redir->fd);
+			error = handle_heredoc_fd(mini, redir);
 		}
 		if (error)
 			return (1);
