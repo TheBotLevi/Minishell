@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:25:21 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/08/09 15:44:28 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/13 16:00:30 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,7 +100,7 @@ int								handle_tokenize_result(t_mini *mini,
 
 // utils
 int								ft_strcmp(char *s1, char *s2);
-int	handle_empty_filename(t_mini *mini);
+void							clear_readline_history(void);
 char							*get_env_value(t_env *env, char *key);
 char							**parse_input(char *line);
 int								is_valid_export(char *str);
@@ -153,8 +153,8 @@ void							help_free_pipelines(t_mini *pipeline);
 // execute
 int								execute_external_cmd(t_mini *mini);
 int								process_command(t_mini *mini, char *line);
-char							*find_exec(char *cmd,
-							               t_mini *mini);
+char							*find_exec(char *cmd, char **paths,
+									t_mini *mini);
 void							handle_external_command_not_found(t_mini *mini);
 void							handle_external_file_not_found(t_mini *mini);
 int								handle_parent_process(pid_t pid, char **envp);
@@ -226,15 +226,15 @@ typedef struct s_token
 
 typedef struct s_parsing
 {
-	char *ifs; // no need to free (either stack alloc or malloc in env)
-	int							exit_status;
-	t_env						*env_struct;
-	int							n_cmds;
-	t_token						*tokens_head;
-	t_token						*current_tok_start;
-	t_token						*current_tok_end;
-	t_command					*cmd_head;
-	t_command					*current_cmd;
+	char		*ifs; // no need to free (either stack alloc or malloc in env)
+	int			exit_status;
+	t_env		*env_struct;
+	int			n_cmds;
+	t_token		*tokens_head;
+	t_token		*current_tok_start;
+	t_token		*current_tok_end;
+	t_command	*cmd_head;
+	t_command	*current_cmd;
 }								t_parsing;
 
 typedef struct s_quote_state
@@ -335,9 +335,9 @@ void							free_n_array(char **ar, size_t i);
 void							free_redirections(t_redirect *redir);
 
 // mini_print
-void							print_unexpected_token_error(const t_token *token);
+void							print_unexpected_token_error(
+									const t_token *token);
 void							print_tokens(t_token *tokens);
 void							print_commands(t_command *cmds);
-int								set_environment(t_mini *mini);
 
 #endif
