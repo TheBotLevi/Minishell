@@ -14,47 +14,6 @@
 
 static char	*expand_variables(t_mini *mini, t_redirect *redir, char *line);
 
-/*
-int prepare_heredocs(t_mini *mini)
-{
-	t_heredoc *hd;
-	int pipefd[2];
-	char *line;
-
-	hd = mini->heredocs;
-	while (hd)
-	{
-		if (pipe(pipefd) < 0)
-			return (perror("pipe"), -1);
-		while (1)
-		{
-			line = readline("> ");
-			if (g_heredoc_sig)
-				break;
-			if (!line || ft_strcmp(line, hd->delimiter) == 0)
-			{
-				if (!line){
-					ft_putendl_fd("mariashell: warning: here-document "
-				   "delimited by end-of-file", STDERR_FILENO);
-				}
-				free(line);
-				break;
-			}
-			if (!hd->quoted)
-				line = expand_variables(mini, hd->redir, line);
-			ft_putendl_fd(line, pipefd[1]);
-			free(line); //todo add signal ctrl c
-		}
-		close(pipefd[1]);
-		hd->redir->fd = pipefd[0];
-		if (g_heredoc_sig)
-			break;
-		hd = hd->next;
-	}
-	printf("heredoc readin done\n");
-	return (0);
-}*/
-
 void	print_error_and_free_tokens(t_token *tokens)
 {
 	ft_putendl_fd("mariashell: memory allocation error during "
@@ -125,55 +84,6 @@ static int	handle_heredoc_delimiter(t_mini *mini, int pipefd[2],
 	exit(0);
 }
 
-
-/*
-int	handle_heredoc_redirection(t_mini *mini, t_redirect *redir)
-{
-	int		pipefd[2];
-	pid_t	pid;
-	int		saved_g_exit;
-
-	saved_g_exit = g_exit;
-	g_exit = 0;
-	mini->exit_status = 0;
-	if (pipe(pipefd) < 0)
-	{
-		perror("minishell: pipe");
-		return (-1);
-	}
-	pid = fork();
-	if (pid == 0)
-		handle_heredoc_delimiter(mini, pipefd, redir);
-	else if (pid < 0)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-		perror("minishell: fork");
-		g_exit = saved_g_exit;
-		return (-1);
-	}
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
-	close(pipefd[1]);
-	waitpid(pid, &mini->exit_status, 0);
-	restore_main_signals();
-	if (WIFEXITED(mini->exit_status) && WEXITSTATUS(mini->exit_status) == 130)
-	{
-		close(pipefd[0]);
-		g_exit = 130;
-		return (-1);
-	}
-	g_exit = saved_g_exit;
-	if (dup2(hd->redir->fd, STDIN_FILENO) < 0)
-	{
-		close(pipefd[0]);
-		perror("minishell: dup2");
-		return (-1);
-	}
-	close(pipefd[0]);
-	return (0);
-}*/
-
 int prepare_heredocs(t_mini *mini)
 {
 	t_command   *cmd;
@@ -202,7 +112,6 @@ int prepare_heredocs(t_mini *mini)
 					close(pipefd[0]);
 					redir->fd = -1;
 					g_exit = 130;
-					free_everything(mini);
 					return (130);
 				}
 				redir->fd = pipefd[0];

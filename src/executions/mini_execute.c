@@ -51,15 +51,15 @@ int	execute_external_cmd(t_mini *mini)
 
 int	process_command(t_mini *mini, char* line)
 {
-	int heredoc_error;
-
 	mini->cmds = parse_line_to_commands(line, mini);
 	if (!mini->cmds)
 		return (0);
 	mini->cur_cmd = mini->cmds;
-	heredoc_error = prepare_heredocs(mini);
-	if (heredoc_error)
-		return (heredoc_error);
+	if (prepare_heredocs(mini) != 0) {
+		g_exit = 130;
+		mini->exit_status = g_exit;
+		return (mini->exit_status);
+	}
 	if (mini->cmd_count > 1)
 		mini->exit_status = execute_pipeline(mini);
 	else if (mini->cur_cmd->args && mini->cur_cmd->args[0]){

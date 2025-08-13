@@ -12,6 +12,7 @@
 
 #include "../../inc/minishell.h"
 
+
 void	handle_heredoc_sigint(int sig)
 {
 	(void)sig;
