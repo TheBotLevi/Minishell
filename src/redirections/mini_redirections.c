@@ -98,7 +98,7 @@ static int	handle_heredoc_fd(t_mini *mini, t_redirect *redir)
 	return (0);
 }
 
-int	execute_redirections(t_mini *mini)
+int	execute_redirections(t_mini *mini, int in_parent)
 {
 	int			error;
 	t_redirect	*redir;
@@ -118,11 +118,8 @@ int	execute_redirections(t_mini *mini)
 			error = handle_append_redirection(mini);
 		else if (redir->type == REDIR_HEREDOC)
 			error = handle_heredoc_fd(mini, redir);
-		if (error)
-		{
-			free_everything(mini);
+		if (handle_redir_error(mini, error, in_parent))
 			return (1);
-		}
 		redir = redir->next;
 	}
 	return (0);

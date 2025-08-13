@@ -40,11 +40,8 @@ static void	execute_single_cmd(t_mini *pipeline, int cmd_index)
 	setup_child_signals();
 	setup_pipe_fds(pipeline, cmd_index);
 	close_all_pipes(pipeline);
-	if (execute_redirections(pipeline) != 0)
-	{
-		free_everything(pipeline);
+	if (execute_redirections(pipeline, 0) != 0)
 		exit(1);
-	}
 	if (is_builtin(pipeline->cur_cmd->args[0]))
 		exit(handle_builtin(pipeline, 0));
 	pipeline->envp = env_list_to_array(pipeline->cur_cmd->env_struct);

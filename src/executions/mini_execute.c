@@ -21,7 +21,7 @@ int	execute_external_cmd(t_mini *mini)
 	if (pid == 0)
 	{
 		setup_child_signals();
-		if (execute_redirections(mini) != 0)
+		if (execute_redirections(mini, 0) != 0)
 			exit(1);
 		if (set_environment(mini))
 			exit(1);

@@ -41,7 +41,7 @@ int	execute_builtin_in_parent(t_mini *mini)
 	{
 		if (backup_fds(mini) == -1)
 			return (1);
-		if (execute_redirections(mini) != 0)
+		if (execute_redirections(mini, 1) != 0)
 		{
 			restore_fds(mini);
 			return (1);

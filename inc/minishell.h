@@ -160,6 +160,8 @@ void							handle_external_file_not_found(t_mini *mini);
 int								handle_parent_process(pid_t pid, char **envp);
 int								execute_builtin_in_parent(t_mini *mini);
 void							restore_fds(t_mini *mini);
+int								handle_redir_error(t_mini *mini, int error,
+									int in_parent);
 
 // signals
 void							setup_signals(void);
@@ -190,7 +192,8 @@ void							free_pipeline_pids(t_mini *pipeline);
 int								backup_fds(t_mini *mini);
 
 // redirections
-int								execute_redirections(t_mini *mini);
+int								execute_redirections(t_mini *mini,
+									int in_parent);
 int								handle_heredoc_redirection(t_mini *mini,
 									t_redirect *redir);
 void							check_exit(t_mini *mini, char *line,
