@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/13 14:29:23 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/08/09 15:16:18 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/13 16:16:37 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ static int	handle_line(t_mini *mini, char *line)
 	if (status == 130 || g_exit == 130)
 	{
 		free(line);
-		return(130);
+		return (130);
 	}
 	if (ft_strcmp(line, "exit") == 0)
 	{
@@ -113,12 +113,6 @@ int	main(int ac, char **av, char **envp)
 	t_mini	*mini;
 
 	(void)av;
-	/*
-	if (!isatty(STDIN_FILENO)) {
-		ft_putendl_fd("Warning: Non-interactive mode detected (input is not
-		a terminal).", STDERR_FILENO);
-		return (0);
-	}*/
 	if (ac != 1)
 	{
 		ft_putendl_fd("mariashell: too many arguments", STDERR_FILENO);
@@ -129,9 +123,7 @@ int	main(int ac, char **av, char **envp)
 		return (1);
 	setup_signals();
 	ft_mini_loop(mini);
-	clear_readline_history(); //	rl_clear_history();
-	//	free_env_list(mini->env_struct);
-	//	clear_history();
+	rl_clear_history();
 	free_everything(mini);
 	return (0);
 }
