@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 09:02:31 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/08/09 17:46:26 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/13 17:52:31 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int	execute_external_cmd(t_mini *mini)
 		if (set_environment(mini))
 			exit(1);
 		exec_path = find_exec(mini->cur_cmd->args[0], mini);
+		printf("%s", exec_path);
 		if (!exec_path)
 			free_args(mini->envp);
 		execve(exec_path, mini->cur_cmd->args, mini->envp);
@@ -124,10 +125,7 @@ char	*find_exec(char *cmd, t_mini *mini)
 
 	paths = get_paths_from_list(mini->env_struct);
 	if (!paths)
-	{
 		free_args(paths);
-		return (NULL);
-	}
 	if (ft_strchr(cmd, '/'))
 	{
 		exec_check = can_execute(cmd);

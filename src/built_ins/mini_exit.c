@@ -6,7 +6,7 @@
 /*   By: ljeribha <ljeribha@student.42luxembourg    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 15:23:04 by ljeribha          #+#    #+#             */
-/*   Updated: 2025/08/09 17:28:54 by ljeribha         ###   ########.fr       */
+/*   Updated: 2025/08/13 17:26:19 by ljeribha         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,9 @@ int	mini_exit(t_mini *mini)
 	ft_putendl_fd("exit", STDOUT_FILENO);
 	if (argc == 1)
 	{
+		exit_status = mini->exit_status;
 		free_everything(mini);
-		exit(mini->exit_status);
+		exit(exit_status);
 	}
 	if (!is_numeric(mini->cur_cmd->args[1]))
 		handle_invalid_args(mini);
