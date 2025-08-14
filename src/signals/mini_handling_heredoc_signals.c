@@ -17,7 +17,6 @@ void	handle_heredoc_sigint(int sig)
 	(void)sig;
 	g_exit = 130;
 	write(STDOUT_FILENO, "\n", 1);
-	rl_done = 1;
 	close(STDIN_FILENO);
 }
 

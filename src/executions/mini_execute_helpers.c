@@ -81,7 +81,6 @@ void	handle_external_command_not_found(t_mini *mini)
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": command not found", STDERR_FILENO);
 	free_everything(mini);
-	exit(127);
 }
 
 void	handle_external_file_not_found(t_mini *mini)
@@ -90,5 +89,4 @@ void	handle_external_file_not_found(t_mini *mini)
 	ft_putstr_fd(mini->cur_cmd->args[0], STDERR_FILENO);
 	ft_putendl_fd(": No such file or directory", STDERR_FILENO);
 	free_everything(mini);
-	exit(127);
 }

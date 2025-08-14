@@ -87,6 +87,8 @@ void	print_commands(t_command *cmds)
 
 int	set_environment(t_mini *mini)
 {
+	if (mini->envp)
+		free_args(mini->envp);
 	mini->envp = env_list_to_array(mini->env_struct);
 	if (!mini->envp)
 	{

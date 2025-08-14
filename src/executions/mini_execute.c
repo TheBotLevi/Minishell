@@ -26,9 +26,6 @@ int	execute_external_cmd(t_mini *mini)
 		if (set_environment(mini))
 			exit(1);
 		exec_path = find_exec(mini->cur_cmd->args[0], mini);
-		printf("%s", exec_path);
-		if (!exec_path)
-			free_args(mini->envp);
 		execve(exec_path, mini->cur_cmd->args, mini->envp);
 		perror("minishell: execve");
 		free_everything(mini);
@@ -101,7 +98,10 @@ static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 	int		i;
 
 	if (!paths)
-		return (NULL);
+	{
+		handle_external_command_not_found(mini);
+		exit(127);
+	}
 	i = 0;
 	while (paths[i])
 	{
@@ -115,7 +115,7 @@ static char	*create_full_path(char *cmd, char **paths, t_mini *mini)
 	}
 	free_args(paths);
 	handle_external_command_not_found(mini);
-	return (NULL);
+	exit(127);
 }
 
 char	*find_exec(char *cmd, t_mini *mini)
@@ -139,7 +139,7 @@ char	*find_exec(char *cmd, t_mini *mini)
 		}
 		free_args(paths);
 		handle_external_file_not_found(mini);
-		return (NULL);
+		exit(127);
 	}
 	return (create_full_path(cmd, paths, mini));
 }
